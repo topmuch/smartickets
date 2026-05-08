@@ -243,6 +243,17 @@ function Sidebar({
               );
             })}
           </ul>
+
+          {/* Logout Button - Below Fonctionnalités */}
+          <div className="mt-6 pt-4 border-t border-white/10">
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black text-white hover:bg-red-600 transition-all duration-200 w-full"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="font-medium text-sm">Déconnexion</span>
+            </button>
+          </div>
         </nav>
 
         {/* User Section */}
@@ -258,13 +269,6 @@ function Sidebar({
               <p className="text-xs text-white/60">{roleLabel}</p>
             </div>
           </div>
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-3 px-4 py-3 mt-2 rounded-xl bg-black text-white hover:bg-black/80 transition-all duration-200 w-full"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium text-sm">Déconnexion</span>
-          </button>
         </div>
       </aside>
     </>

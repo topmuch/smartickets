@@ -59,6 +59,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userId, content, date } = body;
 
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'userId requis' },
+        { status: 400 }
+      );
+    }
+
     const reportDate = date ? new Date(date) : new Date();
     const startOfDay = new Date(reportDate);
     startOfDay.setHours(0, 0, 0, 0);
@@ -66,7 +73,7 @@ export async function POST(request: NextRequest) {
     // Check if report exists for this user and date
     const existingReport = await db.dailyReport.findFirst({
       where: {
-        userId: userId || 'system',
+        userId,
         date: {
           gte: startOfDay,
           lt: new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
@@ -86,7 +93,7 @@ export async function POST(request: NextRequest) {
       // Create new report
       report = await db.dailyReport.create({
         data: {
-          userId: userId || 'system',
+          userId,
           content,
           date: reportDate
         }

@@ -47,6 +47,7 @@ local-*
 .z-ai-config
 dev.log
 test
+!src/app/api/admin/email-settings/test/
 prompt
 
 server.log

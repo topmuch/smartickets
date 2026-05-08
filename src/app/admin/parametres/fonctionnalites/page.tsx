@@ -429,73 +429,83 @@ export default function FonctionnalitesPage() {
         }
       `}>
         <CardContent className="p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className={`
-                w-12 h-12 rounded-2xl flex items-center justify-center shrink-0
-                ${feature.enabled
-                  ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                  : 'bg-slate-100 dark:bg-slate-700'
-                }
-              `}>
-                <IconComponent 
-                  className={`w-6 h-6 ${feature.enabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} 
-                  aria-hidden="true"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="text-slate-800 dark:text-white font-semibold text-lg">
-                    {feature.label}
-                  </h3>
-                  {feature.enabled ? (
-                    <span className="flex items-center gap-1 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full">
-                      <CheckCircle className="w-3 h-3" aria-hidden="true" />
-                      Activé
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 text-xs bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full">
-                      <AlertCircle className="w-3 h-3" aria-hidden="true" />
-                      Désactivé
-                    </span>
-                  )}
-                  {showConfigWarning && (
-                    <button
-                      onClick={() => openConfigModal(feature.key)}
-                      className="flex items-center gap-1 text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors cursor-pointer"
-                    >
-                      <AlertTriangle className="w-3 h-3" aria-hidden="true" />
-                      Configurer
-                    </button>
-                  )}
-                  {feature.enabled && needsConfig && status?.configured && (
-                    <span className="flex items-center gap-1 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full">
-                      <CheckCircle className="w-3 h-3" aria-hidden="true" />
-                      Configuré
-                    </span>
-                  )}
-                </div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                  {feature.description}
-                </p>
-                <p className="text-slate-400 dark:text-slate-500 text-xs mt-2">
-                  Dernière modification: {new Date(feature.updatedAt).toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </p>
+          {/* Top row: Icon + Label + Toggle */}
+          <div className="flex items-center gap-3">
+            <div className={`
+              w-10 h-10 rounded-xl flex items-center justify-center shrink-0
+              ${feature.enabled
+                ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                : 'bg-slate-100 dark:bg-slate-700'
+              }
+            `}>
+              <IconComponent 
+                className={`w-5 h-5 ${feature.enabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} 
+                aria-hidden="true"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-slate-800 dark:text-white font-semibold text-sm truncate">
+                {feature.label}
+              </h3>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                {feature.enabled ? (
+                  <span className="flex items-center gap-1 text-[11px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded-full">
+                    <CheckCircle className="w-2.5 h-2.5" />
+                    Activé
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-[11px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded-full">
+                    <AlertCircle className="w-2.5 h-2.5" />
+                    Désactivé
+                  </span>
+                )}
+                {showConfigWarning && (
+                  <button
+                    onClick={() => openConfigModal(feature.key)}
+                    className="flex items-center gap-1 text-[11px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded-full hover:bg-amber-200 cursor-pointer"
+                  >
+                    <AlertTriangle className="w-2.5 h-2.5" />
+                    Configurer
+                  </button>
+                )}
+                {feature.enabled && needsConfig && status?.configured && (
+                  <span className="flex items-center gap-1 text-[11px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded-full">
+                    <CheckCircle className="w-2.5 h-2.5" />
+                    Configuré
+                  </span>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            {isUpdating ? (
+              <RefreshCw className="w-5 h-5 text-emerald-500 animate-spin shrink-0" />
+            ) : (
+              <ToggleSwitch
+                enabled={feature.enabled}
+                onChange={() => toggleFeature(feature.key, feature.enabled)}
+                disabled={isUpdating}
+              />
+            )}
+          </div>
+
+          {/* Description */}
+          <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed mt-3">
+            {feature.description}
+          </p>
+
+          {/* Bottom row: Date + Actions */}
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
+            <span className="text-[11px] text-slate-400 dark:text-slate-500">
+              {new Date(feature.updatedAt).toLocaleDateString('fr-FR', {
+                day: 'numeric', month: 'short', year: 'numeric'
+              })}
+            </span>
+            <div className="flex items-center gap-2">
               {feature.enabled && needsConfig && (
                 <Button
                   onClick={() => openConfigModal(feature.key)}
                   variant="outline"
                   size="sm"
-                  className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg h-8 px-3"
+                  className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg h-7 px-2.5 text-xs"
                 >
                   <Settings className="w-3 h-3 mr-1" />
                   Config
@@ -507,7 +517,7 @@ export default function FonctionnalitesPage() {
                   disabled={isTesting}
                   variant="outline"
                   size="sm"
-                  className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg h-8 px-3"
+                  className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg h-7 px-2.5 text-xs"
                 >
                   {isTesting ? (
                     <RefreshCw className="w-3 h-3 animate-spin mr-1" />
@@ -517,14 +527,6 @@ export default function FonctionnalitesPage() {
                   Tester
                 </Button>
               )}
-              {isUpdating && (
-                <RefreshCw className="w-4 h-4 text-[#ff7f00] animate-spin" aria-hidden="true" />
-              )}
-              <ToggleSwitch
-                enabled={feature.enabled}
-                onChange={() => toggleFeature(feature.key, feature.enabled)}
-                disabled={isUpdating}
-              />
             </div>
           </div>
         </CardContent>

@@ -33,8 +33,8 @@ import {
   Clock,
   FileText,
   PhoneCall,
-  Video,
-  MessageCircle
+  MessageCircle,
+  RefreshCw
 } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { PERMISSIONS } from '@/lib/permissions';
@@ -118,13 +118,14 @@ export default function LeadDetailPage() {
   // Daily report
   const [dailyReport, setDailyReport] = useState<DailyReport | null>(null);
   const [dailyReportContent, setDailyReportContent] = useState('');
+  const [savingReport, setSavingReport] = useState(false);
   
   const canManage = can(PERMISSIONS.MANAGE_CRM);
   
   useEffect(() => {
     fetchLead();
-    fetchDailyReport();
-  }, [leadId]);
+    if (user?.id) fetchDailyReport();
+  }, [leadId, user?.id]);
   
   const fetchLead = async () => {
     setLoading(true);
@@ -140,9 +141,10 @@ export default function LeadDetailPage() {
   };
   
   const fetchDailyReport = async () => {
+    if (!user?.id) return;
     try {
       const today = new Date().toISOString().split('T')[0];
-      const res = await fetch(`/api/admin/crm/daily-reports?date=${today}`);
+      const res = await fetch(`/api/admin/crm/daily-reports?date=${today}&userId=${user.id}`);
       const data = await res.json();
       if (data.report) {
         setDailyReport(data.report);
@@ -170,13 +172,13 @@ export default function LeadDetailPage() {
   };
   
   const handleAddObservation = async () => {
-    if (!observationForm.content.trim()) return;
+    if (!observationForm.content.trim() || !user?.id) return;
     
     try {
       const response = await fetch(`/api/admin/crm/leads/${leadId}/observations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(observationForm),
+        body: JSON.stringify({ ...observationForm, userId: user.id }),
       });
       
       if (response.ok) {
@@ -190,11 +192,13 @@ export default function LeadDetailPage() {
   };
   
   const handleSaveDailyReport = async () => {
+    if (!dailyReportContent.trim() || !user?.id) return;
+    setSavingReport(true);
     try {
       const response = await fetch('/api/admin/crm/daily-reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: dailyReportContent }),
+        body: JSON.stringify({ content: dailyReportContent, userId: user.id }),
       });
       
       if (response.ok) {
@@ -202,6 +206,8 @@ export default function LeadDetailPage() {
       }
     } catch (error) {
       console.error('Error saving daily report:', error);
+    } finally {
+      setSavingReport(false);
     }
   };
   
@@ -436,10 +442,15 @@ export default function LeadDetailPage() {
             )}
             <Button
               onClick={handleSaveDailyReport}
-              className="bg-amber-500 hover:bg-amber-600 text-white ml-auto"
+              disabled={savingReport || !dailyReportContent.trim()}
+              className="bg-amber-500 hover:bg-amber-600 text-white ml-auto disabled:opacity-50"
             >
-              <Save className="w-4 h-4 mr-2" />
-              Sauvegarder le rapport
+              {savingReport ? (
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {savingReport ? 'Enregistrement...' : 'Sauvegarder le rapport'}
             </Button>
           </div>
         </CardContent>

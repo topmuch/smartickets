@@ -23,6 +23,13 @@ export async function POST(
       );
     }
 
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'userId requis' },
+        { status: 400 }
+      );
+    }
+
     // Create observation
     const observation = await prisma.observation.create({
       data: {
@@ -30,7 +37,7 @@ export async function POST(
         type,
         content,
         date: date ? new Date(date) : new Date(),
-        userId: userId || 'system', // Use system if no user provided
+        userId,
       },
       include: {
         user: {
