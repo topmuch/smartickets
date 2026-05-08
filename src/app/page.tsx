@@ -30,6 +30,7 @@ import {
   Globe,
   Heart,
   CheckCircle,
+  ChevronRight,
 } from "lucide-react";
 
 /* ──────────────────────────────────────────────
@@ -71,8 +72,8 @@ function Navigation() {
   }, []);
 
   const navLinks = [
-    { label: 'Solutions', href: '/#pourquoi' },
-    { label: 'Comment ca marche', href: '/#comment' },
+    { label: 'Solutions', href: '/#solutions' },
+    { label: 'Comment ça marche', href: '/#comment' },
     { label: 'Tarifs', href: '/#tarifs' },
     { label: 'Contact', href: '/contact' },
   ];
@@ -100,7 +101,7 @@ function Navigation() {
             <Link href="/demo">
               <Button variant="ghost" className="text-white/70 hover:text-white text-sm font-medium gap-1.5 hover:bg-white/10">
                 <Play className="w-3.5 h-3.5" />
-                Demo
+                Démo
               </Button>
             </Link>
             <Link href="/agence/connexion">
@@ -140,7 +141,7 @@ function Navigation() {
               <hr className="border-white/10" />
               <Link href="/demo" onClick={() => setIsOpen(false)}>
                 <Button variant="ghost" className="w-full text-white/70 justify-start gap-2 hover:bg-white/5">
-                  <Play className="w-4 h-4" /> Voir la Demo
+                  <Play className="w-4 h-4" /> Voir la démo
                 </Button>
               </Link>
               <Link href="/agence/connexion" onClick={() => setIsOpen(false)}>
@@ -165,11 +166,11 @@ function Navigation() {
 function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image with Parallax */}
+      {/* Background Image */}
       <div className="absolute inset-0">
         <Image
           src="/images/hero-bg.png"
-          alt="Voyageur avec bagages"
+          alt="Voyageurs avec bagages à l'aéroport"
           fill
           className="object-cover scale-105"
           priority
@@ -218,14 +219,14 @@ function HeroSection() {
             Un bagage perdu n&apos;est pas{' '}
             <br className="hidden sm:block" />
             <span className="bg-gradient-to-r from-[#D4AF37] to-[#FF6B35] bg-clip-text text-transparent">
-              une fatalite.
+              une fatalité.
             </span>
           </h1>
         </FadeIn>
 
         <FadeIn delay={0.3}>
           <p className="text-lg sm:text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mt-6 leading-relaxed font-light">
-            QRBag transforme la perte en opportunite &mdash; grace a la technologie, la confiance, et le respect.
+            QRBag transforme la perte en opportunité — grâce à la technologie, la confiance, et le respect.
           </p>
         </FadeIn>
 
@@ -234,7 +235,7 @@ function HeroSection() {
             <Link href="/demo">
               <Button className="bg-[#D4AF37] hover:bg-[#c4a030] text-slate-900 px-8 py-4 rounded-full font-semibold text-base shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/40 hover:scale-[1.02] transition-all duration-300 gap-2.5">
                 <Play className="w-4 h-4" />
-                Decouvrir la demo immersive
+                Découvrir la démo immersive
               </Button>
             </Link>
             <Link href="/contact">
@@ -244,7 +245,7 @@ function HeroSection() {
                   animate={{ opacity: [0, 0.3, 0] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
-                <span className="relative">Commander des maintenant</span>
+                <span className="relative">Commander dès maintenant</span>
                 <ArrowRight className="w-4 h-4 relative" />
               </Button>
             </Link>
@@ -256,8 +257,8 @@ function HeroSection() {
             {[
               { icon: Smartphone, text: 'Sans application' },
               { icon: Zap, text: 'Sans batterie' },
-              { icon: MapPin, text: 'Geolocalise en temps reel' },
-              { icon: Lock, text: 'Securise RGPD' },
+              { icon: MapPin, text: 'Géolocalisé en temps réel' },
+              { icon: Lock, text: 'Sécurisé RGPD' },
             ].map((item, idx) => (
               <motion.div
                 key={item.text}
@@ -287,23 +288,23 @@ function WhyQRBagSection() {
   const cards = [
     {
       icon: Globe,
-      title: 'Ancre en Afrique, pense pour le monde',
-      description: 'Ne a Dakar, deploye dans 15 pays. QRBag comprend les realites du voyage africain et international avec une solution adaptee a chaque contexte.',
+      title: 'Ancré en Afrique, pensé pour le monde',
+      description: 'Né à Dakar, déployé dans 15 pays. QRBag comprend les réalités du voyage africain et international avec une solution adaptée à chaque contexte.',
     },
     {
       icon: Shield,
-      title: 'Securite certifiee RGPD',
-      description: 'Zero donnee sensible stockee publiquement. Vos informations personnelles sont chiffrees et protegees selon les normes europeennes les plus strictes.',
+      title: 'Sécurité certifiée RGPD',
+      description: 'Zéro donnée sensible stockée publiquement. Vos informations personnelles sont chiffrées et protégées selon les normes européennes les plus strictes.',
     },
     {
       icon: Heart,
-      title: 'Pour les pelerins, les voyageurs, les agences',
-      description: 'Hajj, Omra, tourisme, affaires &mdash; une seule solution qui s\'adapte a chaque voyageur. Plus de 10 000 bagages deja proteges a travers le monde.',
+      title: 'Pour les pèlerins, les voyageurs, les agences',
+      description: 'Hajj, Omra, tourisme, affaires — une seule solution qui s\'adapte à chaque voyageur. Plus de 10 000 bagages déjà protégés à travers le monde.',
     },
   ];
 
   return (
-    <section id="pourquoi" className="relative py-24 lg:py-32 px-4 bg-[#0f0c29]">
+    <section className="relative py-24 lg:py-32 px-4 bg-[#0f0c29]">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.03]">
         <div className="absolute inset-0" style={{
@@ -315,10 +316,10 @@ function WhyQRBagSection() {
         <FadeIn className="text-center mb-16">
           <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#D4AF37] mb-4 block">Pourquoi QRBag</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 tracking-tight leading-tight">
-            La confiance, au-dela<br className="hidden sm:block" /> des frontieres
+            La confiance, au-delà<br className="hidden sm:block" /> des frontières
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Une technologie conque avec soin pour servir les voyageurs les plus exigeants.
+            Une technologie conçue avec soin pour servir les voyageurs les plus exigeants.
           </p>
         </FadeIn>
 
@@ -353,14 +354,98 @@ function WhyQRBagSection() {
 }
 
 /* ══════════════════════════════════════════════
-   COMMENT CA MARCHE
+   SOLUTIONS
+   ══════════════════════════════════════════════ */
+function SolutionsSection() {
+  const solutions = [
+    {
+      title: 'Hajj & Omra',
+      description: 'Protection complète pour les pèlerins avec 3 bagages inclus (cabine + 2 soutes). Gérée par votre agence de voyage partenaire.',
+      icon: (
+        <svg viewBox="0 0 48 48" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 4L6 12v12c0 10 8 18 18 22 10-4 18-12 18-22V12L24 4z" />
+          <rect x="20" y="18" width="8" height="12" rx="1" />
+          <path d="M22 18v-3a2 2 0 014 0v3" />
+          <path d="M20 26h8" />
+        </svg>
+      ),
+      href: '/hajj-omra',
+    },
+    {
+      title: 'Voyageurs Standard',
+      description: 'Protection flexible pour tous vos voyages. Choisissez 1 ou 3 bagages avec une durée adaptée à vos besoins.',
+      icon: <Plane className="w-8 h-8" />,
+      href: '/voyageurs-standard',
+    },
+    {
+      title: '100% Sécurisé',
+      description: 'Vos données personnelles sont protégées et cryptées. Aucune information sensible n\'est exposée publiquement.',
+      icon: <Lock className="w-8 h-8" />,
+      href: '/confidentialite',
+    },
+  ];
+
+  return (
+    <section id="solutions" className="relative py-24 lg:py-32 px-4 bg-[#0a0820]">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0f0c29] via-transparent to-[#0f0c29]" />
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        <FadeIn className="text-center mb-16">
+          <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-4 block">Solutions</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 tracking-tight">
+            Deux solutions, une protection
+          </h2>
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            Que vous soyez pèlerin ou voyageur, QRBag s&apos;adapte à vos besoins avec des solutions sur mesure.
+          </p>
+        </FadeIn>
+
+        <div className="grid md:grid-cols-3 gap-5 lg:gap-6">
+          {solutions.map((sol, i) => (
+            <FadeIn key={sol.title} delay={i * 0.12}>
+              <div className="group h-full bg-black/30 border border-[#D4AF37]/20 rounded-2xl p-7 lg:p-8 backdrop-blur-sm hover:border-[#D4AF37]/50 hover:bg-black/40 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-900/10 flex flex-col">
+                {/* Gold corner accent */}
+                <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden rounded-tr-2xl">
+                  <div className="absolute top-0 right-0 w-[1px] h-8 bg-gradient-to-b from-[#FF6B35]/40 to-transparent" />
+                  <div className="absolute top-0 right-0 h-[1px] w-8 bg-gradient-to-l from-[#FF6B35]/40 to-transparent" />
+                </div>
+
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF6B35]/10 to-[#D4AF37]/10 border border-[#FF6B35]/20 flex items-center justify-center mb-6 text-[#FF6B35] group-hover:from-[#FF6B35]/20 group-hover:to-[#D4AF37]/20 transition-all duration-500">
+                  {sol.icon}
+                </div>
+
+                <h3 className="text-lg lg:text-xl font-bold text-white mb-3 leading-snug">
+                  {sol.title}
+                </h3>
+
+                <p className="text-sm text-slate-400 leading-relaxed flex-1">
+                  {sol.description}
+                </p>
+
+                <Link href={sol.href} className="mt-6">
+                  <Button variant="ghost" className="text-[#D4AF37] hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 font-medium text-sm rounded-full border border-[#D4AF37]/20 hover:border-[#D4AF37]/40 transition-all gap-2 w-full group/btn">
+                    En savoir plus
+                    <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   COMMENT ÇA MARCHE
    ══════════════════════════════════════════════ */
 function HowItWorksSection() {
   const steps = [
     {
       number: '01',
       title: 'Recevez votre QR',
-      description: 'Commandez vos QR codes via notre formulaire B2B ou aupres de votre agence partenaire.',
+      description: 'Commandez vos QR codes via notre formulaire B2B ou auprès de votre agence partenaire.',
       icon: QrCode,
     },
     {
@@ -371,30 +456,28 @@ function HowItWorksSection() {
     },
     {
       number: '03',
-      title: 'Voyagez serain',
-      description: 'Vos bagages sont proteges. Collez simplement l\'autocollant bien visible sur chaque valise.',
+      title: 'Voyagez serein',
+      description: 'Vos bagages sont protégés. Collez simplement l\'autocollant bien visible sur chaque valise.',
       icon: Plane,
     },
     {
       number: '04',
-      title: 'Soyez notifie instantanement',
-      description: 'Si quelqu\'un trouve votre bagage, vous recevez une alerte immediatement via WhatsApp.',
+      title: 'Soyez notifié instantanément',
+      description: 'Si quelqu\'un trouve votre bagage, vous recevez une alerte immédiatement via WhatsApp.',
       icon: Bell,
     },
   ];
 
   return (
-    <section id="comment" className="relative py-24 lg:py-32 px-4 bg-[#0a0820]">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0f0c29] via-transparent to-[#0f0c29]" />
-
+    <section id="comment" className="relative py-24 lg:py-32 px-4 bg-[#0f0c29]">
       <div className="max-w-6xl mx-auto relative z-10">
         <FadeIn className="text-center mb-16">
-          <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-4 block">Comment ca marche</span>
+          <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#D4AF37] mb-4 block">Comment ça marche</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 tracking-tight">
-            La protection en 4 etapes
+            La protection en 4 étapes
           </h2>
           <p className="text-lg text-slate-400 max-w-xl mx-auto">
-            Simple, rapide, sans application a installer.
+            Simple, rapide, sans application à installer.
           </p>
         </FadeIn>
 
@@ -424,7 +507,7 @@ function HowItWorksSection() {
           <Link href="/demo">
             <Button className="bg-[#D4AF37] hover:bg-[#c4a030] text-slate-900 px-7 py-3.5 rounded-full font-semibold text-sm shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/40 transition-all hover:scale-[1.02] gap-2">
               <Play className="w-4 h-4" />
-              Voir la demo interactive
+              Voir la démo interactive
             </Button>
           </Link>
         </FadeIn>
@@ -438,14 +521,14 @@ function HowItWorksSection() {
    ══════════════════════════════════════════════ */
 function StatsSection() {
   const stats = [
-    { value: '10K+', label: 'Bagages proteges', icon: Luggage },
+    { value: '10K+', label: 'Bagages protégés', icon: Luggage },
     { value: '500+', label: 'Agences partenaires', icon: Users },
-    { value: '98%', label: 'Taux de recuperation', icon: CheckCircle },
+    { value: '98%', label: 'Taux de récupération', icon: CheckCircle },
     { value: '24/7', label: 'Support disponible', icon: Headphones },
   ];
 
   return (
-    <section className="py-20 px-4 bg-[#0f0c29] border-y border-white/5">
+    <section className="py-20 px-4 bg-[#0a0820] border-y border-white/5">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {stats.map((stat, i) => (
@@ -466,38 +549,36 @@ function StatsSection() {
 }
 
 /* ══════════════════════════════════════════════
-   TESTIMONIALS
+   TÉMOIGNAGES
    ══════════════════════════════════════════════ */
 function TestimonialsSection() {
   const testimonials = [
     {
       name: 'Mamadou Diallo',
-      role: 'Pelerin Hajj 2025',
-      content: 'Grace a QRBag, j\'ai retrouve ma valise a Djeddah en moins de 2 heures. Une invention geniale qui devrait etre obligatoire pour tous les pelerins.',
+      role: 'Pèlerin Hajj 2025',
+      content: 'Grâce à QRBag, j\'ai retrouvé ma valise à Djeddah en moins de 2 heures. Une invention géniale qui devrait être obligatoire pour tous les pèlerins.',
       image: '/images/testimonial-1.png',
       initials: 'MD',
     },
     {
       name: 'Sophie Martin',
-      role: 'Voyageuse frequente',
-      content: 'Simple, efficace et pas cher. J\'ai utilise QRBag pour tous mes voyages cette annee. Plus de stress a l\'aeroport, enfin !',
+      role: 'Voyageuse fréquente',
+      content: 'Simple, efficace et pas cher. J\'ai utilisé QRBag pour tous mes voyages cette année. Plus de stress à l\'aéroport, enfin !',
       image: '/images/testimonial-2.png',
       initials: 'SM',
     },
   ];
 
   return (
-    <section className="relative py-24 lg:py-32 px-4 bg-[#0a0820]">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0f0c29] via-transparent to-[#0f0c29]" />
-
+    <section className="relative py-24 lg:py-32 px-4 bg-[#0f0c29]">
       <div className="max-w-6xl mx-auto relative z-10">
         <FadeIn className="text-center mb-16">
-          <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#D4AF37] mb-4 block">Temoignages</span>
+          <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#D4AF37] mb-4 block">Témoignages</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 tracking-tight">
             Ils nous font confiance
           </h2>
           <p className="text-lg text-slate-400 max-w-xl mx-auto">
-            Des milliers de voyageurs et pelerins deja proteges.
+            Des milliers de voyageurs et pèlerins déjà protégés.
           </p>
         </FadeIn>
 
@@ -547,7 +628,7 @@ function TestimonialsSection() {
 }
 
 /* ══════════════════════════════════════════════
-   PRICING
+   TARIFS — FORMULES D'ÉLITE
    ══════════════════════════════════════════════ */
 function PricingSection() {
   const plans = [
@@ -557,11 +638,11 @@ function PricingSection() {
       price: '4 €',
       duration: '7 jours de protection',
       features: [
-        '3 etiquettes QR incluses',
+        '3 étiquettes QR incluses',
         'Support WhatsApp',
         'Notification email',
-        'Activation instantanee',
-        'Geolocalisation en temps reel',
+        'Activation instantanée',
+        'Géolocalisation en temps réel',
       ],
       bgClass: 'bg-[#1a1230] border-[#D4AF37]/20',
       btnClass: 'bg-[#D4AF37] hover:bg-[#c4a030] text-slate-900 shadow-lg shadow-amber-500/15',
@@ -569,16 +650,16 @@ function PricingSection() {
     },
     {
       title: 'Premium',
-      badge: 'Recommande',
+      badge: 'Recommandé',
       price: '7 €',
       duration: '1 an de protection',
       features: [
-        '3 etiquettes QR incluses',
+        '3 étiquettes QR incluses',
         'Support prioritaire 24/7',
         'Renouvellement facile',
         'Statistiques de scans',
         'Protection multi-voyages',
-        'Notifications avancees',
+        'Notifications avancées',
       ],
       bgClass: 'bg-[#0d0a25] border-[#D4AF37]/40',
       btnClass: 'bg-gradient-to-r from-[#D4AF37] to-[#FF6B35] hover:from-[#c4a030] hover:to-[#e65a28] text-white shadow-lg shadow-orange-500/20',
@@ -587,7 +668,9 @@ function PricingSection() {
   ];
 
   return (
-    <section id="tarifs" className="relative py-24 lg:py-32 px-4 bg-[#0f0c29]">
+    <section id="tarifs" className="relative py-24 lg:py-32 px-4 bg-[#0a0820]">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0f0c29] via-transparent to-[#0f0c29]" />
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.02]">
         <div className="absolute inset-0" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23D4AF37' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")`,
@@ -596,12 +679,12 @@ function PricingSection() {
 
       <div className="max-w-4xl mx-auto relative z-10">
         <FadeIn className="text-center mb-16">
-          <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#D4AF37] mb-4 block">Formules d&apos;elite</span>
+          <span className="text-sm font-semibold tracking-[0.2em] uppercase text-[#D4AF37] mb-4 block">Formules d&apos;élite</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 tracking-tight">
-            Investissez dans la serenite
+            Investissez dans la sérénité
           </h2>
           <p className="text-lg text-slate-400 max-w-xl mx-auto">
-            Choisissez la formule adaptee a vos besoins. Pas de frais caches.
+            Choisissez la formule adaptée à vos besoins. Pas de frais cachés.
           </p>
         </FadeIn>
 
@@ -658,7 +741,7 @@ function PricingSection() {
 }
 
 /* ══════════════════════════════════════════════
-   FINAL CTA
+   CTA FINAL
    ══════════════════════════════════════════════ */
 function FinalCTASection() {
   return (
@@ -674,10 +757,10 @@ function FinalCTASection() {
       <div className="max-w-4xl mx-auto relative z-10 text-center">
         <FadeIn>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 tracking-tight leading-tight">
-            Ne laissez pas un bagage<br className="hidden sm:block" /> gacher un voyage.
+            Ne laissez pas un bagage<br className="hidden sm:block" /> gâcher un voyage.
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Rejoignez 10 000+ voyageurs qui protegent leurs bagages avec QRBag. Activation en 30 secondes, tranquillite pour tous vos voyages.
+            Rejoignez 10 000+ voyageurs qui protègent leurs bagages avec QRBag. Activation en 30 secondes, tranquillité pour tous vos voyages.
           </p>
 
           <Link href="/contact">
@@ -705,7 +788,7 @@ function ContactCTASection() {
             Une question ? Contactez-nous
           </h2>
           <p className="text-slate-500 mb-8 max-w-xl mx-auto">
-            Notre equipe est disponible pour repondre a toutes vos questions et vous accompagner.
+            Notre équipe est disponible pour répondre à toutes vos questions et vous accompagner.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/contact">
@@ -735,10 +818,10 @@ function Footer() {
     {
       title: 'Produit',
       links: [
-        { label: 'Solutions', href: '/#pourquoi' },
-        { label: 'Comment ca marche', href: '/#comment' },
+        { label: 'Solutions', href: '/#solutions' },
+        { label: 'Comment ça marche', href: '/#comment' },
         { label: 'Tarifs', href: '/#tarifs' },
-        { label: 'Demo', href: '/demo' },
+        { label: 'Démo', href: '/demo' },
       ],
     },
     {
@@ -749,10 +832,10 @@ function Footer() {
       ],
     },
     {
-      title: 'Legal',
+      title: 'Légal',
       links: [
-        { label: 'Mentions legales', href: '/mentions-legales' },
-        { label: 'Confidentialite', href: '/confidentialite' },
+        { label: 'Mentions légales', href: '/mentions-legales' },
+        { label: 'Confidentialité', href: '/confidentialite' },
         { label: 'CGU', href: '/cgu' },
       ],
     },
@@ -778,7 +861,7 @@ function Footer() {
               <span className="text-xl font-bold text-white tracking-tight">QRBag</span>
             </div>
             <p className="text-sm leading-relaxed max-w-xs text-slate-500 mb-6">
-              Protection intelligente des bagages pour voyageurs et pelerins.
+              Protection intelligente des bagages pour voyageurs et pèlerins.
             </p>
             {/* Social */}
             <div className="flex items-center gap-3">
@@ -816,7 +899,7 @@ function Footer() {
         {/* Bottom */}
         <div className="border-t border-white/5 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-slate-600">
-            &copy; {new Date().getFullYear()} QRBag. Tous droits reserves.
+            &copy; {new Date().getFullYear()} QRBag. Tous droits réservés.
           </p>
           <a
             href="https://maps.google.com/?q=Poissy+France"
@@ -842,6 +925,7 @@ export default function Home() {
       <Navigation />
       <HeroSection />
       <WhyQRBagSection />
+      <SolutionsSection />
       <StatsSection />
       <HowItWorksSection />
       <TestimonialsSection />

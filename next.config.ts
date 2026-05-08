@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    qualities: [75, 90, 100],
+  },
 };
 
 export default nextConfig;
