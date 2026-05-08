@@ -51,6 +51,7 @@ interface EmailSettingsData {
   provider: string;
   fromEmail: string;
   fromName: string;
+  recipientEmail: string | null;
   smtpHost: string | null;
   smtpPort: number | null;
   smtpUser: string | null;
@@ -254,6 +255,7 @@ export default function ParametresPage() {
     provider: 'console',
     fromEmail: 'noreply@qrbag.com',
     fromName: 'QRBag',
+    recipientEmail: null,
     smtpHost: null,
     smtpPort: null,
     smtpUser: null,
@@ -813,7 +815,7 @@ export default function ParametresPage() {
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                 <Mail className="w-5 h-5 text-[#ff7f00]" />
-                Expéditeur
+                Expéditeur & Destinataire
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
@@ -839,6 +841,21 @@ export default function ParametresPage() {
                     placeholder="QRBag"
                     className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
                   />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                    Email de destination des notifications
+                  </label>
+                  <input
+                    type="email"
+                    value={emailSettings.recipientEmail || ''}
+                    onChange={(e) => setEmailSettings({ ...emailSettings, recipientEmail: e.target.value || null })}
+                    placeholder="admin@votredomaine.com — L'email qui reçoit les notifications (bagages perdus/trouvés, messages de contact...)"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
+                  />
+                  <p className="mt-1.5 text-xs text-slate-400">
+                    Si vide, les notifications seront envoyées à l'email expéditeur ({emailSettings.fromEmail})
+                  </p>
                 </div>
               </div>
             </div>
