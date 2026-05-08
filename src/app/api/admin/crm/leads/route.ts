@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { db } from '@/lib/db';
 import { z } from 'zod';
 import { sendEmail, getEmailSettings, getNewLeadEmailTemplate } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
-
-// Initialize Prisma Client directly in this file
-const prisma = new PrismaClient();
-
-// Extended status type
-type LeadStatus = 'new' | 'contacted' | 'in_discussion' | 'qualified' | 'converted' | 'lost';
 
 // Validation schema
 const leadSchema = z.object({
@@ -27,7 +21,7 @@ const leadSchema = z.object({
 // GET - List all leads
 export async function GET() {
   try {
-    const leads = await prisma.lead.findMany({
+    const leads = await db.lead.findMany({
       include: {
         assignedTo: {
           select: { id: true, name: true }
@@ -55,11 +49,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log('Received lead data:', body);
-    
+
     const validatedData = leadSchema.parse(body);
     console.log('Validated data:', validatedData);
 
-    const lead = await prisma.lead.create({
+    const lead = await db.lead.create({
       data: {
         name: validatedData.name,
         email: validatedData.email,
@@ -68,6 +62,8 @@ export async function POST(request: NextRequest) {
         status: validatedData.status || 'new',
         source: validatedData.source || '',
         notes: validatedData.notes || '',
+        agencyId: validatedData.agencyId || null,
+        assignedToId: validatedData.assignedToId || null,
       }
     });
 
@@ -76,7 +72,7 @@ export async function POST(request: NextRequest) {
     // 📧 Send email notification to superadmin
     try {
       const emailSettings = await getEmailSettings();
-      if (emailSettings && emailSettings.provider === 'smtp') {
+      if (emailSettings) {
         const recipientEmail = emailSettings.recipientEmail || emailSettings.fromEmail;
         if (recipientEmail) {
           const template = getNewLeadEmailTemplate({
@@ -103,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 🔔 Create in-app notification for SuperAdmin
-    await prisma.notification.create({
+    await db.notification.create({
       data: {
         type: 'new_lead',
         message: `🆕 Nouveau lead : ${lead.name}${lead.company ? ` — ${lead.company}` : ''}`,
@@ -155,7 +151,7 @@ export async function PUT(request: NextRequest) {
     if (agencyId !== undefined) updateData.agencyId = agencyId;
     if (assignedToId !== undefined) updateData.assignedToId = assignedToId || null;
 
-    const lead = await prisma.lead.update({
+    const lead = await db.lead.update({
       where: { id },
       data: updateData,
     });
@@ -184,7 +180,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await prisma.lead.delete({
+    await db.lead.delete({
       where: { id }
     });
 

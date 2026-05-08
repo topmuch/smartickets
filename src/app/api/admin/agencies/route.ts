@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     // 📧 Send email notification to superadmin
     try {
       const emailSettings = await getEmailSettings();
-      if (emailSettings && emailSettings.provider === 'smtp') {
+      if (emailSettings) {
         const recipientEmail = emailSettings.recipientEmail || emailSettings.fromEmail;
         if (recipientEmail) {
           const template = getNewAgencyEmailTemplate({

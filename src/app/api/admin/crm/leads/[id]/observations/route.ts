@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 // POST - Add observation to lead
 export async function POST(
@@ -31,7 +29,7 @@ export async function POST(
     }
 
     // Create observation
-    const observation = await prisma.observation.create({
+    const observation = await db.observation.create({
       data: {
         leadId: id,
         type,
@@ -65,7 +63,7 @@ export async function GET(
   try {
     const { id } = await params;
     
-    const observations = await prisma.observation.findMany({
+    const observations = await db.observation.findMany({
       where: { leadId: id },
       include: {
         user: {

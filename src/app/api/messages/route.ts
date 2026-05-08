@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { getEmailSettings } from '@/lib/email';
+import { sendEmail, getEmailSettings } from '@/lib/email';
 
 // Messages API - Contact, Partenaire, Commande Agence
 // GET - Fetch all messages with filters
@@ -63,14 +63,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send email notification to admin (only if SMTP is configured)
+    // 📧 Send email notification to admin
     let emailSent = false;
     let emailError = '';
     try {
-      const { sendEmail } = await import('@/lib/email');
       const emailSettings = await getEmailSettings();
-      
-      if (emailSettings && emailSettings.provider === 'smtp') {
+      if (emailSettings) {
         const recipientEmail = emailSettings.recipientEmail || emailSettings.fromEmail;
         if (recipientEmail) {
           await sendEmail({
@@ -86,6 +84,15 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send email notification:', emailErr);
       emailError = emailErr instanceof Error ? emailErr.message : 'Erreur email inconnue';
     }
+
+    // 🔔 Create in-app notification for SuperAdmin
+    await db.notification.create({
+      data: {
+        type: 'new_message',
+        message: `📨 Nouveau message de ${senderName || 'Visiteur'} — ${type}${subject ? ` : ${subject}` : ''}`,
+        read: false,
+      }
+    });
 
     return NextResponse.json({ success: true, message, emailSent, emailError });
   } catch (error) {

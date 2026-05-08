@@ -27,7 +27,6 @@ export interface EmailData {
   type?: string;
   userId?: string;
   agencyId?: string;
-  baggageId?: string;
   data?: Record<string, unknown>;
 }
 

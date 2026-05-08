@@ -71,7 +71,7 @@ export async function PUT(
     // 📧 Send email notifications
     try {
       const emailSettings = await getEmailSettings();
-      if (emailSettings && emailSettings.provider === 'smtp') {
+      if (emailSettings) {
         const template = getBaggageFoundEmailTemplate({
           reference: baggage.reference,
           agencyName: baggage.agency?.name || undefined,

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { db } from '@/lib/db';
 
 // GET - List all QR code sets, optionally filtered by type and grouped by agency
 export async function GET(request: NextRequest) {
@@ -32,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all baggages
-    const baggages = await prisma.baggage.findMany({
+    const baggages = await db.baggage.findMany({
       where,
       include: { agency: true },
       orderBy: { createdAt: 'desc' },
@@ -132,7 +130,7 @@ export async function DELETE(request: NextRequest) {
     };
 
     // Find all baggages matching this set
-    const baggages = await prisma.baggage.findMany({
+    const baggages = await db.baggage.findMany({
       where: whereClause,
       select: { id: true, reference: true }
     });
@@ -150,7 +148,7 @@ export async function DELETE(request: NextRequest) {
     const baggageIds = baggages.map(b => b.id);
 
     // Delete baggages (ScanLogs will be cascade deleted automatically)
-    const deleteResult = await prisma.baggage.deleteMany({ 
+    const deleteResult = await db.baggage.deleteMany({ 
       where: { id: { in: baggageIds } } 
     });
 
