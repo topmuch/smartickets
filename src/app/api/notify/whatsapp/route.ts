@@ -20,7 +20,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { sendWakitMessage } from '@/lib/wakit';
-import { isEnabled } from '@/lib/config';
+import { isServiceEnabledAsync } from '@/lib/config';
 import type { WakitResult } from '@/types/ai';
 
 export const dynamic = 'force-dynamic';
@@ -135,8 +135,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     // ─── Log structuré ───
     console.log(`[WhatsApp API] POST — template="${template}", to="${to.substring(0, 4)}***", user="${user.role}:${user.name}", baggageId="${baggageId ?? 'N/A'}"`);
 
-    // ─── Check si Wakit est configuré ───
-    if (!isEnabled('wakit')) {
+    // ─── Check si Wakit est configuré (DB + env) ───
+    if (!await isServiceEnabledAsync('wakit')) {
       console.log('[WhatsApp API] Wakit non configuré → fallback silencieux.');
       const result: WakitResult = {
         success: true,
@@ -182,10 +182,11 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 });
   }
 
+  const config = await import('@/lib/config').then(m => m.getServiceConfig('wakit'));
   return NextResponse.json({
     service: 'wakit',
-    enabled: isEnabled('wakit'),
-    template: process.env.WAKIT_TEMPLATE_SCAN_ALERT || 'baggage_scan_alert',
-    phoneNumberId: process.env.WAKIT_PHONE_NUMBER_ID ? '***configured***' : null,
+    enabled: config.enabled,
+    template: config.templateScanAlert,
+    phoneNumberId: config.phoneNumberId ? '***configured***' : null,
   });
 }

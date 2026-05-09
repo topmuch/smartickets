@@ -48,7 +48,7 @@ interface Traveler {
   whatsapp: string | null;
   email: string | null;
   registeredAt: Date;
-  expirationDate: Date | null;
+  expirationDate: string | null;
   status: 'active' | 'expired' | 'pending';
   baggages: TravelerBaggage[];
   totalBaggages: number;

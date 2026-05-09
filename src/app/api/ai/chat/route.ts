@@ -20,7 +20,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { callGroqAI } from '@/lib/groq';
-import { isEnabled } from '@/lib/config';
+import { isServiceEnabledAsync } from '@/lib/config';
 import type { GroqMessage } from '@/types/ai';
 
 export const dynamic = 'force-dynamic';
@@ -163,8 +163,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       `[AI Chat API] POST — ${messages.length} messages, model="${model ?? 'default'}", user="${user.role}:${user.name}", lastMsg="${lastUserMsg?.content.substring(0, 50) ?? 'N/A'}..."`
     );
 
-    // ─── Check si Groq est configuré ───
-    if (!isEnabled('groq')) {
+    // ─── Check si Groq est configuré (DB + env) ───
+    if (!await isServiceEnabledAsync('groq')) {
       console.log('[AI Chat API] Groq non configuré → fallback silencieux.');
       return NextResponse.json({
         success: true,
@@ -226,11 +226,12 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 });
   }
 
+  const config = await import('@/lib/config').then(m => m.getServiceConfig('groq'));
   return NextResponse.json({
     service: 'groq',
-    enabled: isEnabled('groq'),
-    modelChat: process.env.GROQ_MODEL_CHAT || 'llama3-8b-8192',
-    modelAnalysis: process.env.GROQ_MODEL_ANALYSIS || 'llama3-8b-8192',
-    timeoutMs: process.env.GROQ_TIMEOUT_MS || '30000',
+    enabled: config.enabled,
+    modelChat: config.modelChat,
+    modelAnalysis: config.modelAnalysis,
+    timeoutMs: String(config.timeoutMs),
   });
 }
