@@ -54,8 +54,12 @@ interface Traveler {
   totalBaggages: number;
 }
 
+// Statuts considérés comme inactifs pour le module Marketing/CRM
+const INACTIVE_STATUSES = ['lost', 'found', 'blocked'];
+
 function isBaggageActive(baggage: BaggageWithAgency): boolean {
-  if (baggage.status !== 'active') return false;
+  // Les baggages perdus, trouvés ou bloqués ne sont pas actifs
+  if (INACTIVE_STATUSES.includes(baggage.status)) return false;
   if (!baggage.expiresAt) return false;
   return new Date(baggage.expiresAt) > new Date();
 }
@@ -113,14 +117,21 @@ function groupBaggagesByTraveler(baggages: BaggageWithAgency[]): Traveler[] {
       Math.min(...groupBaggages.map((b) => new Date(b.createdAt).getTime()))
     );
 
-    // Latest expiresAt (only among those that have an expiry)
     const baggagesWithExpiry = groupBaggages.filter((b) => b.expiresAt);
-    const latestExpiry = baggagesWithExpiry.length > 0
-      ? new Date(Math.max(...baggagesWithExpiry.map((b) => new Date(b.expiresAt!).getTime())))
-      : null;
 
-    // Status: active if ANY baggage is active
-    const anyActive = groupBaggages.some((b) => isBaggageActive(b));
+    // Status: active if ANY baggage is active (status != lost/found/blocked AND expiresAt > now)
+    const activeBaggageList = groupBaggages.filter((b) => isBaggageActive(b));
+    const anyActive = activeBaggageList.length > 0;
+
+    // Expiration date display: coherent with status
+    let latestExpiry: Date | null = null;
+    if (anyActive) {
+      // If active: show the SOONEST expiry among active baggages (most relevant for renewal)
+      latestExpiry = new Date(Math.min(...activeBaggageList.map((b) => new Date(b.expiresAt!).getTime())));
+    } else if (baggagesWithExpiry.length > 0) {
+      // If expired: show the LATEST expiry among all baggages (most recent expiration)
+      latestExpiry = new Date(Math.max(...baggagesWithExpiry.map((b) => new Date(b.expiresAt!).getTime())));
+    }
 
     // Build baggage summaries
     const baggageSummaries: TravelerBaggage[] = groupBaggages.map((b) => ({
@@ -139,7 +150,7 @@ function groupBaggagesByTraveler(baggages: BaggageWithAgency[]): Traveler[] {
       whatsapp,
       email: null,
       registeredAt: earliestCreated,
-      expirationDate: latestExpiry,
+      expirationDate: latestExpiry ? latestExpiry.toISOString() : null,
       status: anyActive ? 'active' : 'expired',
       baggages: baggageSummaries,
       totalBaggages: baggageSummaries.length,
