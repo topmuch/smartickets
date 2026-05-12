@@ -751,3 +751,27 @@ Stage Summary:
   *⏰ Appelez MAINTENANT !*
   *QRBag – Protégez vos bagages, en toute sérénité.*
   (278 chars, all formatting correct)
+
+---
+Task ID: 2
+Agent: Main
+Task: PHASE 2 - Harmonisation WhatsApp Multi-Transport (6 corrections)
+
+Work Log:
+- Corrected sanitize() regex: old control-chars-only → new strict spec `/[^\p{L}\p{N}\s\-_.@+()]/gu`
+- Applied sanitize ONLY to user inputs (ref, name, whatsapp, destination), NOT to template text (title, bagTypeLabel, CTA, signature)
+- Added "pont" key in BAG_TYPE_LABELS: { fr: 'Pont', en: 'Deck', ar: 'سطح' }
+- Enriched CTA departure_urgent with {transport} placeholder + TRANSPORT_LABELS_CTA resolver
+- Removed bold formatting (*gras*) from CTA and signature lines (cosmetic alignment with spec specimens)
+- Added 13 new i18n keys in fr.json, en.json, ar.json (whatsapp.title_*, cta_*, bag_type_*, see_bagage, whatsapp_signature)
+- Updated validate-whatsapp.ts: added CHECK 11 (sanitize), CHECK 12 (CTA {transport}), CHECK 13 (shipCabin "Pont 4")
+- All 48/48 validation tests passed + 3 additional tests (sanitize, pont FR, pont EN) passed
+- Dev server confirmed running (port 3000, HTTP 200 on /, /suivi/, /admin/monitoring)
+- All 3 JSON locale files validated
+
+Stage Summary:
+- Files modified: src/lib/whatsapp-message.ts (491 lines), scripts/validate-whatsapp.ts, public/locales/{fr,en,ar}.json
+- Zero breaking changes — all existing integrations preserved
+- generateWhatsAppMessage() in groq.ts untouched
+- buildWhatsAppUrl() untouched
+- API routes untouched

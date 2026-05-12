@@ -2,9 +2,15 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
 import { motion, useInView } from 'framer-motion';
+
+const LandingChatbotWidget = dynamic(
+  () => import('@/components/finder/LandingChatbotWidget'),
+  { ssr: false, loading: () => null }
+);
 import {
   Plane,
   Luggage,
@@ -933,6 +939,7 @@ export default function Home() {
       <FinalCTASection />
       <ContactCTASection />
       <Footer />
+      <LandingChatbotWidget />
     </main>
   );
 }

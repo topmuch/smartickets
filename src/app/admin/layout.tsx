@@ -25,7 +25,8 @@ import {
   HelpCircle,
   Megaphone,
   TrendingUp,
-  Newspaper
+  Newspaper,
+  Activity
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -126,6 +127,12 @@ function Sidebar({
 
     // Security & Audit - superadmin and admin only
     { label: "Sécurité & Audit", icon: <Shield className="w-5 h-5" />, href: "/admin/securite", permission: PERMISSIONS.VIEW_SETTINGS, roles: ['superadmin', 'admin'] },
+
+    // Monitoring Category - superadmin only
+    { label: "MONITORING", icon: null, isCategory: true, roles: ['superadmin'] },
+
+    // Monitoring - superadmin only
+    { label: "Monitoring", icon: <Activity className="w-5 h-5" />, href: "/admin/monitoring", permission: PERMISSIONS.VIEW_MONITORING, roles: ['superadmin'] },
 
     // Settings Category
     { label: "PARAMÈTRES", icon: null, isCategory: true, permission: PERMISSIONS.VIEW_SETTINGS },

@@ -36,6 +36,7 @@ function SuccessContent() {
   const [activationData, setActivationData] = useState<ActivationData | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [activationConfirmed, setActivationConfirmed] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState(false);
   const { t } = useTranslation();
 
   const isHajj = type === 'hajj';
@@ -243,10 +244,11 @@ function SuccessContent() {
   const handleShare = async () => {
     if (!activationData) return;
 
+    const trackingUrl = typeof window !== 'undefined' ? `${window.location.origin}/suivi/${activationData.reference}` : '';
     const shareData = {
       title: 'QRBag - Preuve d\'activation',
-      text: `Mon bagage ${activationData.reference} est maintenant protégé par QRBag !`,
-      url: qrUrl,
+      text: `Mon bagage ${activationData.reference} est protégé par QRBag. Voici votre lien de suivi :`,
+      url: trackingUrl,
     };
 
     if (navigator.share) {
@@ -257,7 +259,7 @@ function SuccessContent() {
       }
     } else {
       // Fallback: copy URL to clipboard
-      navigator.clipboard.writeText(qrUrl);
+      navigator.clipboard.writeText(trackingUrl);
       alert('Lien copié dans le presse-papiers !');
     }
   };
@@ -432,6 +434,32 @@ function SuccessContent() {
               <Share2 className="w-4 h-4 mr-2" />
               Partager
             </Button>
+
+            {/* Tracking Link Block */}
+            <div className="mt-6 p-4 bg-white/10 border border-white/20 rounded-xl">
+              <p className="text-sm text-white/90 font-medium mb-2">
+                🔗 Votre lien de suivi unique :
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-sm bg-white/10 px-3 py-2 rounded-lg border border-white/10 truncate text-orange-300">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/suivi/${activationData.reference}` : ''}
+                </code>
+                <button 
+                  onClick={() => {
+                    const link = `${window.location.origin}/suivi/${activationData.reference}`;
+                    navigator.clipboard.writeText(link);
+                    setCopyFeedback(true);
+                    setTimeout(() => setCopyFeedback(false), 2000);
+                  }}
+                  className="px-3 py-2 text-sm bg-white hover:bg-white/90 text-[#0d5e34] rounded-lg transition-colors font-medium flex-shrink-0"
+                >
+                  {copyFeedback ? '✅ Copié !' : '📋 Copier'}
+                </button>
+              </div>
+              <p className="text-xs text-white/60 mt-2">
+                Conservez ce lien. En cas de perte, cliquez dessus pour suivre votre bagage en temps réel.
+              </p>
+            </div>
 
             {/* Home Button */}
             <Link href="/" className="block">

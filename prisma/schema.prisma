@@ -451,3 +451,17 @@ model BlogView {
   
   createdAt   DateTime @default(now())
 }
+
+// SystemLog model - centralized system logging for monitoring
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   // "info" | "warn" | "error" | "fatal"
+  message   String
+  source    String   // ex: "api/activate", "diagnostic", "chatbot"
+  metadata  String?  // JSON string with contextual data (sanitized)
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([source])
+  @@index([createdAt])
+}

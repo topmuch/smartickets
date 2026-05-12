@@ -100,9 +100,9 @@ const TITLES: Record<string, Record<WhatsAppLocale, string>> = {
 
 const CTAS: Record<string, Record<WhatsAppLocale, string>> = {
   departure_urgent: {
-    fr: '⏰ Appelez MAINTENANT !',
-    en: '⏰ Call NOW!',
-    ar: '⏰ اتصل الآن!',
+    fr: '⏰ Votre {transport} n\'est pas parti : Appelez MAINTENANT !',
+    en: '⏰ Your {transport} hasn\'t departed: Call NOW!',
+    ar: '⏰ {transport} لم تغادر بعد: اتصل الآن!',
   },
   arrival: {
     fr: '👉 Contactez-le vite pour organiser la récupération !',
@@ -124,6 +124,7 @@ const CTAS: Record<string, Record<WhatsAppLocale, string>> = {
 const BAG_TYPE_LABELS: Record<string, Record<WhatsAppLocale, string>> = {
   cabine: { fr: 'Cabine', en: 'Cabin', ar: 'مقصورة' },
   soute:  { fr: 'Soute', en: 'Hold', ar: 'شحن' },
+  pont:   { fr: 'Pont', en: 'Deck', ar: 'سطح' },
 };
 
 const CONTEXT_EMOJIS: Record<string, string> = {
@@ -229,12 +230,12 @@ function resolveBagTypeLabel(baggage: PreFilledMessageParams['baggage'], mode: T
 
 /**
  * Sanitize une chaîne pour insertion dans un message WhatsApp.
- * Conserve les lettres, chiffres, espaces, tirets, underscores, @, +, (), emojis.
+ * Conserve UNIQUEMENT : lettres (\p{L}), chiffres (\p{N}), espaces, tirets, underscores, @, +, ().
+ * Supprime tout caractère exotique, ponctuation dangereuse, ou contrôle.
  */
 function sanitize(input: string): string {
   if (!input) return '';
-  // Conserve les caractères imprimables Unicode (lettres, chiffres, ponctuation, emojis)
-  return input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').trim();
+  return input.replace(/[^\p{L}\p{N}\s\-_.@+()]/gu, '').trim();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -379,10 +380,12 @@ export function generatePreFilledMessage(params: PreFilledMessageParams): string
   const lines: string[] = [];
 
   // Line 1: Context title — *gras* WhatsApp (TOUJOURS)
-  lines.push(`${contextEmoji} *${sanitize(title)}*`);
+  // NOTE: Pas de sanitize() ici — le titre est construit depuis des templates de confiance
+  lines.push(`${contextEmoji} *${title}*`);
 
   // Line 2: Reference en `monospace` + bag type (TOUJOURS)
-  lines.push(`🧳 \`${sanitizedRef}\` • ${sanitize(bagTypeLabel)}`);
+  // NOTE: sanitize sur ref (input utilisateur) mais pas sur bagTypeLabel (template de confiance)
+  lines.push(`🧳 \`${sanitizedRef}\` • ${bagTypeLabel}`);
 
   // Line 3: Transport info (si CARRIER ou VEHICLE présent)
   if (transportLine) {
@@ -404,12 +407,23 @@ export function generatePreFilledMessage(params: PreFilledMessageParams): string
     lines.push(`📱 ${finderWhatsapp}`);
   }
 
-  // Line 7: CTA context — *gras* WhatsApp (TOUJOURS dans le template)
-  const cta: string = CTAS[context]?.[locale] || CTAS.static.fr;
-  lines.push(`*${cta}*`);
+  // Line 7: CTA context (TOUJOURS dans le template)
+  // Pour departure_urgent, résoudre {transport} avec le label du mode
+  const TRANSPORT_LABELS_CTA: Record<TransportMode, Record<WhatsAppLocale, string>> = {
+    flight: { fr: 'vol', en: 'flight', ar: 'رحلة' },
+    train:  { fr: 'train', en: 'train', ar: 'قطار' },
+    boat:   { fr: 'traversée', en: 'crossing', ar: 'عبور' },
+    bus:    { fr: 'bus', en: 'bus', ar: 'حافلة' },
+  };
+  let cta: string = CTAS[context]?.[locale] || CTAS.static.fr;
+  if (context === 'departure_urgent') {
+    const tLabel = TRANSPORT_LABELS_CTA[mode]?.[locale] || TRANSPORT_LABELS_CTA.flight.fr;
+    cta = cta.replace('{transport}', tLabel);
+  }
+  lines.push(cta);
 
-  // Line 8: Signature — *gras* WhatsApp (TOUJOURS dans le template)
-  lines.push(`*${SIGNATURES[locale]}*`);
+  // Line 8: Signature (TOUJOURS dans le template)
+  lines.push(SIGNATURES[locale]);
 
   // ─── Step 6: Join and truncate ───
   let message = lines.join('\n');

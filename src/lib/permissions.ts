@@ -66,6 +66,9 @@ export const PERMISSIONS = {
 
   // Trouvailles (Found baggages)
   VIEW_TROUVAILLES: 'view_trouvailles',
+
+  // Monitoring
+  VIEW_MONITORING: 'view_monitoring',
 } as const;
 
 export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
@@ -162,6 +165,7 @@ export function canAccessRoute(role: string, route: string): boolean {
     '/admin/messages': [PERMISSIONS.VIEW_MESSAGES],
     '/admin/trouvailles': [PERMISSIONS.VIEW_TROUVAILLES],
     '/admin/crm': [PERMISSIONS.VIEW_CRM],
+    '/admin/monitoring': [PERMISSIONS.VIEW_MONITORING],
     '/admin/parametres': [PERMISSIONS.VIEW_SETTINGS],
     '/admin/parametres/fonctionnalites': [PERMISSIONS.MANAGE_FEATURES],
     '/admin/parametres/paypal': [PERMISSIONS.MANAGE_PAYPAL],
