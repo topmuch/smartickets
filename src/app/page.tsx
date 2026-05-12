@@ -282,8 +282,7 @@ function HeroSection() {
           priority
           quality={90}
         />
-        {/* Strong overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/92 via-white/88 to-white" />
+        {/* No overlay — original image visible */}
       </div>
 
       {/* Floating particles */}
@@ -313,14 +312,14 @@ function HeroSection() {
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center pt-24 pb-20">
         <FadeIn>
-          <div className="inline-flex items-center gap-2 mb-8 px-5 py-2.5 bg-white/80 border border-[#D4AF37]/30 rounded-full backdrop-blur-sm shadow-sm">
+          <div className="inline-flex items-center gap-2 mb-8 px-5 py-2.5 bg-black/40 border border-white/20 rounded-full backdrop-blur-md shadow-lg">
             <span className="w-2 h-2 bg-[#D4AF37] rounded-full animate-pulse" />
-            <span className="text-sm font-medium text-[#D4AF37] tracking-wide">La protection intelligente pour vos bagages</span>
+            <span className="text-sm font-medium text-white tracking-wide">La protection intelligente pour vos bagages</span>
           </div>
         </FadeIn>
 
         <FadeIn delay={0.15}>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-[1.08] tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.08] tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
             Un bagage perdu n&apos;est pas{' '}
             <br className="hidden sm:block" />
             <span className="bg-gradient-to-r from-[#D4AF37] to-[#FF6B35] bg-clip-text text-transparent">
@@ -330,7 +329,7 @@ function HeroSection() {
         </FadeIn>
 
         <FadeIn delay={0.3}>
-          <p className="text-lg sm:text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto mt-6 leading-relaxed font-light">
+          <p className="text-lg sm:text-xl md:text-2xl text-white max-w-3xl mx-auto mt-6 leading-relaxed font-light drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
             QRBag transforme la perte en opportunité — grâce à la technologie, la confiance, et le respect.
           </p>
         </FadeIn>
@@ -367,21 +366,21 @@ function HeroSection() {
             ].map((item, idx) => (
               <motion.div
                 key={item.text}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/80 border border-slate-200 rounded-full backdrop-blur-sm shadow-sm"
+                className="flex items-center gap-2 px-4 py-2.5 bg-black/40 border border-white/20 rounded-full backdrop-blur-md shadow-lg"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 + idx * 0.1, duration: 0.5 }}
               >
                 <item.icon className="w-4 h-4 text-[#D4AF37]" />
-                <span className="text-xs font-medium text-slate-700">{item.text}</span>
+                <span className="text-xs font-medium text-white">{item.text}</span>
               </motion.div>
             ))}
           </div>
         </FadeIn>
       </div>
 
-      {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
+      {/* Bottom gradient fade into white */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white via-white/50 to-transparent" />
     </section>
   );
 }
