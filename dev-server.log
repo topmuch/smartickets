@@ -466,3 +466,61 @@ Country detection error: Error: IP API request failed
  GET / 200 in 70ms (compile: 3ms, render: 66ms)
  GET /suivi/VOL26-TEST99 200 in 702ms (compile: 653ms, render: 49ms)
  GET /admin/monitoring 200 in 40ms (compile: 2ms, proxy.ts: 4ms, render: 34ms)
+✓ Compiled in 161ms
+Country detection error: Error: IP API request failed
+    at GET (src/app/api/detect-country/route.ts:38:13)
+  36 |
+  37 |     if (!response.ok) {
+> 38 |       throw new Error('IP API request failed');
+     |             ^
+  39 |     }
+  40 |
+  41 |     const data: IPApiResponse = await response.json();
+ GET /api/detect-country 200 in 298ms (compile: 2ms, render: 295ms)
+✓ Compiled in 72ms
+Country detection error: Error: IP API request failed
+    at GET (src/app/api/detect-country/route.ts:38:13)
+  36 |
+  37 |     if (!response.ok) {
+> 38 |       throw new Error('IP API request failed');
+     |             ^
+  39 |     }
+  40 |
+  41 |     const data: IPApiResponse = await response.json();
+ GET /api/detect-country 200 in 292ms (compile: 2ms, render: 290ms)
+✓ Compiled in 160ms
+Country detection error: Error: IP API request failed
+    at GET (src/app/api/detect-country/route.ts:38:13)
+  36 |
+  37 |     if (!response.ok) {
+> 38 |       throw new Error('IP API request failed');
+     |             ^
+  39 |     }
+  40 |
+  41 |     const data: IPApiResponse = await response.json();
+ GET /api/detect-country 200 in 277ms (compile: 2ms, render: 275ms)
+✓ Compiled in 145ms
+✓ Compiled in 225ms
+ GET / 200 in 245ms (compile: 49ms, render: 196ms)
+Country detection error: Error: IP API request failed
+    at GET (src/app/api/detect-country/route.ts:38:13)
+  36 |
+  37 |     if (!response.ok) {
+> 38 |       throw new Error('IP API request failed');
+     |             ^
+  39 |     }
+  40 |
+  41 |     const data: IPApiResponse = await response.json();
+ GET /api/detect-country 200 in 274ms (compile: 3ms, render: 272ms)
+ GET /api/auth/session 200 in 7ms (compile: 3ms, render: 4ms)
+Country detection error: Error: IP API request failed
+    at GET (src/app/api/detect-country/route.ts:38:13)
+  36 |
+  37 |     if (!response.ok) {
+> 38 |       throw new Error('IP API request failed');
+     |             ^
+  39 |     }
+  40 |
+  41 |     const data: IPApiResponse = await response.json();
+ GET /api/detect-country 200 in 235ms (compile: 1596µs, render: 233ms)
+[?25h

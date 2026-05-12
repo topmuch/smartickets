@@ -775,3 +775,26 @@ Stage Summary:
 - generateWhatsAppMessage() in groq.ts untouched
 - buildWhatsAppUrl() untouched
 - API routes untouched
+---
+Task ID: 1
+Agent: Main Agent
+Task: PHASE 1 + PHASE 2 — TrackingWidget homepage integration
+
+Work Log:
+- Analyzed src/app/page.tsx structure (928+ lines, 11 sections, dark theme)
+- Identified i18n hook useTranslation, locale files structure
+- Found reference regex patterns in qr.ts and API routes
+- Created src/components/home/TrackingWidget.tsx with:
+  - Strict regex validation: /^(HAJJ|VOL)\d{2}-[A-Z0-9]{6}$/
+  - Auto-uppercase input, Enter key support, aria accessibility
+  - Dark theme design consistent with landing page cards
+  - Full i18n support via useTranslation hook
+- Modified src/app/page.tsx: added import + section between Hero and WhyQRBag
+- Added i18n keys "home.tracking_*" to fr.json, en.json, ar.json
+- Build: 0 errors, 0 warnings
+- TypeScript: 0 new errors (pre-existing errors in other files unchanged)
+
+Stage Summary:
+- 5 files touched: 1 created, 4 modified
+- TrackingWidget is a standalone client component, zero fetch, zero dependencies
+- Positioned between Hero and WhyQRBag sections with FadeIn animation
