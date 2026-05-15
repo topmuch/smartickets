@@ -3,25 +3,23 @@ import { db } from '@/lib/db';
 import { calculateExpirationDate } from '@/lib/qr';
 import { z } from 'zod';
 
-// Validation schema for activation
+const WHATSAPP_REGEX = /^\+[1-9]\d{1,14}$/;
+
 const activateSchema = z.object({
-  reference: z.string().min(1, 'Reference is required'),
-  travelerFirstName: z.string().min(1, 'First name is required'),
-  travelerLastName: z.string().min(1, 'Last name is required'),
-  whatsappOwner: z.string().min(1, 'WhatsApp number is required'),
-  airlineName: z.string().optional(),
-  flightNumber: z.string().optional(),
-  destination: z.string().optional(),
-  departureDate: z.string().date().optional(),
-  departureTime: z.string().optional(),
-  // TRANSPORT-FEATURE: Multi-transport mode support
-  transportMode: z.enum(['flight', 'train', 'boat', 'bus']).optional(),
-  trainCompany: z.string().optional(),
-  trainNumber: z.string().optional(),
-  shipName: z.string().optional(),
-  shipCabin: z.string().optional(),
-  busCompany: z.string().optional(),
-  busLineNumber: z.string().optional(),
+  reference: z.string().min(1, 'La référence est obligatoire'),
+  // Itinéraire
+  transportMode: z.enum(['bus', 'gp']),
+  company: z.string().min(1, 'La compagnie de transport est obligatoire'),
+  departureCity: z.string().min(1, 'La ville de départ est obligatoire'),
+  arrivalCity: z.string().min(1, "La ville d'arrivée est obligatoire"),
+  departureDate: z.string().min(1, 'La date de départ est obligatoire'),
+  departureTime: z.string().min(1, "L'heure de départ est obligatoire"),
+  // Expéditeur
+  senderName: z.string().min(1, "Le nom de l'expéditeur est obligatoire"),
+  senderWhatsapp: z.string().regex(WHATSAPP_REGEX, 'Format WhatsApp invalide (ex: +221771234567)'),
+  // Destinataire
+  receiverName: z.string().min(1, 'Le nom du destinataire est obligatoire'),
+  receiverWhatsapp: z.string().regex(WHATSAPP_REGEX, 'Format WhatsApp invalide (ex: +221761234567)'),
 });
 
 export async function POST(request: NextRequest) {
@@ -29,98 +27,49 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = activateSchema.parse(body);
 
-    // Find the baggage by reference
+    // Find baggage by reference
     const baggage = await db.baggage.findUnique({
-      where: { reference: validatedData.reference },
-      include: { agency: true }
+      where: { reference: validatedData.reference.toUpperCase() },
+      include: { agency: true },
     });
 
     if (!baggage) {
       return NextResponse.json(
-        { error: 'Baggage not found', message: 'Code QR non valide' },
+        { error: 'Colis non trouvé', message: 'Ce code QR ne correspond à aucun colis.' },
         { status: 404 }
       );
     }
 
     if (baggage.status !== 'pending_activation') {
       return NextResponse.json(
-        { error: 'Already activated', message: 'Ce bagage a déjà été activé' },
+        { error: 'Déjà activé', message: 'Ce colis a déjà été activé.' },
         { status: 400 }
       );
     }
 
-    // Determine subtype for expiration calculation
-    const subtype = baggage.type === 'voyageur' ? 'sticker' : undefined;
+    // Calculate expiration
+    const expiresAt = calculateExpirationDate('voyageur', 'sticker');
 
-    // Calculate expiration date
-    const expiresAt = calculateExpirationDate(baggage.type as 'hajj' | 'voyageur', subtype);
+    // Map transport mode to DB field
+    const dbTransportMode = validatedData.transportMode === 'gp' ? 'bus' : 'bus';
+    const dbCompany = validatedData.company;
 
-    // Update baggage with traveler info
+    // Update baggage
     const updatedBaggage = await db.baggage.update({
       where: { id: baggage.id },
       data: {
-        travelerFirstName: validatedData.travelerFirstName,
-        travelerLastName: validatedData.travelerLastName,
-        whatsappOwner: validatedData.whatsappOwner,
-        airlineName: validatedData.airlineName || null,
-        flightNumber: validatedData.flightNumber || null,
-        destination: validatedData.destination || null,
-        departureDate: validatedData.departureDate ? new Date(validatedData.departureDate + 'T00:00:00') : null,
-        departureTime: validatedData.departureTime || null,
-        // TRANSPORT-FEATURE: Store transport mode + conditional fields
-        transportMode: validatedData.transportMode || 'flight',
-        trainCompany: validatedData.trainCompany || null,
-        trainNumber: validatedData.trainNumber || null,
-        shipName: validatedData.shipName || null,
-        shipCabin: validatedData.shipCabin || null,
-        busCompany: validatedData.busCompany || null,
-        busLineNumber: validatedData.busLineNumber || null,
+        travelerFirstName: validatedData.senderName,
+        whatsappOwner: validatedData.senderWhatsapp,
+        airlineName: dbCompany,
+        destination: validatedData.arrivalCity,
+        departureDate: new Date(validatedData.departureDate + 'T00:00:00'),
+        departureTime: validatedData.departureTime,
+        transportMode: dbTransportMode,
+        busCompany: dbCompany,
         status: 'active',
         expiresAt,
-      }
+      },
     });
-
-    // If this is part of a group (Hajj has 3 bags), activate all related baggages
-    if (baggage.type === 'hajj' && baggage.agencyId) {
-      // Find all baggages with same agency and same reference prefix (first 6 chars)
-      const prefix = baggage.reference.substring(0, 6);
-      const relatedBaggages = await db.baggage.findMany({
-        where: {
-          reference: { startsWith: prefix },
-          agencyId: baggage.agencyId,
-          status: 'pending_activation'
-        }
-      });
-
-      // Activate all related baggages
-      for (const related of relatedBaggages) {
-        if (related.id !== baggage.id) {
-          await db.baggage.update({
-            where: { id: related.id },
-            data: {
-              travelerFirstName: validatedData.travelerFirstName,
-              travelerLastName: validatedData.travelerLastName,
-              whatsappOwner: validatedData.whatsappOwner,
-              departureDate: validatedData.departureDate ? new Date(validatedData.departureDate + 'T00:00:00') : null,
-              departureTime: validatedData.departureTime || null,
-              airlineName: validatedData.airlineName || null,
-              flightNumber: validatedData.flightNumber || null,
-              destination: validatedData.destination || null,
-              // TRANSPORT-FEATURE: Force flight for hajj group, null out non-flight fields
-              transportMode: 'flight',
-              trainCompany: null,
-              trainNumber: null,
-              shipName: null,
-              shipCabin: null,
-              busCompany: null,
-              busLineNumber: null,
-              status: 'active',
-              expiresAt,
-            }
-          });
-        }
-      }
-    }
 
     return NextResponse.json({
       success: true,
@@ -130,21 +79,33 @@ export async function POST(request: NextRequest) {
         type: updatedBaggage.type,
         status: updatedBaggage.status,
         expiresAt: updatedBaggage.expiresAt,
-      }
+      },
+      activation: {
+        reference: updatedBaggage.reference,
+        transportMode: validatedData.transportMode,
+        company: validatedData.company,
+        departureCity: validatedData.departureCity,
+        arrivalCity: validatedData.arrivalCity,
+        departureDate: validatedData.departureDate,
+        departureTime: validatedData.departureTime,
+        senderName: validatedData.senderName,
+        senderWhatsapp: validatedData.senderWhatsapp,
+        receiverName: validatedData.receiverName,
+        receiverWhatsapp: validatedData.receiverWhatsapp,
+      },
     });
-
   } catch (error) {
     console.error('Activation error:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.issues },
+        { error: 'Validation error', message: error.issues[0].message, details: error.issues },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Erreur serveur', message: "Une erreur est survenue lors de l'activation." },
       { status: 500 }
     );
   }
