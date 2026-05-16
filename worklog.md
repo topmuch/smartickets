@@ -1524,3 +1524,42 @@ Stage Summary:
 - Complete login page redesign with Framer Motion animations, glassmorphism, modern form UX
 - Two distinct color themes: Agence (warm orange/pink) and SuperAdmin (dark navy/pink)
 - Mobile-responsive with stacked layout
+
+---
+Task ID: LANDING-WAHOO
+Agent: Main Agent
+Task: Enhance landing page with "Wahoo" effects — particles, 3D tilt, animated counters, carousel, bento grid, confetti
+
+Work Log:
+- Read full existing page.tsx (1210 lines) to understand current structure
+- Installed canvas-confetti + @types/canvas-confetti
+- Created 5 new components in src/components/home/:
+  1. ParticleCanvas.tsx — Pure Canvas API particle system with mouse interaction (no Three.js)
+  2. TiltCard.tsx — 3D tilt effect on mousemove with glare overlay (no library)
+  3. AnimatedCounter.tsx — Scroll-triggered number counter with ease-out cubic
+  4. TestimonialCarousel.tsx — Auto-play carousel with 5 testimonials, navigation dots/arrows
+  5. StatsSection.tsx — 4 animated stat cards (15K+ colis, 50+ agences, 200+ chauffeurs, 99% satisfaction)
+- Rewrote src/app/page.tsx with all enhancements:
+  - Hero: Canvas particle background + parallax scroll + animated gradient text + scroll indicator + live pulse badge
+  - WhyQRTrans: 3D TiltCards with glare + hover arrow reveal
+  - HowItWorks: Animated progress bar (scroll-triggered) + spring-animated step circles
+  - NEW StatsSection: Animated counters between HowItWorks and Chauffeur
+  - TechFeatures: Bento grid layout (2+1+1+2 pattern) with TiltCards
+  - Testimonials: Full carousel (5 testimonials) replacing static 2-card grid
+  - CTA: Confetti burst on button click + floating animated dots + social proof avatars
+  - Footer: Instagram link added + "Fait avec ❤️ au Sénégal" + dynamic year
+  - FloatingWhatsApp: Tooltip on hover
+  - Navigation: Smooth scroll on link click
+- All heavy components lazy-loaded via next/dynamic with ssr: false
+- Created DESIGN_SYSTEM.md documenting colors, typography, spacing, animations, sections, performance targets, accessibility, responsive breakpoints
+- Validation: bun run lint → 0 errors
+- Validation: Dev server compiled successfully (663ms hot reload)
+
+Stage Summary:
+- 5 new component files created
+- 1 main page.tsx rewritten (1210 → ~900 lines)
+- 1 DESIGN_SYSTEM.md created
+- 0 lint errors, 0 compilation errors
+- Key WOW effects: particle canvas, 3D tilt cards, animated timeline, counter animation, testimonial carousel, confetti CTA, parallax hero
+- No new heavy dependencies (canvas-confetti only, ~2KB gzipped)
+- Performance: lazy loading, SVG inline, no external fonts
