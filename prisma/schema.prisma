@@ -112,6 +112,12 @@ model Baggage {
   // COLIS-FEATURE: Receiver / Sender fields for inter-city logistics
   receiverName      String?   // Nom du destinataire du colis
   receiverWhatsapp  String?   // Numéro WhatsApp du destinataire
+
+  // COLIS-FEATURE: Arrival / Delivery fields
+  arrivedAt         DateTime? // Date/heure d'arrivée confirmée
+  deliveryLocation  String?   // Lieu de dépôt précis (ex: "Gare routière, Boutique X")
+  deliveryNotes     String?   // Notes du chauffeur à l'arrivée
+
   createdAt         DateTime  @default(now())
   expiresAt         DateTime?
   lastScanDate      DateTime?
