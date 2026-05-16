@@ -220,7 +220,7 @@ function ErrorScreen({
         {/* Activation button for pending baggages */}
         {type === 'pending_activation' && reference && (
           <a
-            href={`/inscrire?qr=${encodeURIComponent(reference)}`}
+            href={`/activate/${encodeURIComponent(reference)}`}
             className="mt-6 w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 min-h-[56px] shadow-lg shadow-orange-500/30"
           >
             ✨ Activer mon colis
