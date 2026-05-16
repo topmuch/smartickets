@@ -1477,3 +1477,26 @@ Stage Summary:
 - Landing page now focused on Senegal inter-city transport (chauffeurs + agences)
 - All navigation links functional: #solutions, #comment, #tarifs, /contact, /agence/connexion, /devenir-partenaire, /inscrire
 - Mobile-first responsive: vertical timeline, stacked CTAs, hamburger menu
+---
+Task ID: 1
+Agent: Main Agent
+Task: Apply custom background colors to activation page sections
+
+Work Log:
+- Read VoyageSection.tsx, SenderSection.tsx, ReceiverSection.tsx, SmartPhoneInput.tsx
+- Updated VoyageSection: bg-blue-50 → bg-[#67ab2b] (dark green), all text/borders adapted to white-on-dark theme
+- Updated SenderSection: bg-orange-50 → bg-[#2d60fa] (dark blue), all text/borders adapted to white-on-dark theme  
+- Updated ReceiverSection: bg-green-50 → bg-[#fa742d] (orange), all text/borders adapted to white-on-dark theme
+- Added labelClassName and hintClassName props to SmartPhoneInput for dark background compatibility
+- Updated SenderSection and ReceiverSection to pass labelClassName/hintClassName to SmartPhoneInput
+- All inputs use white backgrounds with tinted borders for readability on colored sections
+- Labels use text-white/90, required asterisks use text-yellow-300
+- Transport toggle buttons use white borders with opacity variants
+- Ran lint: passes clean
+- Dev server confirmed running
+
+Stage Summary:
+- VoyageSection (ITINÉRAIRE COLIS): green #67ab2b background ✅
+- SenderSection (EXPÉDITEUR): blue #2d60fa background ✅
+- ReceiverSection (DESTINATAIRE): orange #fa742d background ✅
+- SmartPhoneInput: backward-compatible with new labelClassName/hintClassName props ✅

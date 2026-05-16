@@ -109,6 +109,8 @@ interface SmartPhoneInputProps {
   hint?: string;
   error?: string | null;
   name: string;
+  labelClassName?: string;
+  hintClassName?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -144,7 +146,11 @@ export default function SmartPhoneInput({
   hint,
   error,
   name,
+  labelClassName = 'text-[#4B5563]',
+  hintClassName = '',
 }: SmartPhoneInputProps) {
+  const isDark = hintClassName.includes('white');
+
   const [countryCode, setCountryCode] = useState<string>(FALLBACK_COUNTRY);
   const [localInput, setLocalInput] = useState<string>('');
   const [detected, setDetected] = useState(false);
@@ -207,7 +213,7 @@ export default function SmartPhoneInput({
 
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={inputId} className="text-sm font-medium text-[#4B5563]">
+      <Label htmlFor={inputId} className={`text-sm font-medium ${labelClassName}`}>
         {label} <span className="text-red-500">*</span>
       </Label>
 
@@ -249,16 +255,16 @@ export default function SmartPhoneInput({
       ) : (
         <div className="space-y-0.5">
           {hint && (
-            <p id={hintId} className="text-xs text-gray-400">
+            <p id={hintId} className={`text-xs ${hintClassName || 'text-gray-400'}`}>
               {hint}
             </p>
           )}
           {detected ? (
-            <p className="text-xs text-emerald-600 flex items-center gap-1">
+            <p className={`text-xs flex items-center gap-1 ${isDark ? 'text-white/70' : 'text-emerald-600'}`}>
               ✅ Indicatif détecté automatiquement
             </p>
           ) : (
-            <p className="text-xs text-gray-400 flex items-center gap-1">
+            <p className={`text-xs flex items-center gap-1 ${isDark ? 'text-white/50' : 'text-gray-400'}`}>
               🌐 Indicatif par défaut ({flag} {callingCode})
             </p>
           )}
