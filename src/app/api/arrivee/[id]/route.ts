@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
+import { cleanPhone, generateWaMeLink } from '@/lib/wame';
 
 const confirmArrivalSchema = z.object({
   arrival_datetime: z.string().min(1, "La date/heure d'arrivée est obligatoire"),
@@ -139,16 +140,86 @@ export async function POST(
 
     const arrivedDate = arrivedAt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const arrivedTime = arrivedAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const trackingUrl = `https://qrtrans.com/suivi/${updated.reference}`;
+    const companyName = updated.busCompany || updated.airlineName || '';
 
-    await db.colisEvent.create({
-      data: {
-        baggageId: colis.id,
-        eventType: 'arrival',
-        recipientType: 'system',
-        messageTitle: '📍 Arrivée confirmée',
-        messageContent: `Le chauffeur a confirmé l'arrivée du colis ${colis.reference} à ${data.delivery_location} le ${arrivedDate} à ${arrivedTime}.`,
-        metadata: JSON.stringify({ delivery_location: data.delivery_location, arrived_date: arrivedDate, arrived_time: arrivedTime, notes: data.notes }),
-      },
+    // ─── 🟢 SENDER MESSAGE (Arrival confirmed) ───
+    const senderArrivalMessage = `🟢 *QRTrans — Colis Livré ✅*
+
+Bonjour *${updated.travelerFirstName || 'Expéditeur'}*,
+
+Bonne nouvelle ! Votre colis a bien été livré avec succès.
+
+📦 Référence : *${updated.reference}*
+📍 Lieu de livraison : ${data.delivery_location}
+✅ Livré le : ${arrivedDate} à ${arrivedTime}
+👤 Destinataire : ${updated.receiverName || '—'}
+
+Merci de votre confiance envers QRTrans 🙏
+
+⭐ Évaluer le service : https://qrtrans.com
+
+🔗 Suivre le colis : ${trackingUrl}`;
+
+    // ─── 🔵 RECEIVER MESSAGE (Package available for pickup) ───
+    const receiverArrivalMessage = `🔵 *QRTrans — Colis Disponible 📦*
+
+Bonjour *${updated.receiverName || 'Destinataire'}*,
+
+Votre colis est arrivé et peut maintenant être retiré.
+
+📦 Référence : *${updated.reference}*
+📍 Point de retrait : ${data.delivery_location}
+🕐 Horaires : 08h00 - 18h00
+✅ Arrivé le : ${arrivedDate} à ${arrivedTime}${companyName ? `\n📞 Assistance : ${companyName}` : ''}
+
+Merci d'utiliser QRTrans 🙏
+
+🔗 Suivre le colis : ${trackingUrl}`;
+
+    const wa_sender = generateWaMeLink(cleanPhone(updated.whatsappOwner || ''), senderArrivalMessage);
+    const wa_receiver = generateWaMeLink(cleanPhone(updated.receiverWhatsapp || ''), receiverArrivalMessage);
+
+    // Log arrival events (system + sender + receiver WhatsApp notifications)
+    const maskPhone = (phone: string) => {
+      const clean = cleanPhone(phone);
+      if (clean.length <= 4) return '***';
+      return clean.slice(0, 4) + '***' + clean.slice(-2);
+    };
+
+    await db.colisEvent.createMany({
+      data: [
+        {
+          baggageId: colis.id,
+          eventType: 'arrival',
+          recipientType: 'system',
+          messageTitle: '📍 Arrivée confirmée par le chauffeur',
+          messageContent: `Le chauffeur a confirmé l'arrivée du colis ${colis.reference} à ${data.delivery_location} le ${arrivedDate} à ${arrivedTime}.`,
+          metadata: JSON.stringify({ delivery_location: data.delivery_location, arrived_date: arrivedDate, arrived_time: arrivedTime, notes: data.notes }),
+        },
+        {
+          baggageId: colis.id,
+          eventType: 'arrival',
+          recipientType: 'sender',
+          recipientName: updated.travelerFirstName || 'Expéditeur',
+          recipientPhone: maskPhone(updated.whatsappOwner || ''),
+          messageTitle: '🟢 Colis Livré — Expéditeur',
+          messageContent: senderArrivalMessage,
+          waLink: wa_sender,
+          metadata: JSON.stringify({ delivery_location: data.delivery_location, arrived_date: arrivedDate, arrived_time: arrivedTime }),
+        },
+        {
+          baggageId: colis.id,
+          eventType: 'arrival',
+          recipientType: 'receiver',
+          recipientName: updated.receiverName || 'Destinataire',
+          recipientPhone: maskPhone(updated.receiverWhatsapp || ''),
+          messageTitle: '🔵 Colis Disponible — Destinataire',
+          messageContent: receiverArrivalMessage,
+          waLink: wa_receiver,
+          metadata: JSON.stringify({ delivery_location: data.delivery_location, arrived_date: arrivedDate, arrived_time: arrivedTime }),
+        },
+      ],
     });
 
     return NextResponse.json({
@@ -169,6 +240,8 @@ export async function POST(
         name: updated.receiverName || '',
         phone: updated.receiverWhatsapp || '',
       },
+      wa_sender,
+      wa_receiver,
       arrivalCity: updated.destination || '',
     });
 

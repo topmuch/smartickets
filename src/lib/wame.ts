@@ -107,18 +107,18 @@ export const NOTIFICATION_TEMPLATES: Record<NotificationType, (vars: Notificatio
 
 Bonjour *${v.sender_name}*,
 
-Votre colis a été pris en charge et est en cours de route.
+Votre colis a bien été pris en charge et est actuellement en route.
 
 📦 Référence : *${v.reference}*
 🚌 Compagnie : ${v.company_name}
 📍 Trajet : ${v.departure_city} → ${v.arrival_city}
 🕐 Départ : ${v.departure_date} à ${v.departure_time}
 
-Vous recevrez une confirmation à l'arrivée.
-Merci d'avoir utilisé QRTrans. 🙏
+Vous recevrez une notification dès son arrivée.
 
-${SEPARATOR}
-🔗 Suivre : ${v.tracking_url}`,
+Merci de votre confiance 🙏
+
+🔗 Suivre le colis : ${v.tracking_url}`,
 
   // ─── NOTIFICATION 2 : DÉPART → RECEVEUR ───
   departure_receiver: (v) =>
@@ -126,56 +126,56 @@ ${SEPARATOR}
 
 Bonjour *${v.receiver_name}*,
 
-Un colis vous étant destiné est en route vers vous.
+Un colis destiné à votre attention est actuellement en route.
 
 📦 Référence : *${v.reference}*
 👤 Expéditeur : ${v.sender_name}
 🚌 Compagnie : ${v.company_name}
 📍 Destination : ${v.arrival_city}
 🕐 Arrivée estimée : ${v.departure_date}
-${v.pin ? `🔐 *Code de retrait : ${v.pin}*\nConservez ce code. Il sera exigé à l'arrivée.\n` : ''}Vous serez notifié dès l'arrivée pour le retrait.
-À très bientôt ! 🤝
+${v.pin ? `🔐 *Code de retrait : ${v.pin}*\nConservez ce code. Il sera exigé à l'arrivée.\n` : ''}Vous serez notifié immédiatement dès l'arrivée du colis.
 
-${SEPARATOR}
-🔗 Suivre : ${v.tracking_url}`,
+🤝 Merci d'utiliser QRTrans
 
-  // ─── NOTIFICATION 3 : ARRIVÉE → ENVOYEUR ───
+🔗 Suivre le colis : ${v.tracking_url}`,
+
+  // ─── NOTIFICATION 3 : ARRIVÉE/LIVRAISON → ENVOYEUR ───
   arrival_sender: (v) =>
 `🟢 *QRTrans — Colis Livré ✅*
 
 Bonjour *${v.sender_name}*,
 
-Bonne nouvelle ! Votre colis a bien été livré.
+Bonne nouvelle ! Votre colis a bien été livré avec succès.
 
 📦 Référence : *${v.reference}*
-📍 Lieu de livraison : *${v.delivery_location || 'Non renseigné'}*
+📍 Lieu de livraison : ${v.delivery_location || 'Non renseigné'}
 ✅ Livré le : ${v.arrived_date || ''} à ${v.arrived_time || ''}
 👤 Destinataire : ${v.receiver_name}
 
-Merci de votre confiance. QRTrans vous souhaite une excellente journée. 🙏
+Merci de votre confiance envers QRTrans 🙏
 
-${SEPARATOR}
-⭐ Évaluer le service : ${v.feedback_url || ''}`,
+⭐ Évaluer le service : ${v.feedback_url || ''}
 
-  // ─── NOTIFICATION 4 : ARRIVÉE → RECEVEUR ───
+🔗 Suivre le colis : ${v.tracking_url}`,
+
+  // ─── NOTIFICATION 4 : ARRIVÉE → RECEVEUR (Colis Disponible) ───
   arrival_receiver: (v) =>
-`🔵 *QRTrans — Colis à Retirer 📦*
+`🔵 *QRTrans — Colis Disponible 📦*
 
 Bonjour *${v.receiver_name}*,
 
-Votre colis est *ARRIVÉ* et vous attend !
+Votre colis est arrivé et peut maintenant être retiré.
 
 📦 Référence : *${v.reference}*
-📍 Point de retrait : *${v.delivery_location || 'Non renseigné'}*
+📍 Point de retrait : ${v.delivery_location || 'Non renseigné'}
 🕐 Horaires : 08h00 - 18h00
 ✅ Arrivé le : ${v.arrived_date || ''} à ${v.arrived_time || ''}
 
-📞 Besoin d'aide ? Contactez ${v.company_name}
+📞 Assistance : ${v.company_name}
 
-${SEPARATOR}
-🔗 Suivre : ${v.tracking_url}
+Merci d'utiliser QRTrans 🙏
 
-Merci d'utiliser QRTrans. 🤝`,
+🔗 Suivre le colis : ${v.tracking_url}`,
 };
 
 // ═══════════════════════════════════════════════════════

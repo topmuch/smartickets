@@ -182,8 +182,8 @@ export async function POST(
       },
     });
 
-    // Build tracking URL
-    const trackingUrl = `https://qrtrans.com/activate/${updated.reference}`;
+    // Build tracking URL → page suivi
+    const trackingUrl = `https://qrtrans.com/suivi/${updated.reference}`;
 
     // Format date/time for wa.me messages
     const formattedDate = depDateTime.toLocaleDateString('fr-FR', {
@@ -191,55 +191,49 @@ export async function POST(
     });
     const formattedTime = depTime;
 
-    // Build baggage description line
-    const baggageDesc = `${baggageTypeLabel}${data.baggage.weight ? ` (${data.baggage.weight}kg)` : ''}${data.baggage.isFragile ? ' ⚠️ Fragile' : ''}`;
+    // Estimated arrival line (use ETA if provided, otherwise departure date)
+    const estimatedArrivalLine = data.estimated_arrival
+      ? data.estimated_arrival
+      : formattedDate;
 
-    // Build pickup line
-    const pickupLine = data.pickup_address ? `\n📍 Retrait : ${data.pickup_address}` : '';
-
-    // Build ETA line
-    const etaLine = data.estimated_arrival ? `\n🕐 Arrivée estimée : ${data.estimated_arrival}` : '';
-
-    // Build payment line
-    const paymentLine = `\n💰 Paiement : ${paymentLabels[data.payment_status]}`;
-
-    // Sender wa.me message (no PIN)
+    // ─── 🟢 SENDER MESSAGE (Departure) ───
     const senderMessage = `🟢 *QRTrans — Colis en Partance*
 
 Bonjour *${data.sender.name}*,
-Votre colis a été pris en charge et est en cours de route.
+
+Votre colis a bien été pris en charge et est actuellement en route.
 
 📦 Référence : *${updated.reference}*
-🧳 Colis : ${baggageDesc}
 🚌 Compagnie : ${data.company_name}
 📍 Trajet : ${data.departure_city} → ${data.arrival_city}
-🕐 Départ : ${formattedDate} à ${formattedTime}${etaLine}${pickupLine}${paymentLine}
+🕐 Départ : ${formattedDate} à ${formattedTime}
 
-Vous recevrez une confirmation à l'arrivée.
-Merci d'avoir utilisé QRTrans. 🙏
+Vous recevrez une notification dès son arrivée.
 
-────────
-🔗 Suivre : ${trackingUrl}`;
+Merci de votre confiance 🙏
 
-    // Receiver wa.me message (WITH PIN)
+🔗 Suivre le colis : ${trackingUrl}`;
+
+    // ─── 🔵 RECEIVER MESSAGE (Departure — with PIN) ───
     const receiverMessage = `🔵 *QRTrans — Colis en Transit*
 
-Bonjour *${data.receiver_name}*,
-Un colis vous étant destiné est en route.
+Bonjour *${data.receiver.name}*,
+
+Un colis destiné à votre attention est actuellement en route.
 
 📦 Référence : *${updated.reference}*
-🧳 Colis : ${baggageDesc}
 👤 Expéditeur : ${data.sender.name}
 🚌 Compagnie : ${data.company_name}
-📍 Destination : ${data.arrival_city}${etaLine}${pickupLine}${paymentLine}
+📍 Destination : ${data.arrival_city}
+🕐 Arrivée estimée : ${estimatedArrivalLine}
 🔐 *Code de retrait : ${pin}*
 Conservez ce code. Il sera exigé à l'arrivée.
 
-Vous serez notifié dès l'arrivée pour le retrait.
-À très bientôt ! 🤝
+Vous serez notifié immédiatement dès l'arrivée du colis.
 
-────────
-🔗 Suivre : ${trackingUrl}`;
+🤝 Merci d'utiliser QRTrans
+
+🔗 Suivre le colis : ${trackingUrl}`;
 
     const wa_sender = generateWaMeLink(cleanPhone(data.sender.phone), senderMessage);
     const wa_receiver = generateWaMeLink(cleanPhone(data.receiver.phone), receiverMessage);

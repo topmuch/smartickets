@@ -84,28 +84,50 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Build arrival wa.me links
+    // Build delivery wa.me links
     const today = now.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
     });
+    const deliveryTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const trackingUrl = `https://qrtrans.com/suivi/${updated.reference}`;
 
-    // Sender arrival message
+    // Company name for assistance
+    const companyName = updated.busCompany || updated.airlineName || updated.trainCompany || '';
+
+    // ─── 🟢 SENDER MESSAGE (Delivery confirmed) ───
     const senderMessage = `🟢 *QRTrans — Colis Livré ✅*
 
 Bonjour *${updated.travelerFirstName || 'Expéditeur'}*,
-Votre colis ${updated.reference} a été livré.
-✅ Livraison confirmée le ${today}.
-Merci d'avoir utilisé QRTrans.`;
 
-    // Receiver arrival message
-    const receiverMessage = `🔵 *QRTrans — Retrait Confirmé ✅*
+Bonne nouvelle ! Votre colis a bien été livré avec succès.
+
+📦 Référence : *${updated.reference}*
+📍 Lieu de livraison : ${updated.deliveryLocation || 'Non renseigné'}
+✅ Livré le : ${today} à ${deliveryTime}
+👤 Destinataire : ${updated.receiverName || '—'}
+
+Merci de votre confiance envers QRTrans 🙏
+
+⭐ Évaluer le service : https://qrtrans.com
+
+🔗 Suivre le colis : ${trackingUrl}`;
+
+    // ─── 🔵 RECEIVER MESSAGE (Package available for pickup / retrieved) ───
+    const receiverMessage = `🔵 *QRTrans — Colis Disponible 📦*
 
 Bonjour *${updated.receiverName || 'Destinataire'}*,
-Votre colis ${updated.reference} a été retiré avec succès.
-✅ Statut : Livré
-Merci !`;
+
+Votre colis est arrivé et a été retiré avec succès.
+
+📦 Référence : *${updated.reference}*
+📍 Retrait : ${updated.deliveryLocation || 'Non renseigné'}
+✅ Retiré le : ${today} à ${deliveryTime}${companyName ? `\n📞 Assistance : ${companyName}` : ''}
+
+Merci d'utiliser QRTrans 🙏
+
+🔗 Suivre le colis : ${trackingUrl}`;
 
     const wa_sender = generateWaMeLink(
       cleanPhone(updated.whatsappOwner || ''),
@@ -133,7 +155,7 @@ Merci !`;
           recipientType: 'sender',
           recipientName: updated.travelerFirstName || 'Expéditeur',
           recipientPhone: maskPhone(updated.whatsappOwner || ''),
-          messageTitle: '🟢 Colis Livré — Notification Expéditeur',
+          messageTitle: '🟢 Colis Livré — Expéditeur',
           messageContent: senderMessage,
           waLink: wa_sender,
           metadata: JSON.stringify({ delivered_date: today, delivered_time: deliveryTime }),
@@ -144,7 +166,7 @@ Merci !`;
           recipientType: 'receiver',
           recipientName: updated.receiverName || 'Destinataire',
           recipientPhone: maskPhone(updated.receiverWhatsapp || ''),
-          messageTitle: '🔵 Retrait Confirmé — Notification Destinataire',
+          messageTitle: '🔵 Colis Disponible — Destinataire',
           messageContent: receiverMessage,
           waLink: wa_receiver,
           metadata: JSON.stringify({ delivered_date: today, delivered_time: deliveryTime }),
