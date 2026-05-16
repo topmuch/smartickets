@@ -43,8 +43,8 @@ export default function SuccessScreen({
   const t = (fr: string, en: string) => lang === 'fr' ? fr : en;
 
   const trackingUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/suivi/${reference}`
-    : `/suivi/${reference}`;
+    ? `${window.location.origin}/activate/${reference}`
+    : `/activate/${reference}`;
 
   // Build vars for wame.ts
   const formattedDate = formatDateFR(departureDate);

@@ -106,7 +106,7 @@ function StickySearchBar() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid) {
-      router.push(`/suivi/${refValue}`);
+      router.push(`/activate/${refValue}`);
     }
   };
 

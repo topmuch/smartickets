@@ -223,7 +223,7 @@ export default function ActivationForm({ qrCode, lang }: ActivationFormProps) {
         <h2 className="text-lg font-bold text-gray-900">{errorMessage}</h2>
         <p className="text-sm text-gray-400 font-mono">#{qrCode}</p>
         <a
-          href={`/suivi/${qrCode}`}
+          href={`/activate/${qrCode}`}
           className="inline-flex items-center gap-2 px-6 h-12 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold text-sm transition-colors no-underline"
         >
           🔍 {t('Voir le suivi', 'View tracking')}

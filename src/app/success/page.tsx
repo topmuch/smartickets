@@ -244,7 +244,7 @@ function SuccessContent() {
   const handleShare = async () => {
     if (!activationData) return;
 
-    const trackingUrl = typeof window !== 'undefined' ? `${window.location.origin}/suivi/${activationData.reference}` : '';
+    const trackingUrl = typeof window !== 'undefined' ? `${window.location.origin}/activate/${activationData.reference}` : '';
     const shareData = {
       title: 'QRTrans - Preuve d\'activation',
       text: `Mon colis ${activationData.reference} est protégé par QRTrans. Voici votre lien de suivi :`,
@@ -441,11 +441,11 @@ function SuccessContent() {
                 🔗 Votre lien de suivi unique :
               </p>
               <a
-                href={`/suivi/${activationData.reference}`}
+                href={`/activate/${activationData.reference}`}
                 className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg border border-white/10 hover:bg-white/20 transition-colors group mb-2"
               >
                 <span className="flex-1 text-sm text-orange-300 truncate font-mono">
-                  {typeof window !== 'undefined' ? `${window.location.origin}/suivi/${activationData.reference}` : `/suivi/${activationData.reference}`}
+                  {typeof window !== 'undefined' ? `${window.location.origin}/activate/${activationData.reference}` : `/activate/${activationData.reference}`}
                 </span>
                 <span className="text-xs text-white/50 group-hover:text-white transition-colors flex-shrink-0">
                   Ouvrir ↗
@@ -453,14 +453,14 @@ function SuccessContent() {
               </a>
               <div className="flex items-center gap-2">
                 <a
-                  href={`/suivi/${activationData.reference}`}
+                  href={`/activate/${activationData.reference}`}
                   className="flex-1 text-center px-3 py-2 text-sm bg-white hover:bg-white/90 text-[#0d5e34] rounded-lg transition-colors font-semibold"
                 >
                   📍 Suivre mon colis
                 </a>
                 <button 
                   onClick={() => {
-                    const link = `${window.location.origin}/suivi/${activationData.reference}`;
+                    const link = `${window.location.origin}/activate/${activationData.reference}`;
                     navigator.clipboard.writeText(link);
                     setCopyFeedback(true);
                     setTimeout(() => setCopyFeedback(false), 2000);

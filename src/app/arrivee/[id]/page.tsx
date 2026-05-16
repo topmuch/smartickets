@@ -153,7 +153,7 @@ export default function ArriveePage() {
                   {t('Ce colis a déjà été livré.', 'This package has already been delivered.')}
                 </p>
                 <Link
-                  href={`/suivi/${qrCode}`}
+                  href={`/activate/${qrCode}`}
                   className="inline-flex items-center gap-2 mt-3 px-4 h-10 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-semibold transition-colors no-underline"
                 >
                   🔍 {t('Voir le suivi', 'View tracking')}

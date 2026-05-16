@@ -26,8 +26,8 @@ export default function ArrivalSuccess({
   const [copied, setCopied] = useState(false);
 
   const trackingUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/suivi/${reference}`
-    : `/suivi/${reference}`;
+    ? `${window.location.origin}/activate/${reference}`
+    : `/activate/${reference}`;
 
   const feedbackUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/feedback/${reference}`

@@ -269,7 +269,7 @@ STRICT RULES:
  *   reference: 'VOL26-ZG46J2',
  *   location: { city: 'Dakar', country: 'Sénégal' },
  *   time: '18h45',
- *   link: 'https://qrtrans.com/suivi/VOL26-ZG46J2',
+ *   link: 'https://qrtrans.com/activate/VOL26-ZG46J2',
  *   language: 'fr',
  * });
  * console.log(result.message); // "🚨 Alerte QRTrans..."

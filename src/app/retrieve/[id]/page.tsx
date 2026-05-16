@@ -378,7 +378,7 @@ export default function RetrievePage() {
 
   // ─── Copy tracking link ───
   const handleCopyLink = async () => {
-    const url = `${window.location.origin}/suivi/${reference}`;
+    const url = `${window.location.origin}/activate/${reference}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -463,7 +463,7 @@ export default function RetrievePage() {
                 {tFn('Ce colis a déjà été livré.', 'This package has already been delivered.')}
               </p>
               <Link
-                href={`/suivi/${reference}`}
+                href={`/activate/${reference}`}
                 className="inline-flex items-center gap-2 mt-4 px-5 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors no-underline"
               >
                 <ExternalLink className="w-4 h-4" />
@@ -686,7 +686,7 @@ export default function RetrievePage() {
               )}
             </p>
             <Link
-              href={`/suivi/${reference}`}
+              href={`/activate/${reference}`}
               className="inline-flex items-center gap-2 px-5 h-12 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold text-sm transition-colors no-underline"
             >
               <ExternalLink className="w-4 h-4" />

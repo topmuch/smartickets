@@ -134,7 +134,7 @@ export async function POST(
     });
 
     // Build tracking URL
-    const trackingUrl = `https://qrtrans.com/suivi/${updated.reference}`;
+    const trackingUrl = `https://qrtrans.com/activate/${updated.reference}`;
 
     // Format date/time for wa.me messages
     const formattedDate = depDateTime.toLocaleDateString('fr-FR', {

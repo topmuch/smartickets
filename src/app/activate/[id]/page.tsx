@@ -36,9 +36,9 @@ export default function ActivatePage() {
             return;
           }
 
-          // If already delivered → redirect to tracking page
+          // If already delivered → redirect to retrieve page
           if (status === 'delivered') {
-            router.replace(`/suivi/${qrCode}`);
+            router.replace(`/retrieve/${qrCode}`);
             return;
           }
         }

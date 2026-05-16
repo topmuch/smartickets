@@ -7,7 +7,7 @@
  *   ✅ Message généré sans crash
  *   ✅ Longueur ≤ 400 caractères
  *   ✅ Présence du formatage WhatsApp (*gras*, `monospace`)
- *   ✅ Lien de suivi qrtrans.com/suivi/[REF] présent
+ *   ✅ Lien de suivi qrtrans.com/activate/[REF] présent
  *   ✅ Icône du mode de transport présente
  *   ✅ Icône du contexte présente
  *   ✅ Signature QRTrans présente
@@ -114,7 +114,7 @@ function runTest(mode: string, context: string, locale: string): TestResult {
   }
 
   // CHECK 5: Tracking link (localhost ou qrtrans.com selon env)
-  if (message.includes('/suivi/VOL26-TEST99')) {
+  if (message.includes('/activate/VOL26-TEST99')) {
     checks.push('✅ Lien suivi présent');
   } else {
     errors.push('❌ Lien suivi manquant');

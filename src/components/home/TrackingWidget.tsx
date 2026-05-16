@@ -38,7 +38,7 @@ export default function TrackingWidget() {
     }
 
     // Navigate to tracking page
-    router.push(`/suivi/${trimmed}`);
+    router.push(`/activate/${trimmed}`);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {

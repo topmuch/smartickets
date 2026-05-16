@@ -14,7 +14,7 @@
  *   [EMOJI_CONTEXT + TITRE_CONTEXT]
  *   🧳 [REFERENCE] • [BAG_TYPE]
  *   [TRANSPORT_ICON] [CARRIER] [VEHICLE] • [DESTINATION]
- *   👉 Voir le bagage localisé : qrtrans.com/suivi/[REF]
+ *   👉 Voir le bagage localisé : qrtrans.com/activate/[REF]
  *   👤 [FINDER_NAME]
  *   📱 [FINDER_WHATSAPP]
  *   [CALL_TO_ACTION_CONTEXT]
@@ -23,7 +23,7 @@
  * Contraintes:
  *   - Max 400 caractères (limite wa.me pre-filled)
  *   - Formatage WhatsApp (*gras*, `monospace`)
- *   - Lien court qrtrans.com/suivi/[REF]
+ *   - Lien court qrtrans.com/activate/[REF]
  *   - i18n FR/EN/AR
  *   - Fallbacks robustes (pas de crash si champ manquant)
  *   - Logging discret
@@ -393,7 +393,7 @@ export function generatePreFilledMessage(params: PreFilledMessageParams): string
   }
 
   // Line 4: Tracking link (TOUJOURS)
-  lines.push(`${SEE_BAGAGE[locale]} ${appUrl}/suivi/${sanitizedRef}`);
+  lines.push(`${SEE_BAGAGE[locale]} ${appUrl}/activate/${sanitizedRef}`);
 
   // Line 5: Finder name (optionnel)
   const finderName = sanitize(finder.name);

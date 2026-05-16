@@ -121,7 +121,7 @@ function buildSystemPrompt(locale: Language): string {
 • À propos : ${appUrl}/a-propos
 • Activation voyageur : ${appUrl}/inscrire
 • Activation Hajj : ${appUrl}/hajj/activate
-• Suivi colis : ${appUrl}/suivi/[RÉFÉRENCE]
+• Suivi colis : ${appUrl}/activate/[RÉFÉRENCE]
 • Devenir partenaire : ${appUrl}/devenir-partenaire
 • Voyageurs standard : ${appUrl}/voyageurs-standard
 • CGU : ${appUrl}/cgu
@@ -150,7 +150,7 @@ RÈGLES :
 - Ne jamais inventer d'info non présente dans cette base de connaissances.
 - Ne jamais donner de conseil juridique ou médical.
 - Si l'utilisateur demande un lien de suivi, demande-lui sa référence QR (format: VOL26-XXXXXX).
-- IMPORTANT LIENS : Quand tu mentionnes une page du site (suivi, inscription, contact, etc.), donne TOUJOURS l'URL COMPLETE avec https://. Exemples : https://qrtrans.com/inscrire , https://qrtrans.com/contact , https://qrtrans.com/suivi/VOL26-XXXXXX. Ne donne JAMAIS un chemin partiel comme "/inscrire" seul.`,
+- IMPORTANT LIENS : Quand tu mentionnes une page du site (suivi, inscription, contact, etc.), donne TOUJOURS l'URL COMPLETE avec https://. Exemples : https://qrtrans.com/inscrire , https://qrtrans.com/contact , https://qrtrans.com/activate/VOL26-XXXXXX. Ne donne JAMAIS un chemin partiel comme "/inscrire" seul.`,
 
     en: `You are the QRTrans assistant, an intelligent support agent on the landing page. Respond in English, concisely (max 3 sentences) and empathetically. You know EVERYTHING about QRTrans.
 
@@ -189,7 +189,7 @@ RÈGLES :
 • About: ${appUrl}/a-propos
 • Traveler activation: ${appUrl}/inscrire
 • Hajj activation: ${appUrl}/hajj/activate
-• Baggage tracking: ${appUrl}/suivi/[REFERENCE]
+• Baggage tracking: ${appUrl}/activate/[REFERENCE]
 • Become a partner: ${appUrl}/devenir-partenaire
 • Standard travelers: ${appUrl}/voyageurs-standard
 • Terms: ${appUrl}/cgu
@@ -218,7 +218,7 @@ RULES:
 - Never invent info not in this knowledge base.
 - Never give legal or medical advice.
 - If the user asks for a tracking link, ask for their QR reference (format: VOL26-XXXXXX).
-- IMPORTANT LINKS: When mentioning a site page (tracking, signup, contact, etc.), ALWAYS provide the FULL URL with https://. Examples: https://qrtrans.com/inscrire , https://qrtrans.com/contact , https://qrtrans.com/suivi/VOL26-XXXXXX. NEVER give a partial path like "/inscrire" alone.`,
+- IMPORTANT LINKS: When mentioning a site page (tracking, signup, contact, etc.), ALWAYS provide the FULL URL with https://. Examples: https://qrtrans.com/inscrire , https://qrtrans.com/contact , https://qrtrans.com/activate/VOL26-XXXXXX. NEVER give a partial path like "/inscrire" alone.`,
 
     ar: `أنت مساعد QRTrans، وكيل دعم ذكي على الصفحة الرئيسية. أجب باللغة العربية، بطريقة موجزة (بحد أقصى 3 جمل) وبلطف. تعرف كل شيء عن QRTrans.
 
@@ -257,7 +257,7 @@ RULES:
 • من نحن: ${appUrl}/a-propos
 • تفعيل المسافر: ${appUrl}/inscrire
 • تفعيل الحج: ${appUrl}/hajj/activate
-• تتبع الأمتعة: ${appUrl}/suivi/[المرجع]
+• تتبع الأمتعة: ${appUrl}/activate/[المرجع]
 • كن شريكاً: ${appUrl}/devenir-partenaire
 • المسافرون: ${appUrl}/voyageurs-standard
 • الشروط: ${appUrl}/cgu
@@ -438,7 +438,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const trackingResult = detectTrackingRequest(sanitizedQuestion, locale);
 
     if (trackingResult?.type === 'link') {
-      const trackingLink = `${appUrl}/suivi/${trackingResult.reference}`;
+      const trackingLink = `${appUrl}/activate/${trackingResult.reference}`;
       const answer = locale === 'fr'
         ? `Voici votre lien de suivi : ${trackingLink} (cliquez pour ouvrir)`
         : locale === 'en'
