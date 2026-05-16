@@ -1337,3 +1337,44 @@ Stage Summary:
 - PIN system: 6-digit server-generated, sent ONLY to receiver via WhatsApp, max 3 validation attempts
 - 4 WhatsApp templates: departure_sender (no PIN), departure_receiver (WITH PIN), arrival_sender, arrival_receiver
 - Status flow: pending_activation → in_transit (activation) → delivered (PIN validated)
+
+---
+Task ID: 19
+Agent: Main Agent
+Task: Remove Hajj tab + rename "Voyageurs" to "Colis" in /admin/etiquettes page
+
+Work Log:
+- Read worklog.md for context
+- Read src/app/admin/etiquettes/page.tsx (656 lines)
+- Found that tab button and useState type were already partially simplified (likely from a previous session)
+- Identified remaining `activeTab === 'hajj'` conditionals in 3 sections:
+  1. Empty state (lines 370-396): icon background, icon choice, message text
+  2. Agency group header (lines 410-417): icon background, icon color
+  3. QR set item (lines 444-451): icon background, icon color
+- Applied 3 targeted edits to simplify all hajj conditionals to always use amber styling:
+  - Empty state: removed ternary for icon bg, removed Luggage conditional icon, changed text to "Aucun QR code Colis"
+  - Agency group header: removed ternary for icon bg, removed ternary for icon color
+  - QR set item: removed ternary for icon bg, removed ternary for icon color
+- Removed unused `Luggage` import from lucide-react
+- Removed unused `setActiveTab` from useState destructuring
+- Verified `selectedSet.type === 'hajj'` checks in detail modal are preserved (data-type conditionals, not tab)
+- Verified Stats interface (hajjSets, voyageurSets) preserved as-is (API returns them)
+- Ran `bun run lint` — 0 errors
+
+Files Modified:
+- src/app/admin/etiquettes/page.tsx — removed Hajj tab conditionals, renamed Voy→Colis, cleaned imports
+
+Self-Critique:
+- 0 bugs found. All changes are simplifications; no new logic introduced.
+- `activeTab` state variable still needed for API fetch param (`type=activeTab`) and client-side filtering
+- `selectedSet.type === 'hajj'` conditionals in detail modal intentionally preserved (data-driven, not tab-driven)
+- Header "Étiquettes QR" preserved as requested
+
+Stage Summary:
+- 1 file modified, 5 targeted edits + 2 import cleanup edits
+- Zero lint errors
+- Hajj tab completely removed from UI
+- "Voyageurs" renamed to "Colis" everywhere visible
+- All emerald/green hajj styling conditionals replaced with static amber styling
+- Detail modal hajj data-type checks preserved
+- Stats API fields (hajjSets, voyageurSets) preserved

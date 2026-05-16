@@ -74,7 +74,7 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
     { label: "Tableau de bord", icon: <Home className="w-5 h-5" />, href: "/agence/tableau-de-bord" },
     { label: "Colis", icon: <Luggage className="w-5 h-5" />, href: "/agence/baggages" },
     { label: "Assistance", icon: <MessageCircle className="w-5 h-5" />, href: "/agence/assistance", badge: unreadMessages },
-    { label: "Trouvailles", icon: <CheckCircle className="w-5 h-5" />, href: "/agence/trouvailles" },
+    { label: "Colis Livrés", icon: <CheckCircle className="w-5 h-5" />, href: "/agence/trouvailles" },
     { label: "Perdus", icon: <AlertTriangle className="w-5 h-5" />, href: "/agence/perdus" },
     { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/agence/rapports" },
     { label: "Profil", icon: <User className="w-5 h-5" />, href: "/agence/profil" },
@@ -288,7 +288,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadM
               className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-sm font-medium transition-colors border border-emerald-200 dark:border-emerald-800"
             >
               <CheckCircle className="w-4 h-4" />
-              <span className="hidden xl:inline">Trouvailles</span>
+              <span className="hidden xl:inline">Colis Livrés</span>
             </Link>
           </div>
           

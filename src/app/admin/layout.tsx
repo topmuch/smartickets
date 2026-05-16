@@ -99,7 +99,7 @@ function Sidebar({
     { label: "Messages", icon: <MessageSquare className="w-5 h-5" />, href: "/admin/messages", badge: unreadMessages, permission: PERMISSIONS.VIEW_MESSAGES },
 
     // Trouvailles (Found baggages)
-    { label: "Trouvailles", icon: <Search className="w-5 h-5" />, href: "/admin/trouvailles", permission: PERMISSIONS.VIEW_TROUVAILLES },
+    { label: "Colis Livrés", icon: <Search className="w-5 h-5" />, href: "/admin/trouvailles", permission: PERMISSIONS.VIEW_TROUVAILLES },
 
     // CRM - superadmin, admin, agent only
     { label: "CRM", icon: <UserPlus className="w-5 h-5" />, href: "/admin/crm", permission: PERMISSIONS.VIEW_CRM, roles: ['superadmin', 'admin', 'agent'] },

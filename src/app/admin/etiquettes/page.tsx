@@ -10,7 +10,6 @@ import {
   Share2,
   Trash2,
   Plane,
-  Luggage,
   QrCode,
   X,
   AlertTriangle,
@@ -64,7 +63,7 @@ export default function EtiquettesPage() {
   });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState<'voyageur' | 'hajj'>('voyageur');
+  const [activeTab] = useState<'voyageur'>('voyageur');
 
   // Modals
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -349,43 +348,15 @@ export default function EtiquettesPage() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Voyageur only */}
       <div className="flex gap-2 mb-6">
         <button
-          onClick={() => setActiveTab('voyageur')}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-            activeTab === 'voyageur'
-              ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
-          }`}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all bg-amber-500 text-white shadow-lg shadow-amber-500/30`}
         >
           <Plane className="w-5 h-5" />
-          Voyageurs
-          <span className={`px-2 py-0.5 rounded-full text-xs ${
-            activeTab === 'voyageur' 
-              ? 'bg-white/20 text-white' 
-              : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
-          }`}>
+          Colis
+          <span className="px-2 py-0.5 rounded-full text-xs bg-white/20 text-white">
             {stats.voyageurSets}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('hajj')}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-            activeTab === 'hajj'
-              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
-              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
-          }`}
-        >
-          <Luggage className="w-5 h-5" />
-          Hajj
-          <span className={`px-2 py-0.5 rounded-full text-xs ${
-            activeTab === 'hajj' 
-              ? 'bg-white/20 text-white' 
-              : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
-          }`}>
-            {stats.hajjSets}
           </span>
         </button>
       </div>
@@ -397,17 +368,11 @@ export default function EtiquettesPage() {
         </div>
       ) : agencyGroups.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-12 text-center">
-          <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
-            activeTab === 'hajj' ? 'bg-emerald-100 dark:bg-emerald-500/20' : 'bg-amber-100 dark:bg-amber-500/20'
-          }`}>
-            {activeTab === 'hajj' ? (
-              <Luggage className="w-8 h-8 text-emerald-600" />
-            ) : (
-              <Plane className="w-8 h-8 text-amber-600" />
-            )}
+          <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-amber-100 dark:bg-amber-500/20`}>
+            <Plane className="w-8 h-8 text-amber-600" />
           </div>
           <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">
-            Aucun QR code {activeTab === 'hajj' ? 'Hajj' : 'Voyageur'}
+            Aucun QR code Colis
           </h3>
           <p className="text-slate-500 dark:text-slate-400 mb-4">
             {search ? 'Aucun résultat pour votre recherche' : 'Commencez par générer des QR codes'}
@@ -435,14 +400,8 @@ export default function EtiquettesPage() {
                 className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    activeTab === 'hajj' 
-                      ? 'bg-emerald-100 dark:bg-emerald-500/20' 
-                      : 'bg-amber-100 dark:bg-amber-500/20'
-                  }`}>
-                    <Building2 className={`w-5 h-5 ${
-                      activeTab === 'hajj' ? 'text-emerald-600' : 'text-amber-600'
-                    }`} />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-amber-100 dark:bg-amber-500/20`}>
+                    <Building2 className={`w-5 h-5 text-amber-600`} />
                   </div>
                   <div className="text-left">
                     <h3 className="font-semibold text-slate-800 dark:text-white">
@@ -469,14 +428,8 @@ export default function EtiquettesPage() {
                       >
                         <div className="flex items-center gap-4">
                           {/* QR Icon */}
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                            activeTab === 'hajj'
-                              ? 'bg-emerald-100 dark:bg-emerald-500/20'
-                              : 'bg-amber-100 dark:bg-amber-500/20'
-                          }`}>
-                            <QrCode className={`w-6 h-6 ${
-                              activeTab === 'hajj' ? 'text-emerald-600' : 'text-amber-600'
-                            }`} />
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-amber-100 dark:bg-amber-500/20`}>
+                            <QrCode className={`w-6 h-6 text-amber-600`} />
                           </div>
 
                           {/* Info */}
