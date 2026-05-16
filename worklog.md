@@ -1420,3 +1420,22 @@ Stage Summary:
 - 1 file modified: src/app/admin/tableau-de-bord/page.tsx (QuickActions component)
 - Quick Actions cards now have vibrant gradient colored backgrounds matching the KPI card design language
 - Zero lint errors
+
+---
+Task ID: 18
+Agent: Main Agent
+Task: Delete /suivi/[reference] page and API, redirect all references to /activate/
+
+Work Log:
+- Deleted src/app/suivi/[reference]/page.tsx (857 lines tracking page)
+- Deleted src/app/api/suivi/[reference]/route.ts (207 lines API endpoint)
+- Replaced all /suivi/ references with /activate/ across 15 files
+- Updated activate/[id]/page.tsx: delivered status now redirects to /retrieve/ instead of /suivi/
+- Updated scan/[reference]/page.tsx comment: delivered → /retrieve/
+- Zero lint errors after all changes
+- Pushed to GitHub: commit acfa663
+
+Stage Summary:
+- 17 files changed, 32 insertions, 1096 deletions
+- All public tracking links now point to /activate/ (universal entry point)
+- /activate/ handles all statuses: pending_activation → form, in_transit → /retrieve/, delivered → /retrieve/
