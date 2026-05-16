@@ -981,3 +981,32 @@ Stage Summary:
 - Repo live at: https://github.com/topmuch/qrtrans
 - All code pushed successfully, branch tracking set up
 - Dockerfile (Coolify config), .dockerignore, docker-compose.yml all included
+
+---
+Task ID: 20
+Agent: Main Agent
+Task: Fix QR code creation "Internal server error"
+
+Work Log:
+- User reported "Internal server error" when creating QR codes
+- Tested API from curl: individual mode worked, agency mode failed
+- Root cause: Prisma foreign key constraint (P2003) when agencyId doesn't exist in DB
+- The database had no agencies (seed hadn't run), causing FK violation on baggage.create()
+- Fixed 3 issues:
+  1. Added agency existence validation before creating baggages (throw clear error)
+  2. Fixed Zod v4 error detection (use `'issues' in error` instead of `instanceof z.ZodError`)
+  3. Added specific error handlers for FK constraints, not-found errors, with proper HTTP status codes
+  4. Frontend now shows detailed error messages from API
+
+Files Modified:
+- src/app/api/admin/baggages/generate/route.ts — agency validation + Zod v4 compat + better errors
+- src/app/api/qrcodes/route.ts — better error details in response
+- src/app/admin/generer/page.tsx — display error details from API
+
+Stage Summary:
+- Bug was Foreign key constraint when agency doesn't exist (P2003)
+- Now returns clear "Agence introuvable (ID: xxx)" error with 400 status
+- Individual mode: ✅ works (no agency FK needed)
+- Agency mode: ✅ works (validates agency first)
+- Invalid agency: ✅ clear error message instead of generic 500
+- Pushed to GitHub: commit 1893d70
