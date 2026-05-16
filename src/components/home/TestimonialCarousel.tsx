@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface Testimonial {
   name: string;
@@ -51,8 +51,17 @@ const testimonials: Testimonial[] = [
 export default function TestimonialCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(1);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+
+  // Detect screen size on mount
+  useEffect(() => {
+  const updateCount = () => setVisibleCount(window.innerWidth >= 1024 ? 3 : 1);
+    updateCount();
+    window.addEventListener('resize', updateCount);
+    return () => window.removeEventListener('resize', updateCount);
+  }, []);
 
   const goTo = useCallback((index: number) => {
     if (isAnimating) return;
@@ -83,18 +92,9 @@ export default function TestimonialCarousel() {
     };
   }, [next, isPaused]);
 
-  // Show 1 card on mobile, 3 on desktop
-  const visibleCount = typeof window !== 'undefined' && window.innerWidth >= 1024 ? 3 : 1;
-
-  const getVisibleTestimonials = (): Testimonial[] => {
-    const visible: Testimonial[] = [];
-    for (let i = 0; i < visibleCount; i++) {
-      visible.push(testimonials[(currentIndex + i) % testimonials.length]);
-    }
-    return visible;
-  };
-
-  const visibleTestimonials = getVisibleTestimonials();
+  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + visibleCount).map((t, i) =>
+    testimonials[(currentIndex + i) % testimonials.length]
+  );
 
   return (
     <section className="py-20 lg:py-28 px-4" style={{ background: '#F8FAFC' }}>
