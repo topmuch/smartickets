@@ -140,7 +140,7 @@ export default function DemoPage() {
 
               <p className="text-[#a0a8b8] max-w-2xl mx-auto mb-8 text-lg">
                 Aucun compte, aucune application. Juste un QR code… et magie.
-                Découvrez comment protéger vos bagages en moins d&apos;une minute.
+                Découvrez comment protéger vos colis en moins d&apos;une minute.
               </p>
 
               {/* Features Pills */}
@@ -192,7 +192,7 @@ export default function DemoPage() {
                 Étape 1 : Scannez le QR
               </h2>
               <p className="text-[#a0a8b8] mb-8">
-                Imaginez que vous scannez le QR code sur votre bagage
+                Imaginez que vous scannez le QR code sur votre colis
               </p>
 
               {/* QR Code Display */}
@@ -230,7 +230,7 @@ export default function DemoPage() {
                       {scanComplete ? (
                         <div className="flex items-center justify-center gap-2 text-[#4ade80]">
                           <CheckCircle className="w-5 h-5" />
-                          <span className="font-medium">Bagage activé avec succès !</span>
+                          <span className="font-medium">Colis activé avec succès !</span>
                         </div>
                       ) : (
                         <p className="text-[#a0a8b8]">Référence: DEMO-001</p>
@@ -395,7 +395,7 @@ export default function DemoPage() {
                 Étape 3 : Envoyer au propriétaire
               </h2>
               <p className="text-[#a0a8b8] mb-8">
-                Recevez une notification si quelqu&apos;un trouve votre bagage
+                Recevez une notification si quelqu&apos;un trouve votre colis
               </p>
 
               {/* WhatsApp Card */}
@@ -430,7 +430,7 @@ export default function DemoPage() {
                         <div className="text-left">
                           <p className="text-white text-sm font-medium mb-1">Aperçu du message :</p>
                           <p className="text-[#a0a8b8] text-xs italic">
-                            &quot;Bonjour {formData.name}, votre bagage DEMO-001 a été scanné.
+                            &quot;Bonjour {formData.name}, votre colis DEMO-001 a été scanné.
                             Cliquez ici pour voir sa localisation : [Lien sécurisé]&quot;
                           </p>
                         </div>
@@ -500,7 +500,7 @@ export default function DemoPage() {
                 </h2>
 
                 <p className="text-white/90 max-w-lg mx-auto mb-4 text-lg">
-                  Vous venez de protéger un bagage en <span className="font-bold">{formatTime(elapsedTime)}</span> secondes.
+                  Vous venez de protéger un colis en <span className="font-bold">{formatTime(elapsedTime)}</span> secondes.
                 </p>
 
                 <p className="text-white/70 max-w-lg mx-auto mb-8">

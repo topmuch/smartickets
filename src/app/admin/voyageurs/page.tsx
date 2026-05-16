@@ -96,7 +96,7 @@ function AgencyCard({
           <div>
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white">{agency.name}</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {agency.travelerCount} voyageur{agency.travelerCount > 1 ? 's' : ''} • {agency.baggages.length} bagage{agency.baggages.length > 1 ? 's' : ''}
+              {agency.travelerCount} voyageur{agency.travelerCount > 1 ? 's' : ''} • {agency.baggages.length} colis
             </p>
           </div>
         </div>
@@ -349,7 +349,7 @@ export default function VoyageursAdminPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages actifs</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Colis actifs</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{totalActive}</p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
@@ -363,7 +363,7 @@ export default function VoyageursAdminPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages perdus</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Colis perdus</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{totalLost}</p>
               </div>
               <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">

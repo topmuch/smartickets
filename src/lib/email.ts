@@ -446,8 +446,8 @@ export function getBaggageLostEmailTemplate(data: {
           <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
         </div>
         <div style="background: #fff3f3; border: 2px solid #e74c3c; border-radius: 10px; padding: 30px;">
-          <h2 style="color: #e74c3c; margin-top: 0;">🚨 Bagage déclaré comme perdu</h2>
-          <p style="color: #666;">Un bagage a été signalé comme perdu. Voici les détails :</p>
+          <h2 style="color: #e74c3c; margin-top: 0;">🚨 Colis déclaré comme perdu</h2>
+          <p style="color: #666;">Un colis a été signalé comme perdu. Voici les détails :</p>
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <tr>
               <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Référence</td>
@@ -464,7 +464,7 @@ export function getBaggageLostEmailTemplate(data: {
             </tr>` : ''}
             ${data.baggageType ? `
             <tr>
-              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Type de bagage</td>
+              <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Type de colis</td>
               <td style="padding: 8px 0; font-weight: bold; color: #333; border-bottom: 1px solid #eee;">${data.baggageType}</td>
             </tr>` : ''}
             ${data.flightNumber ? `
@@ -485,7 +485,7 @@ export function getBaggageLostEmailTemplate(data: {
         </div>
       </div>
     `,
-    text: `🚨 QRTrans - Bagage déclaré comme perdu\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\nVol: ${data.flightNumber || 'Non renseigné'}\nDestination: ${data.destination || 'Non renseignée'}\n\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `🚨 QRTrans - Colis déclaré comme perdu\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\nVol: ${data.flightNumber || 'Non renseigné'}\nDestination: ${data.destination || 'Non renseignée'}\n\nNotification automatique QRTrans — ${now}\n© QRTrans`,
   };
 }
 
@@ -504,8 +504,8 @@ export function getBaggageFoundEmailTemplate(data: {
           <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
         </div>
         <div style="background: #e8f5e9; border: 2px solid #27ae60; border-radius: 10px; padding: 30px;">
-          <h2 style="color: #27ae60; margin-top: 0;">✅ Bagage retrouvé !</h2>
-          <p style="color: #666;">Un bagage précédemment signalé comme perdu a été retrouvé. Voici les détails :</p>
+          <h2 style="color: #27ae60; margin-top: 0;">✅ Colis retrouvé !</h2>
+          <p style="color: #666;">Un colis précédemment signalé comme perdu a été retrouvé. Voici les détails :</p>
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <tr>
               <td style="padding: 8px 0; color: #999; font-size: 14px; border-bottom: 1px solid #eee;">Référence</td>
@@ -522,7 +522,7 @@ export function getBaggageFoundEmailTemplate(data: {
             </tr>` : ''}
             ${data.baggageType ? `
             <tr>
-              <td style="padding: 8px 0; color: #999; font-size: 14px;">Type de bagage</td>
+              <td style="padding: 8px 0; color: #999; font-size: 14px;">Type de colis</td>
               <td style="padding: 8px 0; font-weight: bold; color: #333;">${data.baggageType}</td>
             </tr>` : ''}
           </table>
@@ -533,7 +533,7 @@ export function getBaggageFoundEmailTemplate(data: {
         </div>
       </div>
     `,
-    text: `✅ QRTrans - Bagage retrouvé !\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\n\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `✅ QRTrans - Colis retrouvé !\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\n\nNotification automatique QRTrans — ${now}\n© QRTrans`,
   };
 }
 

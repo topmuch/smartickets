@@ -78,7 +78,7 @@ export default function PerdusPage() {
   };
 
   const handleMarkFound = async (baggageId: string) => {
-    if (!confirm('Marquer ce bagage comme retrouvé ?')) return;
+    if (!confirm('Marquer ce colis comme retrouvé ?')) return;
     
     try {
       const res = await fetch(`/api/baggage/${baggageId}/mark-found`, { method: 'PUT' });
@@ -94,8 +94,8 @@ export default function PerdusPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Bagages perdus</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Liste des bagages déclarés perdus - Priorité haute</p>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Colis perdus</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Liste des colis déclarés perdus - Priorité haute</p>
       </div>
 
       {/* Stats Card */}
@@ -106,7 +106,7 @@ export default function PerdusPage() {
           </div>
           <div>
             <p className="text-3xl font-bold text-white">{baggages.length}</p>
-            <p className="text-sm text-white/80">Bagages perdus</p>
+            <p className="text-sm text-white/80">Colis perdus</p>
           </div>
         </div>
       </div>
@@ -117,7 +117,7 @@ export default function PerdusPage() {
           <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" />
           <div>
             <p className="text-rose-700 dark:text-rose-400 font-medium">Attention !</p>
-            <p className="text-rose-600 dark:text-rose-300 text-sm">Vous avez {baggages.length} bagage(s) signalé(s) comme perdu(s). Contactez rapidement les voyageurs concernés.</p>
+            <p className="text-rose-600 dark:text-rose-300 text-sm">Vous avez {baggages.length} colis signalé(s) comme perdu(s). Contactez rapidement les voyageurs concernés.</p>
           </div>
         </div>
       )}
@@ -166,8 +166,8 @@ export default function PerdusPage() {
                       <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mb-4">
                         <CheckCircle className="w-8 h-8 text-emerald-500" />
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400">Aucun bagage perdu</p>
-                      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Excellent ! Tous vos bagages sont bien suivis.</p>
+                      <p className="text-slate-500 dark:text-slate-400">Aucun colis perdu</p>
+                      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Excellent ! Tous vos colis sont bien suivis.</p>
                     </div>
                   </td>
                 </tr>
@@ -274,7 +274,7 @@ export default function PerdusPage() {
                 </div>
                 <div>
                   <p className="text-slate-800 dark:text-white font-mono font-bold">{selectedBaggage.reference}</p>
-                  <p className="text-rose-500 text-sm font-medium">Bagage perdu</p>
+                  <p className="text-rose-500 text-sm font-medium">Colis perdu</p>
                 </div>
               </div>
 

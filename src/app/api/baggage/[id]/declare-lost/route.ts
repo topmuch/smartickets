@@ -46,7 +46,7 @@ export async function PUT(
         userId: null, // broadcast to all superadmins
         agencyId: baggage.agencyId,
         baggageId: baggage.id,
-        message: `🚨 L'agence ${baggage.agency?.name || 'Inconnue'} a déclaré le bagage ${baggage.reference} comme perdu`,
+        message: `🚨 L'agence ${baggage.agency?.name || 'Inconnue'} a déclaré le colis ${baggage.reference} comme perdu`,
         data: JSON.stringify({
           reference: baggage.reference,
           agencyName: baggage.agency?.name,
@@ -85,7 +85,7 @@ export async function PUT(
         if (recipients.length > 0) {
           await sendEmail({
             to: recipients,
-            subject: `🚨 Bagage perdu — ${baggage.reference}`,
+            subject: `🚨 Colis perdu — ${baggage.reference}`,
             html: template.html,
             text: template.text,
             type: 'baggage_declared_lost',

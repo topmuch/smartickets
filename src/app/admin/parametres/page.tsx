@@ -138,7 +138,7 @@ function BackupSection() {
       if (response.ok) {
         setImportStatus({ 
           success: true, 
-          message: `Import réussi ! ${result.imported?.baggages || 0} bagages, ${result.imported?.users || 0} utilisateurs` 
+          message: `Import réussi ! ${result.imported?.baggages || 0} colis, ${result.imported?.users || 0} utilisateurs` 
         });
       } else {
         setImportStatus({ success: false, message: result.error || 'Erreur lors de l\'import' });
@@ -850,7 +850,7 @@ export default function ParametresPage() {
                     type="email"
                     value={emailSettings.recipientEmail || ''}
                     onChange={(e) => setEmailSettings({ ...emailSettings, recipientEmail: e.target.value || null })}
-                    placeholder="admin@votredomaine.com — L'email qui reçoit les notifications (bagages perdus/trouvés, messages de contact...)"
+                    placeholder="admin@votredomaine.com — L'email qui reçoit les notifications (colis perdus/trouvés, messages de contact...)"
                     className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white focus:outline-none focus:border-[#ff7f00]"
                   />
                   <p className="mt-1.5 text-xs text-slate-400">

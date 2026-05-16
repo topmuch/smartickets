@@ -72,7 +72,7 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
   
   const menuItems: MenuItem[] = [
     { label: "Tableau de bord", icon: <Home className="w-5 h-5" />, href: "/agence/tableau-de-bord" },
-    { label: "Bagages", icon: <Luggage className="w-5 h-5" />, href: "/agence/baggages" },
+    { label: "Colis", icon: <Luggage className="w-5 h-5" />, href: "/agence/baggages" },
     { label: "Assistance", icon: <MessageCircle className="w-5 h-5" />, href: "/agence/assistance", badge: unreadMessages },
     { label: "Trouvailles", icon: <CheckCircle className="w-5 h-5" />, href: "/agence/trouvailles" },
     { label: "Perdus", icon: <AlertTriangle className="w-5 h-5" />, href: "/agence/perdus" },
@@ -252,7 +252,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadM
             <Search className="w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher un bagage..."
+              placeholder="Rechercher un colis..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent border-none outline-none text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 w-full"

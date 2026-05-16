@@ -129,8 +129,8 @@ export default function AssistancePage() {
       answer: "Scannez le QR code avec votre téléphone et suivez les instructions à l'écran pour l'activer."
     },
     {
-      question: "Que faire si un bagage est perdu ?",
-      answer: "Accédez à la section 'Perdus' de votre tableau de bord et déclarez le bagage comme perdu."
+      question: "Que faire si un colis est perdu ?",
+      answer: "Accédez à la section 'Perdus' de votre tableau de bord et déclarez le colis comme perdu."
     },
     {
       question: "Comment commander plus de QR codes ?",

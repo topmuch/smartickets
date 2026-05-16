@@ -139,7 +139,7 @@ export default function AdminReportsPage() {
                 <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
                   <Luggage className="w-5 h-5 text-blue-500" />
                 </div>
-                <span className="text-slate-500 dark:text-slate-400 text-sm">Total bagages</span>
+                <span className="text-slate-500 dark:text-slate-400 text-sm">Total colis</span>
               </div>
               <p className="text-3xl font-bold text-slate-800 dark:text-white">{data.stats.total}</p>
             </div>
@@ -278,7 +278,7 @@ export default function AdminReportsPage() {
                     <TrendingUp className="w-4 h-4 text-emerald-500" />
                   </div>
                   <p className="text-3xl font-bold text-emerald-500">{data.recoveryRate}%</p>
-                  <p className="text-xs text-slate-400 mt-1">Bagages retrouvés / perdus</p>
+                  <p className="text-xs text-slate-400 mt-1">Colis retrouvés / perdus</p>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
@@ -310,7 +310,7 @@ export default function AdminReportsPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Trouveurs en attente</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Bagages trouvés par un trouveur, en attente de confirmation</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Colis trouvés par un trouveur, en attente de confirmation</p>
                   </div>
                 </div>
                 <span className="px-3 py-1 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-full text-sm font-medium">

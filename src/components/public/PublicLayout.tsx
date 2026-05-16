@@ -108,7 +108,7 @@ export function PublicFooter() {
               <span className="text-xl font-bold bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">QRTrans</span>
             </div>
             <p className="text-[#a0a8b8] text-sm">
-              Protection intelligente des bagages pour voyageurs et pèlerins.
+              Protection intelligente des colis pour voyageurs et pèlerins.
             </p>
           </div>
 

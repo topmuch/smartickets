@@ -84,7 +84,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
               <Luggage className="w-5 h-5 text-blue-500" />
             </div>
             <p className="text-2xl font-bold text-slate-800 dark:text-white">{totalBaggages}</p>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages protégés</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Colis protégés</p>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center mb-3">
@@ -113,10 +113,10 @@ export default async function PublicAgencyPage({ params }: PageProps) {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-              Bagages protégés
+              Colis protégés
             </h2>
             <span className="text-sm text-slate-500 dark:text-slate-400">
-              {totalBaggages} bagage{totalBaggages > 1 ? 's' : ''} affiché{totalBaggages > 1 ? 's' : ''}
+              {totalBaggages} colis affiché{totalBaggages > 1 ? 's' : ''}
             </span>
           </div>
 
@@ -125,9 +125,9 @@ export default async function PublicAgencyPage({ params }: PageProps) {
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Luggage className="w-8 h-8 text-slate-400" />
               </div>
-              <p className="text-slate-500 dark:text-slate-400">Aucun bagage actif</p>
+              <p className="text-slate-500 dark:text-slate-400">Aucun colis actif</p>
               <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
-                Les bagages protégés apparaîtront ici
+                Les colis protégés apparaîtront ici
               </p>
             </div>
           ) : (
@@ -230,7 +230,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
             Propulsé par <span className="font-semibold text-[#ff7f00]">QRTrans</span>
           </p>
           <p className="mt-1 text-xs">
-            Protection intelligente des bagages
+            Protection intelligente des colis
           </p>
         </footer>
       </div>

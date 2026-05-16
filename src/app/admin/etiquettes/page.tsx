@@ -599,7 +599,7 @@ export default function EtiquettesPage() {
                     <p className="text-slate-500 dark:text-slate-400 text-xs">
                       {selectedSet.type === 'hajj' 
                         ? (index === 0 ? 'Cabine' : `Soute #${index}`)
-                        : `Bagage #${index + 1}`
+                        : `Colis #${index + 1}`
                       }
                     </p>
                   </div>

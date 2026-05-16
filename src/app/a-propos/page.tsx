@@ -13,7 +13,7 @@ function AProposContent() {
             À propos de QRTrans
           </h1>
           <p className="text-[#a0a8b8] max-w-2xl mx-auto text-xl leading-relaxed">
-            Nous croyons qu&apos;un voyageur ne devrait jamais perdre son bagage — ni sa sérénité.
+            Nous croyons qu&apos;un voyageur ne devrait jamais perdre son colis — ni sa sérénité.
           </p>
         </div>
       </section>
@@ -24,7 +24,7 @@ function AProposContent() {
           <h2 className="text-3xl font-bold text-white mb-4">Notre mission</h2>
           <div className="w-24 h-1 bg-[#ff2a6d] mx-auto mb-6"></div>
           <p className="text-[#e0e6f0] text-lg max-w-3xl mx-auto">
-            Créer une protection intelligente, universelle et sans friction pour tous les bagages —
+            Créer une protection intelligente, universelle et sans friction pour tous les colis —
             que vous soyez pèlerin, voyageur d&apos;affaires ou touriste. Notre objectif est de transformer
             l&apos;angoisse de la perte en une simple formalité résolue en quelques clics.
           </p>
@@ -44,7 +44,7 @@ function AProposContent() {
             },
             {
               title: 'Confiance',
-              desc: 'Plus de 10 000 bagages protégés à travers le monde, avec un taux de récupération de 98 %. La preuve par le résultat.',
+              desc: 'Plus de 10 000 colis protégés à travers le monde, avec un taux de récupération de 98 %. La preuve par le résultat.',
               icon: '🤝',
             },
           ].map((item, i) => (
@@ -161,7 +161,7 @@ function AProposContent() {
           <h2 className="text-3xl font-bold text-center text-white mb-12">QRTrans en chiffres</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { number: '10 000+', label: 'Bagages protégés' },
+              { number: '10 000+', label: 'Colis protégés' },
               { number: '98%', label: 'Taux de récupération' },
               { number: '500+', label: 'Agences partenaires' },
               { number: '24/7', label: 'Support disponible' },

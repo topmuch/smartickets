@@ -206,7 +206,7 @@ const CONFIG_FIELDS: Record<string, {
         label: 'Template d\'alerte scan',
         type: 'text',
         placeholder: 'baggage_scan_alert',
-        help: 'Nom du template WhatsApp utilisé pour les alertes de scan de bagage'
+        help: 'Nom du template WhatsApp utilisé pour les alertes de scan de colis'
       },
       {
         key: 'wakit_timeout_ms',
@@ -224,7 +224,7 @@ const CONFIG_FIELDS: Record<string, {
   // ─── Groq (AI Inference API) ───
   groq_api: {
     title: '🧠 Configuration Groq API',
-    description: 'Connectez l\'API Groq pour les fonctionnalités d\'intelligence artificielle: analyse de bagages, détection de fraude, traduction, résumés.',
+    description: 'Connectez l\'API Groq pour les fonctionnalités d\'intelligence artificielle: analyse de colis, détection de fraude, traduction, résumés.',
     fields: [
       {
         key: 'groq_api_key',
@@ -252,7 +252,7 @@ const CONFIG_FIELDS: Record<string, {
         label: 'Modèle Analyse',
         type: 'text',
         placeholder: 'llama-3.1-8b-instant',
-        help: 'Modèle utilisé pour l\'analyse de bagages et la détection de fraude'
+        help: 'Modèle utilisé pour l\'analyse de colis et la détection de fraude'
       },
       {
         key: 'groq_timeout_ms',

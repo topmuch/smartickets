@@ -14,11 +14,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "QRTrans - Protection intelligente des bagages",
+    default: "QRTrans - Protection intelligente des colis",
     template: "%s | QRTrans",
   },
-  description: "Protégez vos bagages avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS. Un seul scan pour la tranquillité d'esprit.",
-  keywords: ["QR", "bagage", "voyage", "hajj", "protection", "sticker", "luggage", "travel", "pèlerinage"],
+  description: "Protégez vos colis avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS. Un seul scan pour la tranquillité d'esprit.",
+  keywords: ["QR", "colis", "voyage", "hajj", "protection", "sticker", "luggage", "travel", "pèlerinage"],
   authors: [{ name: "QRTrans Team" }],
   creator: "MMASOLUTION",
   publisher: "QRTrans",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 
   // Open Graph
   openGraph: {
-    title: "QRTrans - Protection intelligente des bagages",
+    title: "QRTrans - Protection intelligente des colis",
     description: "Un autocollant QR intelligent pour protéger vos effets personnels. Sans application. Sans batterie. Sans GPS.",
     url: "https://qrtrans.com",
     siteName: "QRTrans",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   // Twitter
   twitter: {
     card: "summary_large_image",
-    title: "QRTrans - Protection intelligente des bagages",
+    title: "QRTrans - Protection intelligente des colis",
     description: "Un autocollant QR intelligent pour protéger vos effets personnels.",
     images: ["/icons/icon-512x512.png"],
   },

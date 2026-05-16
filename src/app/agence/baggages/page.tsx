@@ -123,7 +123,7 @@ export default function BaggagesPage() {
 
   // Handle Declare Lost
   const handleDeclareLost = async (baggageId: string) => {
-    if (!confirm('⚠️ Êtes-vous sûr de vouloir déclarer ce bagage comme perdu ?\n\nUne alerte sera envoyée au SuperAdmin.')) return;
+    if (!confirm('⚠️ Êtes-vous sûr de vouloir déclarer ce colis comme perdu ?\n\nUne alerte sera envoyée au SuperAdmin.')) return;
 
     setActionLoading(baggageId);
     try {
@@ -152,7 +152,7 @@ export default function BaggagesPage() {
 
   // Handle Mark Found
   const handleMarkFound = async (baggageId: string) => {
-    if (!confirm('✅ Marquer ce bagage comme retrouvé ?')) return;
+    if (!confirm('✅ Marquer ce colis comme retrouvé ?')) return;
 
     setActionLoading(baggageId);
     try {
@@ -210,8 +210,8 @@ export default function BaggagesPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Gestion des bagages</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Liste complète des bagages de votre agence</p>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Gestion des colis</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Liste complète des colis de votre agence</p>
       </div>
 
       {/* Stats Cards - Multicolored */}
@@ -221,7 +221,7 @@ export default function BaggagesPage() {
             <Luggage className="w-5 h-5 text-white" />
           </div>
           <p className="text-2xl font-bold text-white">{baggages.length}</p>
-          <p className="text-sm text-white/80">Total bagages</p>
+          <p className="text-sm text-white/80">Total colis</p>
         </div>
         <div className="kpi-card kpi-card-blue p-5">
           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
@@ -294,7 +294,7 @@ export default function BaggagesPage() {
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
                 <Luggage className="w-8 h-8 text-slate-400" />
               </div>
-              <p className="text-slate-500 dark:text-slate-400">Aucun bagage trouvé</p>
+              <p className="text-slate-500 dark:text-slate-400">Aucun colis trouvé</p>
             </div>
           </div>
         </div>
@@ -307,7 +307,7 @@ export default function BaggagesPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-emerald-500" />
                   <h2 className="text-sm font-semibold text-slate-800 dark:text-white">
-                    Bagages activés ({activatedBaggages.length})
+                    Colis activés ({activatedBaggages.length})
                   </h2>
                 </div>
               </div>
@@ -411,7 +411,7 @@ export default function BaggagesPage() {
               </div>
               <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
                 <span className="text-slate-500 dark:text-slate-400 text-sm">
-                  {activatedBaggages.length} bagage(s) activé(s)
+                  {activatedBaggages.length} colis activé(s)
                 </span>
               </div>
             </div>
@@ -500,7 +500,7 @@ export default function BaggagesPage() {
           {/* Footer global */}
           <div className="text-center">
             <span className="text-slate-400 dark:text-slate-500 text-xs">
-              {filteredBaggages.length} bagage(s) affiché(s) sur {baggages.length}
+              {filteredBaggages.length} colis affiché(s) sur {baggages.length}
             </span>
           </div>
         </>
@@ -511,7 +511,7 @@ export default function BaggagesPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Détails du bagage</h2>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Détails du colis</h2>
               <button
                 onClick={() => {
                   setShowDetailModal(false);
@@ -576,7 +576,7 @@ export default function BaggagesPage() {
               {/* AGENCY-FIX: Attribuer edit form for unassigned baggages — parity with tableau-de-bord */}
               {(!selectedBaggage.travelerFirstName && !selectedBaggage.travelerLastName) && (
                 <div className="p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-800 rounded-xl">
-                  <h4 className="text-amber-700 dark:text-amber-400 font-medium mb-3">Attribuer ce bagage</h4>
+                  <h4 className="text-amber-700 dark:text-amber-400 font-medium mb-3">Attribuer ce colis</h4>
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <input

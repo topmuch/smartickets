@@ -98,7 +98,7 @@ function getMailtoUrl(email: string, subject: string, body: string): string {
 }
 
 function buildRenewalMessage(name: string, reference: string, expiryDate: string): string {
-  return `Bonjour ${name}, votre bagage QRTrans (${reference}) arrive à expiration le ${expiryDate}. Souhaitez-vous le renouveler pour 7€ ?`;
+  return `Bonjour ${name}, votre colis QRTrans (${reference}) arrive à expiration le ${expiryDate}. Souhaitez-vous le renouveler pour 7€ ?`;
 }
 
 function statusBadgeClass(status: string): string {
@@ -181,7 +181,7 @@ export default function MarketingPage() {
       t.baggages.map((b) => b.agencyName || '').filter(Boolean).join('; '),
     ]);
 
-    const header = ['Nom', 'Email', 'WhatsApp', 'Date inscription', 'Statut', 'Date expiration', 'Nb bagages', 'Références', 'Agences'];
+    const header = ['Nom', 'Email', 'WhatsApp', 'Date inscription', 'Statut', 'Date expiration', 'Nb colis', 'Références', 'Agences'];
     const csv = [header, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -264,7 +264,7 @@ export default function MarketingPage() {
           <CardContent className="p-4 lg:p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages actifs</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Colis actifs</p>
                 <p className="text-2xl lg:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
                   {data?.stats.activeBaggages ?? '—'}
                 </p>
@@ -280,7 +280,7 @@ export default function MarketingPage() {
           <CardContent className="p-4 lg:p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages expirés</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Colis expirés</p>
                 <div className="flex items-center gap-2">
                   <p className="text-2xl lg:text-3xl font-bold text-red-600 dark:text-red-400 mt-1">
                     {data?.stats.expiredBaggages ?? '—'}
@@ -368,7 +368,7 @@ export default function MarketingPage() {
           <Users className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
           <p className="text-slate-500 dark:text-slate-400 text-lg">Aucun utilisateur trouvé</p>
           <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
-            {search ? 'Essayez un autre terme de recherche' : 'Les données apparaîtront une fois les bagages activés'}
+            {search ? 'Essayez un autre terme de recherche' : 'Les données apparaîtront une fois les colis activés'}
           </p>
         </div>
       )}
@@ -491,7 +491,7 @@ function TravelerRow({ traveler, onView }: { traveler: Traveler; onView: () => v
       <td className="px-5 py-4">
         <div>
           <p className="font-medium text-slate-800 dark:text-white">{traveler.name}</p>
-          <p className="text-xs text-slate-400 mt-0.5">{traveler.totalBaggages} bagage{traveler.totalBaggages > 1 ? 's' : ''}</p>
+          <p className="text-xs text-slate-400 mt-0.5">{traveler.totalBaggages} colis</p>
         </div>
       </td>
       <td className="px-5 py-4">
@@ -579,7 +579,7 @@ function TravelerCard({ traveler, onView }: { traveler: Traveler; onView: () => 
       <div className="flex items-start justify-between mb-3">
         <div>
           <p className="font-semibold text-slate-800 dark:text-white">{traveler.name}</p>
-          <p className="text-xs text-slate-400 mt-0.5">{traveler.totalBaggages} bagage{traveler.totalBaggages > 1 ? 's' : ''}</p>
+          <p className="text-xs text-slate-400 mt-0.5">{traveler.totalBaggages} colis</p>
         </div>
         <Badge className={statusBadgeClass(traveler.status)}>
           {statusBadgeLabel(traveler.status)}
@@ -698,14 +698,14 @@ function DetailModalContent({ traveler }: { traveler: Traveler }) {
           <p className="font-medium text-slate-800 dark:text-white">{expiryStr}</p>
         </div>
         <div>
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nb bagages</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nb colis</p>
           <p className="font-medium text-slate-800 dark:text-white">{traveler.totalBaggages}</p>
         </div>
       </div>
 
       {/* Baggages List */}
       <div>
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Bagages</p>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Colis</p>
         <div className="space-y-2 max-h-48 overflow-y-auto">
           {traveler.baggages.map((b) => (
             <div key={b.reference} className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3">

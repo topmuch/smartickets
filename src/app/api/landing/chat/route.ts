@@ -41,7 +41,7 @@ const REFERENCE_REGEX = /[A-Z]{2,4}\d{2}-[A-Z0-9]{6}/;
 
 /** Mots-clés de suivi par langue */
 const TRACKING_KEYWORDS: Record<string, RegExp> = {
-  fr: /\b(suivi|bagage|où|lien|track|localis|trouv|perd|valise|ma\s*valise|mon\s*bagage)\b/i,
+  fr: /\b(suivi|colis|où|lien|track|localis|trouv|perd|valise|ma\s*valise|mon\s*colis)\b/i,
   en: /\b(track|baggage|where|link|locate|find|lost|suitcase|my\s*bag)\b/i,
   ar: /\b(أين|متابعة|حقيبة|وجدت|فقدت|أمتعة|رابط)\b/i,
 };
@@ -91,17 +91,17 @@ function buildSystemPrompt(locale: Language): string {
 • Siège social : 43 Rue Maryse Bastié, 78300 Poissy, France
 • Origine : Né à Dakar (Sénégal), déployé dans 15 pays
 • Site web : https://qrtrans.com
-• Mission : Protection intelligente des bagages pour voyageurs et pèlerins
+• Mission : Protection intelligente des colis pour voyageurs et pèlerins
 • Résaux sociaux : facebook.com/qrtrans | instagram.com/qrtrans | twitter.com/qrtrans
-• Stats : +10 000 bagages protégés, +500 agences partenaires, 98% de taux de récupération
+• Stats : +10 000 colis protégés, +500 agences partenaires, 98% de taux de récupération
 
 🧳 PRODUIT — COMMENT ÇA MARCHE :
-• QRTrans est un service de protection de bagages via des autocollants QR codes uniques.
+• QRTrans est un service de protection de colis via des autocollants QR codes uniques.
 • Pas besoin d'application, pas de batterie, pas de GPS. Fonctionne avec n'importe quel téléphone.
-• 4 étapes : 1) Recevez votre QR code → 2) Activez en 30 secondes (nom, vol, destination) → 3) Collez l'autocollant sur votre valise → 4) Si quelqu'un trouve votre bagage, il scanne le QR et vous recevez une notification WhatsApp instantanée avec la localisation.
+• 4 étapes : 1) Recevez votre QR code → 2) Activez en 30 secondes (nom, vol, destination) → 3) Collez l'autocollant sur votre valise → 4) Si quelqu'un trouve votre colis, il scanne le QR et vous recevez une notification WhatsApp instantanée avec la localisation.
 • Multi-transport : ✈️ avion, 🚆 train, 🚢 bateau, 🚌 bus
 • Confidentialité RGPD : numéros et emails jamais affichés en clair. Mise en relation sécurisée via boutons. Données chiffrées de bout en bout.
-• Pas de consigne/stockage : QRTrans ne stocke pas les bagages, c'est un service de mise en relation.
+• Pas de consigne/stockage : QRTrans ne stocke pas les colis, c'est un service de mise en relation.
 
 💰 TARIFS :
 • Formule Essentiel : 4€ pour 7 jours (3 étiquettes QR, support WhatsApp, géolocalisation)
@@ -111,7 +111,7 @@ function buildSystemPrompt(locale: Language): string {
 
 🕌 PRODUIT HAJJ & OMRARA :
 • Solution dédiée aux pèlerins (La Mecque, Médine, Djeddah)
-• 3 bagages inclus (1 cabine + 2 soute), géré par l'agence partenaire
+• 3 colis inclus (1 cabine + 2 soute), géré par l'agence partenaire
 • Notifications WhatsApp même avec connectivité limitée
 • Page : ${appUrl}/hajj-omra
 
@@ -121,7 +121,7 @@ function buildSystemPrompt(locale: Language): string {
 • À propos : ${appUrl}/a-propos
 • Activation voyageur : ${appUrl}/inscrire
 • Activation Hajj : ${appUrl}/hajj/activate
-• Suivi bagage : ${appUrl}/suivi/[RÉFÉRENCE]
+• Suivi colis : ${appUrl}/suivi/[RÉFÉRENCE]
 • Devenir partenaire : ${appUrl}/devenir-partenaire
 • Voyageurs standard : ${appUrl}/voyageurs-standard
 • CGU : ${appUrl}/cgu

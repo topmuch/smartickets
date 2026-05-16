@@ -29,7 +29,7 @@ export default function Confidentialite() {
               <p className="mb-4">Nous collectons les types de données suivantes :</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Données d&apos;identification :</strong> nom, prénom, adresse email, numéro de téléphone</li>
-                <li><strong>Données de voyage :</strong> informations relatives aux bagages enregistrés, dates de voyage, destinations</li>
+                <li><strong>Données de voyage :</strong> informations relatives aux colis enregistrés, dates de voyage, destinations</li>
                 <li><strong>Données de connexion :</strong> adresse IP, type de navigateur, pages visitées, durée des sessions</li>
                 <li><strong>Données de localisation :</strong> localisation approximative lors du scan des QR codes</li>
                 <li><strong>Données de communication :</strong> messages envoyés via le formulaire de contact ou le chat intégré</li>
@@ -40,8 +40,8 @@ export default function Confidentialite() {
               <h2 className="text-2xl font-semibold text-white mb-4">3. Finalités du traitement</h2>
               <p className="mb-4">Vos données personnelles sont collectées et traitées pour les finalités suivantes :</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Gestion et suivi des bagages enregistrés via le système QRTrans</li>
-                <li>Faciliter la restitution des bagages perdus ou trouvés</li>
+                <li>Gestion et suivi des colis enregistrés via le système QRTrans</li>
+                <li>Faciliter la restitution des colis perdus ou trouvés</li>
                 <li>Communication avec les utilisateurs (notifications, alertes)</li>
                 <li>Amélioration de nos services et de l&apos;expérience utilisateur</li>
                 <li>Respect de nos obligations légales</li>
@@ -53,7 +53,7 @@ export default function Confidentialite() {
               <h2 className="text-2xl font-semibold text-white mb-4">4. Base légale du traitement</h2>
               <p className="mb-4">Le traitement de vos données personnelles repose sur les bases légales suivantes :</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li><strong>Exécution du contrat :</strong> pour la fourniture de nos services de protection des bagages</li>
+                <li><strong>Exécution du contrat :</strong> pour la fourniture de nos services de protection des colis</li>
                 <li><strong>Consentement :</strong> pour l&apos;envoi de communications commerciales et l&apos;utilisation de cookies non essentiels</li>
                 <li><strong>Intérêt légitime :</strong> pour l&apos;amélioration de nos services et la sécurité du site</li>
                 <li><strong>Obligation légale :</strong> pour le respect de nos obligations réglementaires</li>
@@ -83,7 +83,7 @@ export default function Confidentialite() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Données de compte : durée de l&apos;inscription + 3 ans</li>
-                <li>Données de bagages : durée de validité du QR code + 1 an</li>
+                <li>Données de colis : durée de validité du QR code + 1 an</li>
                 <li>Données de connexion : 13 mois maximum</li>
                 <li>Cookies : 13 mois maximum</li>
               </ul>

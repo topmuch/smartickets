@@ -53,7 +53,7 @@ function ExpiredContent() {
       `J'ai scanné un QR code QRTrans qui a expiré.\n\n` +
       `📦 Référence: ${reference}\n` +
       `📅 Expiré le: ${formatDate(expiredAt)}\n\n` +
-      `Je souhaite renouveler la protection de ce bagage.`
+      `Je souhaite renouveler la protection de ce colis.`
     );
     window.open(`https://wa.me/33745349339?text=${message}`, '_blank');
   };
@@ -72,7 +72,7 @@ function ExpiredContent() {
         </h1>
         
         <p className="text-[#a0a8b8] mb-8">
-          Le bagage associé à{' '}
+          Le colis associé à{' '}
           <span className="font-mono bg-slate-800 px-2 py-1 rounded text-amber-400">
             {reference || 'ce code'}
           </span>
@@ -92,7 +92,7 @@ function ExpiredContent() {
               <p className="text-amber-300 font-medium text-sm">Que faire ?</p>
               <p className="text-amber-200/70 text-sm mt-1">
                 Si vous êtes le propriétaire, contactez votre agence pour générer un nouveau QR code. 
-                Si vous avez trouvé ce bagage, vous pouvez nous contacter pour aider à le retrouver.
+                Si vous avez trouvé ce colis, vous pouvez nous contacter pour aider à le retrouver.
               </p>
             </div>
           </div>
@@ -140,7 +140,7 @@ function ExpiredContent() {
         {/* Footer */}
         <div className="mt-8 text-center text-[#a0a8b8]/70 text-xs">
           <Shield className="w-4 h-4 inline mr-1" />
-          QRTrans – Protégez vos bagages, en toute sérénité
+          QRTrans – Protégez vos colis, en toute sérénité
         </div>
       </div>
     </div>

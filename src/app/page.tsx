@@ -127,7 +127,7 @@ function StickySearchBar() {
                 type="text"
                 value={refValue}
                 onChange={handleChange}
-                placeholder="Suivre un bagage — ex: AB12-CDEF"
+                placeholder="Suivre un colis — ex: AB12-CDEF"
                 className={`w-full pl-11 pr-4 py-3 rounded-xl border text-sm font-medium transition-all duration-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 ${
                   isValid
                     ? 'border-emerald-400 focus:ring-emerald-500/20 text-slate-900'
@@ -272,7 +272,7 @@ function HeroSection() {
       <div className="absolute inset-0">
         <Image
           src="/hero-qrtrans.png"
-          alt="Voyageuse scannant un bagage QRTrans à l'aéroport"
+          alt="Voyageuse scannant un colis QRTrans à l'aéroport"
           fill
           className="object-cover scale-105"
           priority
@@ -310,13 +310,13 @@ function HeroSection() {
         <FadeIn>
           <div className="inline-flex items-center gap-2 mb-8 px-5 py-2.5 bg-black/40 border border-white/20 rounded-full backdrop-blur-md shadow-lg">
             <span className="w-2 h-2 bg-[#D4AF37] rounded-full animate-pulse" />
-            <span className="text-sm font-medium text-white tracking-wide">La protection intelligente pour vos bagages</span>
+            <span className="text-sm font-medium text-white tracking-wide">La protection intelligente pour vos colis</span>
           </div>
         </FadeIn>
 
         <FadeIn delay={0.15}>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.08] tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
-            Un bagage perdu n&apos;est pas{' '}
+            Un colis perdu n&apos;est pas{' '}
             <br className="hidden sm:block" />
             <span className="bg-gradient-to-r from-[#D4AF37] to-[#FF6B35] bg-clip-text text-transparent">
               une fatalité.
@@ -388,7 +388,7 @@ function QRTransEnActionSection() {
   const features = [
     'Scan instantané du QR code',
     'Notification WhatsApp en temps réel',
-    'Géolocalisation précise du bagage',
+    'Géolocalisation précise du colis',
     'Interface intuitive sans application',
   ];
 
@@ -403,7 +403,7 @@ function QRTransEnActionSection() {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-slate-200/80 border border-slate-200">
                 <Image
                   src="/images/landing-v2/qrcode-reel.jpg"
-                  alt="QR Code QRTrans apposé sur un bagage"
+                  alt="QR Code QRTrans apposé sur un colis"
                   width={1024}
                   height={1024}
                   className="w-full h-auto object-cover"
@@ -428,7 +428,7 @@ function QRTransEnActionSection() {
                 QRTrans en action <span className="inline-block">🎯</span>
               </h2>
               <p className="text-lg text-slate-600 leading-relaxed mb-8">
-                Scannez, activez, voyagez. Notre technologie QR code brevetée permet à n&apos;importe qui de signaler un bagage trouvé en un seul geste. Vous recevez instantanément une notification avec la localisation exacte de votre valise.
+                Scannez, activez, voyagez. Notre technologie QR code brevetée permet à n&apos;importe qui de signaler un colis trouvé en un seul geste. Vous recevez instantanément une notification avec la localisation exacte de votre valise.
               </p>
 
               <div className="space-y-4">
@@ -472,7 +472,7 @@ function TransportModesSection() {
   const modes = [
     {
       title: 'Avion',
-      description: 'Protégez vos bagages en soute et cabine lors de vos vols internationaux et domestiques.',
+      description: 'Protégez vos colis en soute et cabine lors de vos vols internationaux et domestiques.',
       image: '/images/landing-v2/transport-avion.jpg',
       stat: '15M+ passagers/an',
       icon: Plane,
@@ -486,14 +486,14 @@ function TransportModesSection() {
     },
     {
       title: 'Bateau',
-      description: 'Croisières et ferrys — QRTrans protège vos bagages sur tous les mers du monde.',
+      description: 'Croisières et ferrys — QRTrans protège vos colis sur tous les mers du monde.',
       image: '/images/landing-v2/transport-bateau.jpg',
       stat: '30M croisiéristes',
       icon: Ship,
     },
     {
       title: 'Bus',
-      description: 'Bus intercity et autocars — ne perdez plus jamais vos bagages en voyage.',
+      description: 'Bus intercity et autocars — ne perdez plus jamais vos colis en voyage.',
       image: '/images/landing-v2/transport-bus.jpg',
       stat: '200K trajets/jour',
       icon: Bus,
@@ -567,7 +567,7 @@ function WhyQRTransSection() {
     {
       icon: Heart,
       title: 'Pour les pèlerins, les voyageurs, les agences',
-      description: 'Hajj, Omra, tourisme, affaires — une seule solution qui s\'adapte à chaque voyageur. Plus de 10 000 bagages déjà protégés à travers le monde.',
+      description: 'Hajj, Omra, tourisme, affaires — une seule solution qui s\'adapte à chaque voyageur. Plus de 10 000 colis déjà protégés à travers le monde.',
     },
   ];
 
@@ -621,7 +621,7 @@ function SolutionsSection() {
   const solutions = [
     {
       title: 'Hajj & Omra',
-      description: 'Protection complète pour les pèlerins avec 3 bagages inclus (cabine + 2 soutes). Gérée par votre agence de voyage partenaire.',
+      description: 'Protection complète pour les pèlerins avec 3 colis inclus (cabine + 2 soutes). Gérée par votre agence de voyage partenaire.',
       icon: (
         <svg viewBox="0 0 48 48" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M24 4L6 12v12c0 10 8 18 18 22 10-4 18-12 18-22V12L24 4z" />
@@ -634,7 +634,7 @@ function SolutionsSection() {
     },
     {
       title: 'Voyageurs Standard',
-      description: 'Protection flexible pour tous vos voyages. Choisissez 1 ou 3 bagages avec une durée adaptée à vos besoins.',
+      description: 'Protection flexible pour tous vos voyages. Choisissez 1 ou 3 colis avec une durée adaptée à vos besoins.',
       icon: <Plane className="w-8 h-8" />,
       href: '/voyageurs-standard',
     },
@@ -716,13 +716,13 @@ function HowItWorksSection() {
     {
       number: '03',
       title: 'Voyagez serein',
-      description: 'Vos bagages sont protégés. Collez simplement l\'autocollant bien visible sur chaque valise.',
+      description: 'Vos colis sont protégés. Collez simplement l\'autocollant bien visible sur chaque valise.',
       icon: Plane,
     },
     {
       number: '04',
       title: 'Soyez notifié instantanément',
-      description: 'Si quelqu\'un trouve votre bagage, vous recevez une alerte immédiatement via WhatsApp.',
+      description: 'Si quelqu\'un trouve votre colis, vous recevez une alerte immédiatement via WhatsApp.',
       icon: Bell,
     },
   ];
@@ -780,7 +780,7 @@ function HowItWorksSection() {
    ══════════════════════════════════════════════ */
 function StatsSection() {
   const stats = [
-    { value: '10K+', label: 'Bagages protégés', icon: Luggage },
+    { value: '10K+', label: 'Colis protégés', icon: Luggage },
     { value: '500+', label: 'Agences partenaires', icon: Users },
     { value: '98%', label: 'Taux de récupération', icon: CheckCircle },
     { value: '24/7', label: 'Support disponible', icon: Headphones },
@@ -1004,10 +1004,10 @@ function FinalCTASection() {
       <div className="max-w-4xl mx-auto relative z-10 text-center">
         <FadeIn>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6 tracking-tight leading-tight">
-            Ne laissez pas un bagage<br className="hidden sm:block" /> gâcher un voyage.
+            Ne laissez pas un colis<br className="hidden sm:block" /> gâcher un voyage.
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Rejoignez 10 000+ voyageurs qui protègent leurs bagages avec QRTrans. Activation en 30 secondes, tranquillité pour tous vos voyages.
+            Rejoignez 10 000+ voyageurs qui protègent leurs colis avec QRTrans. Activation en 30 secondes, tranquillité pour tous vos voyages.
           </p>
 
           <Link href="/contact">
@@ -1108,7 +1108,7 @@ function Footer() {
               <span className="text-xl font-bold text-white tracking-tight">QRTrans</span>
             </div>
             <p className="text-sm leading-relaxed max-w-xs text-slate-400 mb-6">
-              Protection intelligente des bagages pour voyageurs et pèlerins.
+              Protection intelligente des colis pour voyageurs et pèlerins.
             </p>
             {/* Social */}
             <div className="flex items-center gap-3">

@@ -89,7 +89,7 @@ function HeroSection() {
         </h1>
 
         <p className="text-[#e0e6f0]/90 text-lg md:text-xl max-w-2xl mx-auto mb-8">
-          3 bagages inclus (cabine + 2 soutes). Gérée par votre agence de voyage partenaire.
+          3 colis inclus (cabine + 2 soutes). Gérée par votre agence de voyage partenaire.
         </p>
 
         {/* Trust Pills */}
@@ -112,7 +112,7 @@ function HeroSection() {
         <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
           <div className="bg-white/10 rounded-xl p-4 border border-white/20">
             <div className="text-3xl font-bold text-white">3</div>
-            <div className="text-white/70 text-sm">Bagages inclus</div>
+            <div className="text-white/70 text-sm">Colis inclus</div>
           </div>
           <div className="bg-white/10 rounded-xl p-4 border border-white/20">
             <div className="text-3xl font-bold text-white">98%</div>
@@ -153,13 +153,13 @@ function ProcedureSection() {
     {
       step: "03",
       title: "Voyagez serein",
-      desc: "Collez les autocollants sur vos bagages. Ils sont maintenant protégés.",
+      desc: "Collez les autocollants sur vos colis. Ils sont maintenant protégés.",
       icon: "✈️"
     },
     {
       step: "04",
       title: "Soyez notifié",
-      desc: "Recevez une alerte WhatsApp instantanée dès qu'un bagage est retrouvé.",
+      desc: "Recevez une alerte WhatsApp instantanée dès qu'un colis est retrouvé.",
       icon: "🔔"
     }
   ];
@@ -327,8 +327,8 @@ function FAQSection() {
       a: "La protection couvre toute la durée de votre pèlerinage, jusqu'à votre retour chez vous."
     },
     {
-      q: "Que faire si mon bagage est perdu ?",
-      a: "Rien à faire ! Si quelqu'un trouve votre bagage et scanne le QR code, vous recevez automatiquement une notification WhatsApp avec sa position."
+      q: "Que faire si mon colis est perdu ?",
+      a: "Rien à faire ! Si quelqu'un trouve votre colis et scanne le QR code, vous recevez automatiquement une notification WhatsApp avec sa position."
     }
   ];
 
@@ -360,7 +360,7 @@ function CTASection() {
     <section className="py-20 px-4 bg-gradient-to-r from-[#1e3a2e] to-[#0d5e34]">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          Prêt à protéger vos bagages<br />pour le Hajj 2026 ?
+          Prêt à protéger vos colis<br />pour le Hajj 2026 ?
         </h2>
         <p className="text-[#e0e6f0]/80 max-w-xl mx-auto mb-8 text-lg">
           Demandez à votre agence de voyage si elle propose QRTrans, ou contactez-nous pour plus d'informations.
@@ -406,7 +406,7 @@ function Footer() {
               <span className="text-xl font-bold bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">QRTrans</span>
             </div>
             <p className="text-[#a0a8b8] text-sm">
-              Protection intelligente des bagages pour voyageurs et pèlerins.
+              Protection intelligente des colis pour voyageurs et pèlerins.
             </p>
           </div>
 

@@ -183,7 +183,7 @@ export default function QRCodesPage() {
       ctx.fillStyle = '#a0a8b8';
       ctx.font = '12px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('QRTrans - Protégez vos bagages, en toute sérénité.', canvas.width / 2, canvas.height - 20);
+      ctx.fillText('QRTrans - Protégez vos colis, en toute sérénité.', canvas.width / 2, canvas.height - 20);
 
       // Download
       const link = document.createElement('a');

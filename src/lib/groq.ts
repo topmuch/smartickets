@@ -208,7 +208,7 @@ const FALLBACK_WHATSAPP_MESSAGES: Record<string, (p: WhatsAppMessageParams) => s
   // ─── Avion ───
   fr: (p) => {
     const t = TRANSPORT_NOTIFY_INFO[p.transportMode || 'flight'];
-    return `${t.emoji} Alerte QRTrans\nVotre bagage ${p.reference} (${t.fr}) a été scanné à ${p.location.city}, ${p.location.country} à ${p.time}.\nSuivez son statut : ${p.link}`;
+    return `${t.emoji} Alerte QRTrans\nVotre colis ${p.reference} (${t.fr}) a été scanné à ${p.location.city}, ${p.location.country} à ${p.time}.\nSuivez son statut : ${p.link}`;
   },
   en: (p) => {
     const t = TRANSPORT_NOTIFY_INFO[p.transportMode || 'flight'];

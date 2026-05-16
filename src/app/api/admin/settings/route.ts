@@ -10,9 +10,9 @@ const defaultSettings = {
   company_email: 'contact@qrtrans.com',
   company_logo: '',
   // SEO
-  seo_title: 'QRTrans - Protection intelligente des bagages',
-  seo_description: 'Protégez vos bagages avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS.',
-  seo_keywords: 'QR, bagage, voyage, hajj, protection, sticker',
+  seo_title: 'QRTrans - Protection intelligente des colis',
+  seo_description: 'Protégez vos colis avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS.',
+  seo_keywords: 'QR, colis, voyage, hajj, protection, sticker',
   seo_image: '',
   // Localization
   languages: 'fr,en,ar',

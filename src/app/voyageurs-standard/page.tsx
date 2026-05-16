@@ -89,7 +89,7 @@ function HeroSection() {
         </h1>
 
         <p className="text-[#e0e6f0]/90 text-lg md:text-xl max-w-2xl mx-auto mb-8">
-          Choisissez 1 ou 3 bagages avec une durée adaptée à vos besoins. Sans agence, sans engagement.
+          Choisissez 1 ou 3 colis avec une durée adaptée à vos besoins. Sans agence, sans engagement.
         </p>
 
         {/* Trust Pills */}
@@ -112,7 +112,7 @@ function HeroSection() {
         <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
           <div className="bg-white/10 rounded-xl p-4 border border-white/20">
             <div className="text-3xl font-bold text-white">1-3</div>
-            <div className="text-white/70 text-sm">Bagages</div>
+            <div className="text-white/70 text-sm">Colis</div>
           </div>
           <div className="bg-white/10 rounded-xl p-4 border border-white/20">
             <div className="text-3xl font-bold text-white">4€</div>
@@ -153,13 +153,13 @@ function ProcedureSection() {
     {
       step: "03",
       title: "Voyagez serein",
-      desc: "Collez les autocollants sur vos bagages. Technologie identique au Hajj.",
+      desc: "Collez les autocollants sur vos colis. Technologie identique au Hajj.",
       icon: "✈️"
     },
     {
       step: "04",
       title: "Soyez notifié",
-      desc: "Recevez une alerte WhatsApp instantanée si votre bagage est retrouvé.",
+      desc: "Recevez une alerte WhatsApp instantanée si votre colis est retrouvé.",
       icon: "🔔"
     }
   ];
@@ -208,7 +208,7 @@ function ProcedureSection() {
 // Advantages Section
 function AdvantagesSection() {
   const advantages = [
-    { icon: "✅", text: "1 ou 3 bagages (selon besoin)" },
+    { icon: "✅", text: "1 ou 3 colis (selon besoin)" },
     { icon: "✅", text: "Durée personnalisée : 7 jours ou 1 an" },
     { icon: "✅", text: "Aucune agence requise — vous gérez tout" },
     { icon: "✅", text: "Pas d'application, pas de batterie, pas de GPS" },
@@ -416,7 +416,7 @@ function CTASection() {
     <section className="py-20 px-4 bg-gradient-to-r from-[#d35400] to-[#e67e22]">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          Prêt à protéger<br />vos bagages ?
+          Prêt à protéger<br />vos colis ?
         </h2>
         <p className="text-[#e0e6f0]/80 max-w-xl mx-auto mb-8 text-lg">
           Commandez vos QR codes en quelques clics et voyagez l'esprit tranquille.
@@ -462,7 +462,7 @@ function Footer() {
               <span className="text-xl font-bold bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">QRTrans</span>
             </div>
             <p className="text-[#a0a8b8] text-sm">
-              Protection intelligente des bagages pour voyageurs et pèlerins.
+              Protection intelligente des colis pour voyageurs et pèlerins.
             </p>
           </div>
 

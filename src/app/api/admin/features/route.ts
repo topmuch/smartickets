@@ -30,7 +30,7 @@ const FEATURE_DEFINITIONS = [
   {
     key: 'push_notifications',
     label: 'Notifications push',
-    description: 'Envoie des alertes SMS/WhatsApp aux chefs d\'agence quand un bagage est trouvé.',
+    description: 'Envoie des alertes SMS/WhatsApp aux chefs d\'agence quand un colis est trouvé.',
     category: 'notifications',
     icon: 'Bell',
     enabled: false,
@@ -46,7 +46,7 @@ const FEATURE_DEFINITIONS = [
   {
     key: 'analytics_dashboard',
     label: 'Dashboard analytiques',
-    description: 'Statistiques avancées avec graphiques de scans par pays, période, et type de bagage.',
+    description: 'Statistiques avancées avec graphiques de scans par pays, période, et type de colis.',
     category: 'general',
     icon: 'BarChart3',
     enabled: false,
@@ -79,7 +79,7 @@ const FEATURE_DEFINITIONS = [
   {
     key: 'groq_api',
     label: 'Groq — IA Inference API',
-    description: 'Connectez l\'API Groq pour les fonctionnalités d\'intelligence artificielle: analyse de bagages, détection de fraude, traduction, résumés.',
+    description: 'Connectez l\'API Groq pour les fonctionnalités d\'intelligence artificielle: analyse de colis, détection de fraude, traduction, résumés.',
     category: 'api_services',
     icon: 'Brain',
     enabled: false,

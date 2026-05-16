@@ -186,7 +186,7 @@ export default function HajjAdminPage() {
   });
 
   const handleDeletePilgrim = async (pilgrimId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce pèlerin et ses bagages ?')) return;
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce pèlerin et ses colis ?')) return;
 
     try {
       const response = await fetch(`/api/admin/hajj?id=${pilgrimId}`, {
@@ -202,13 +202,13 @@ export default function HajjAdminPage() {
   };
 
   const handleExportCSV = () => {
-    const headers = ['Nom', 'Prénom', 'Agence', 'Statut', 'Bagages', 'Dernier scan'];
+    const headers = ['Nom', 'Prénom', 'Agence', 'Statut', 'Colis', 'Dernier scan'];
     const rows = filteredPilgrims.map(p => [
       p.lastName,
       p.firstName,
       p.agency?.name || '-',
       getGlobalStatus(p.baggages).label,
-      `${p.baggages.length} bagages`,
+      `${p.baggages.length} colis`,
       getLastScan(p.baggages)
     ]);
 
@@ -226,7 +226,7 @@ export default function HajjAdminPage() {
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Pèlerins Hajj 2026</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Gérez les pèlerins et leurs 3 bagages</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Gérez les pèlerins et leurs 3 colis</p>
       </div>
       {/* Action Buttons */}
       <div className="flex gap-2 mb-6">
@@ -268,7 +268,7 @@ export default function HajjAdminPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Bagages actifs</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Colis actifs</p>
                 <p className="text-3xl font-bold text-slate-800 dark:text-white">{stats.activeBaggages}</p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
@@ -395,7 +395,7 @@ export default function HajjAdminPage() {
                   </div>
                   <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                     <Luggage className="w-3 h-3 text-slate-400 shrink-0" />
-                    <span>🧳 ×{pilgrim.baggages.length} bagages</span>
+                    <span>🧳 ×{pilgrim.baggages.length} colis</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                     <Clock className="w-3 h-3 text-slate-400 shrink-0" />
@@ -464,7 +464,7 @@ export default function HajjAdminPage() {
               <div>
                 <h3 className="text-slate-800 font-medium mb-3 flex items-center gap-2">
                   <Luggage className="w-5 h-5" />
-                  Bagages (3)
+                  Colis (3)
                 </h3>
                 <div className="space-y-2">
                   {selectedPilgrim.baggages.map((baggage, index) => (

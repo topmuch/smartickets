@@ -77,22 +77,22 @@ type WhatsAppLocale = 'fr' | 'en' | 'ar';
 
 const TITLES: Record<string, Record<WhatsAppLocale, string>> = {
   departure_urgent: {
-    fr: 'URGENT — Bagage à {place} !',
+    fr: 'URGENT — Colis à {place} !',
     en: 'URGENT — Baggage at {place} !',
     ar: 'عاجل — أمتعة في {place} !',
   },
   arrival: {
-    fr: 'Bagage localisé à destination',
+    fr: 'Colis localisé à destination',
     en: 'Baggage located at destination',
     ar: 'تم تحديد موقع الأمتعة في الوجهة',
   },
   in_transit: {
-    fr: 'Bagage dans un transport',
+    fr: 'Colis dans un transport',
     en: 'Baggage in transit',
     ar: 'أمتعة في طريق',
   },
   static: {
-    fr: 'Bagage trouvé en lieu sûr',
+    fr: 'Colis trouvé en lieu sûr',
     en: 'Baggage found in safe location',
     ar: 'تم العثور على الأمتعة في مكان آمن',
   },
@@ -115,7 +115,7 @@ const CTAS: Record<string, Record<WhatsAppLocale, string>> = {
     ar: '👉 حدد نقطة لقاء بسرعة!',
   },
   static: {
-    fr: '👉 Le bagage est en sécurité, organisez la récupération.',
+    fr: '👉 Le colis est en sécurité, organisez la récupération.',
     en: '👉 The bag is safe, arrange pickup.',
     ar: '👉 الأمتعة في أمان، رتب الاستلام.',
   },
@@ -135,13 +135,13 @@ const CONTEXT_EMOJIS: Record<string, string> = {
 };
 
 const SIGNATURES: Record<WhatsAppLocale, string> = {
-  fr: 'QRTrans – Protégez vos bagages, en toute sérénité.',
+  fr: 'QRTrans – Protégez vos colis, en toute sérénité.',
   en: 'QRTrans – Protect your luggage with peace of mind.',
   ar: 'QRTrans – احمِ أمتعتك براحة بال.',
 };
 
 const SEE_BAGAGE: Record<WhatsAppLocale, string> = {
-  fr: '👉 Voir le bagage localisé :',
+  fr: '👉 Voir le colis localisé :',
   en: '👉 See located bag:',
   ar: '👉 رؤية الأمتعة المحددة:',
 };

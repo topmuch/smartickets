@@ -104,8 +104,8 @@ export default function TrouvaillesPage() {
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Bagages retrouvés</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Liste des bagages qui ont été marqués comme retrouvés</p>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Colis retrouvés</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Liste des colis qui ont été marqués comme retrouvés</p>
       </div>
 
       {/* Success Notification */}
@@ -116,8 +116,8 @@ export default function TrouvaillesPage() {
               <Bell className="w-5 h-5" />
             </div>
             <div className="flex-1">
-              <p className="font-bold text-sm">Nouveau bagage retrouvé !</p>
-              <p className="text-emerald-100 text-xs">Un bagage a été marqué comme retrouvé.</p>
+              <p className="font-bold text-sm">Nouveau colis retrouvé !</p>
+              <p className="text-emerald-100 text-xs">Un colis a été marqué comme retrouvé.</p>
             </div>
             <button
               onClick={() => setShowNotification(false)}
@@ -137,7 +137,7 @@ export default function TrouvaillesPage() {
           </div>
           <div>
             <p className="text-3xl font-bold text-white">{baggages.length}</p>
-            <p className="text-sm text-white/80">Bagages retrouvés</p>
+            <p className="text-sm text-white/80">Colis retrouvés</p>
           </div>
         </div>
       </div>
@@ -186,8 +186,8 @@ export default function TrouvaillesPage() {
                       <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mb-4">
                         <CheckCircle className="w-8 h-8 text-emerald-500" />
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400">Aucun bagage retrouvé</p>
-                      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Les bagages retrouvés apparaîtront ici</p>
+                      <p className="text-slate-500 dark:text-slate-400">Aucun colis retrouvé</p>
+                      <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Les colis retrouvés apparaîtront ici</p>
                     </div>
                   </td>
                 </tr>
@@ -276,7 +276,7 @@ export default function TrouvaillesPage() {
                 </div>
                 <div>
                   <p className="text-slate-800 dark:text-white font-mono font-bold">{selectedBaggage.reference}</p>
-                  <p className="text-emerald-500 text-sm font-medium">Bagage retrouvé</p>
+                  <p className="text-emerald-500 text-sm font-medium">Colis retrouvé</p>
                 </div>
               </div>
 

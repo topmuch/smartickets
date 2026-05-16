@@ -113,7 +113,7 @@ function HajjActivateContent() {
               Bienvenue ! 👋
             </h2>
             <p className="text-white/70">
-              Activez ce bagage en 30 secondes pour protéger vos effets personnels
+              Activez ce colis en 30 secondes pour protéger vos effets personnels
             </p>
             <Badge className="mt-3 bg-[#1e3a2e]/50 text-[#34d399]">
               ✈️ Hajj 2025
@@ -127,10 +127,10 @@ function HajjActivateContent() {
             <Plane className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Activation Bagage Hajj
+            Activation Colis Hajj
           </h1>
           <p className="text-white/70 text-lg">
-            Activez vos bagages en 30 secondes
+            Activez vos colis en 30 secondes
           </p>
         </div>
 
@@ -279,7 +279,7 @@ function HajjActivateContent() {
                   required
                 />
                 <p className="text-white/50 text-sm">
-                  Ce numéro recevra les notifications si vos bagages sont trouvés
+                  Ce numéro recevra les notifications si vos colis sont trouvés
                 </p>
               </div>
 
@@ -287,10 +287,10 @@ function HajjActivateContent() {
               <div className="bg-white/10 rounded-lg p-4 space-y-2">
                 <div className="flex items-center gap-2 text-white">
                   <CheckCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">3 bagages seront activés</span>
+                  <span className="text-sm font-medium">3 colis seront activés</span>
                 </div>
                 <p className="text-white/60 text-sm">
-                  1 bagage cabine + 2 bagages soute - Protection de 60 jours
+                  1 colis cabine + 2 colis soute - Protection de 60 jours
                 </p>
               </div>
 
@@ -306,7 +306,7 @@ function HajjActivateContent() {
                     Activation en cours...
                   </span>
                 ) : (
-                  'Activer mes bagages'
+                  'Activer mes colis'
                 )}
               </Button>
             </form>

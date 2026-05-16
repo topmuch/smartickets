@@ -85,7 +85,7 @@ export default function AdminBaggageDetailPage() {
   };
 
   const handleMarkFound = async () => {
-    if (!confirm('✅ Marquer ce bagage comme retrouvé ?')) return;
+    if (!confirm('✅ Marquer ce colis comme retrouvé ?')) return;
 
     setActionLoading(true);
     try {
@@ -138,7 +138,7 @@ export default function AdminBaggageDetailPage() {
     return (
       <div className="min-h-screen bg-[#080c1a] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-white">Bagage non trouvé</p>
+          <p className="text-white">Colis non trouvé</p>
           <Link href="/admin/qrcodes" className="text-[#b8860b] hover:underline mt-4 block">
             Retour aux QR codes
           </Link>
@@ -164,7 +164,7 @@ export default function AdminBaggageDetailPage() {
           <div className="w-10 h-10 bg-[#b8860b] rounded-lg flex items-center justify-center">
             <Luggage className="w-5 h-5 text-white" />
           </div>
-          Détails du bagage
+          Détails du colis
         </h1>
       </div>
 
@@ -173,7 +173,7 @@ export default function AdminBaggageDetailPage() {
         <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3">
           <AlertTriangle className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-rose-400">Bagage déclaré perdu</h3>
+            <h3 className="font-semibold text-rose-400">Colis déclaré perdu</h3>
             <p className="text-rose-300/80 text-sm mt-1">
               Déclaré perdu le {formatDate(baggage.declaredLostAt)}
             </p>
@@ -244,7 +244,7 @@ export default function AdminBaggageDetailPage() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <Luggage className="w-5 h-5 text-[#b8860b]" />
-              Détails du bagage
+              Détails du colis
             </h3>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="bg-[#111827] rounded-lg p-4">

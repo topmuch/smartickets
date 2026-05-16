@@ -64,7 +64,7 @@ export async function GET(
     if (!baggage) {
       return NextResponse.json({
         status: 'not_found',
-        message: 'Bagage non trouvé.',
+        message: 'Colis non trouvé.',
       });
     }
 
@@ -72,14 +72,14 @@ export async function GET(
     if (baggage.status === 'pending_activation') {
       return NextResponse.json({
         status: 'pending_activation',
-        message: 'Ce bagage n\'est pas encore activé.',
+        message: 'Ce colis n\'est pas encore activé.',
       });
     }
 
     if (baggage.status === 'blocked') {
       return NextResponse.json({
         status: 'blocked',
-        message: 'Ce bagage a été bloqué.',
+        message: 'Ce colis a été bloqué.',
       });
     }
 

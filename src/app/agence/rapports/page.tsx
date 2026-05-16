@@ -139,7 +139,7 @@ export default function AgencyReportsPage() {
                 <Luggage className="w-5 h-5 text-white" />
               </div>
               <p className="text-3xl font-bold text-white">{data.stats.total}</p>
-              <p className="text-sm text-white/80">Total bagages</p>
+              <p className="text-sm text-white/80">Total colis</p>
             </div>
             
             <div className="kpi-card kpi-card-blue p-5">
@@ -269,7 +269,7 @@ export default function AgencyReportsPage() {
                     <TrendingUp className="w-4 h-4 text-emerald-500" />
                   </div>
                   <p className="text-3xl font-bold text-emerald-500">{data.recoveryRate}%</p>
-                  <p className="text-xs text-slate-400 mt-1">Bagages retrouvés / perdus</p>
+                  <p className="text-xs text-slate-400 mt-1">Colis retrouvés / perdus</p>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
@@ -294,7 +294,7 @@ export default function AgencyReportsPage() {
                   Page publique de votre agence
                 </h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mb-3">
-                  Partagez ce lien avec vos clients pour leur montrer les bagages que vous protégez :
+                  Partagez ce lien avec vos clients pour leur montrer les colis que vous protégez :
                 </p>
                 <code className="bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg text-sm text-[#ff7f00] border border-slate-200 dark:border-slate-700">
                   {typeof window !== 'undefined' ? window.location.origin : ''}/agency/{agencyData?.slug || 'agency'}

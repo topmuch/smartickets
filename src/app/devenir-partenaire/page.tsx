@@ -115,7 +115,7 @@ function HeroSection() {
         </h1>
         
         <p className="text-[#a0a8b8] max-w-2xl mx-auto mb-8 text-lg">
-          Rejoignez plus de 500 agences de voyage et organisateurs de Hajj qui protègent déjà les bagages de leurs clients avec nos QR codes intelligents.
+          Rejoignez plus de 500 agences de voyage et organisateurs de Hajj qui protègent déjà les colis de leurs clients avec nos QR codes intelligents.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -150,7 +150,7 @@ function WhyPartnerSection() {
     },
     {
       title: "Confiance renforcée",
-      desc: "Vos clients retrouvent leurs bagages en moins de 2h — votre réputation s'élève.",
+      desc: "Vos clients retrouvent leurs colis en moins de 2h — votre réputation s'élève.",
       icon: "⭐"
     }
   ];
@@ -225,7 +225,7 @@ function TestimonialsSection() {
     {
       name: "Amadou Diallo",
       role: "Directeur, Pèlerins du Sénégal",
-      text: "QRTrans a réduit de 90% les pertes de bagages lors du Hajj 2025. Un service révolutionnaire.",
+      text: "QRTrans a réduit de 90% les pertes de colis lors du Hajj 2025. Un service révolutionnaire.",
       avatar: "AD"
     },
     {
@@ -388,7 +388,7 @@ function Footer() {
               <span className="text-xl font-bold bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">QRTrans</span>
             </div>
             <p className="text-[#a0a8b8] text-sm">
-              Protection intelligente des bagages pour voyageurs et pèlerins.
+              Protection intelligente des colis pour voyageurs et pèlerins.
             </p>
           </div>
 

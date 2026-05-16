@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       'Statut',
       'Pèlerin/Voyageur',
       'WhatsApp',
-      'Type Bagage',
+      'Type Colis',
       'Numéro',
       'Vol',
       'Destination',

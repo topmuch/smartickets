@@ -509,7 +509,7 @@ export default function TrouvaillesPage() {
                 </button>
                 {selectedLog.baggage?.whatsappOwner && (
                   <a
-                    href={`https://wa.me/${selectedLog.baggage.whatsappOwner.replace(/\D/g, '')}?text=${encodeURIComponent('Votre bagage a été scanné !')}`}
+                    href={`https://wa.me/${selectedLog.baggage.whatsappOwner.replace(/\D/g, '')}?text=${encodeURIComponent('Votre colis a été scanné !')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"

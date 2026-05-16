@@ -183,7 +183,7 @@ export default function NotificationBell() {
                               className="flex items-center gap-1 text-[#ff7f00] text-xs font-medium hover:text-[#ff7f00]/80 transition-colors"
                             >
                               <ExternalLink className="w-3 h-3" />
-                              Voir le bagage
+                              Voir le colis
                             </button>
                           )}
                           <button

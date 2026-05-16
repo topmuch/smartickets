@@ -59,7 +59,7 @@ export default function GenererQRPage() {
   
   // Agency form
   const [agencyForm, setAgencyForm] = useState({
-    type: 'hajj' as 'hajj' | 'voyageur',
+    type: 'voyageur' as 'voyageur',
     agencyId: '',
     travelerCount: 1,
     baggagePerTraveler: 3 as 1 | 3,
@@ -87,9 +87,7 @@ export default function GenererQRPage() {
     if (context === 'individual') {
       return individualForm.baggageCount;
     }
-    return agencyForm.type === 'hajj' 
-      ? agencyForm.travelerCount * 3 
-      : agencyForm.travelerCount * agencyForm.baggagePerTraveler;
+    return agencyForm.travelerCount * agencyForm.baggagePerTraveler;
   };
 
   // Validate individual form
@@ -153,7 +151,7 @@ export default function GenererQRPage() {
             type: agencyForm.type,
             agencyId: agencyForm.agencyId,
             travelerCount: agencyForm.travelerCount,
-            count: agencyForm.type === 'hajj' ? 3 : agencyForm.baggagePerTraveler,
+            count: agencyForm.baggagePerTraveler,
           };
       
       const response = await fetch('/api/admin/baggages/generate', {
@@ -302,7 +300,7 @@ export default function GenererQRPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-slate-700 dark:text-slate-300">Bagages</Label>
+                    <Label className="text-slate-700 dark:text-slate-300">Colis</Label>
                     <Select 
                       value={String(individualForm.baggageCount)} 
                       onValueChange={(v) => setIndividualForm({ ...individualForm, baggageCount: parseInt(v) as 1 | 3 })}
@@ -311,8 +309,8 @@ export default function GenererQRPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                        <SelectItem value="1">1 bagage</SelectItem>
-                        <SelectItem value="3">3 bagages</SelectItem>
+                        <SelectItem value="1">1 colis</SelectItem>
+                        <SelectItem value="3">3 colis</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -330,22 +328,6 @@ export default function GenererQRPage() {
             ) : (
               /* Agency Form */
               <>
-                <div className="space-y-2">
-                  <Label className="text-slate-700 dark:text-slate-300">Type de voyage</Label>
-                  <Select 
-                    value={agencyForm.type} 
-                    onValueChange={(v) => setAgencyForm({ ...agencyForm, type: v as 'hajj' | 'voyageur' })}
-                  >
-                    <SelectTrigger className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                      <SelectItem value="hajj">Hajj (Pèlerinage)</SelectItem>
-                      <SelectItem value="voyageur">Voyageur</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">Agence partenaire *</Label>
                   <Select 
@@ -368,7 +350,7 @@ export default function GenererQRPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-slate-700 dark:text-slate-300">
-                      {agencyForm.type === 'hajj' ? 'Nombre de pèlerins' : 'Nombre de voyageurs'}
+                      Nombre de voyageurs
                     </Label>
                     <Input 
                       type="number"
@@ -379,9 +361,8 @@ export default function GenererQRPage() {
                       className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white"
                     />
                   </div>
-                  {agencyForm.type === 'voyageur' && (
-                    <div className="space-y-2">
-                      <Label className="text-slate-700 dark:text-slate-300">Bagages par voyageur</Label>
+                  <div className="space-y-2">
+                      <Label className="text-slate-700 dark:text-slate-300">Colis par voyageur</Label>
                       <Select 
                         value={String(agencyForm.baggagePerTraveler)} 
                         onValueChange={(v) => setAgencyForm({ ...agencyForm, baggagePerTraveler: parseInt(v) as 1 | 3 })}
@@ -390,19 +371,12 @@ export default function GenererQRPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                          <SelectItem value="1">1 bagage</SelectItem>
-                          <SelectItem value="3">3 bagages</SelectItem>
+                          <SelectItem value="1">1 colis</SelectItem>
+                          <SelectItem value="3">3 colis</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                  )}
                 </div>
-
-                {agencyForm.type === 'hajj' && (
-                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-sm text-slate-600 dark:text-slate-300">
-                    <p>ℹ️ Pour le Hajj, chaque pèlerin reçoit automatiquement 3 bagages (1 cabine + 2 soutes)</p>
-                  </div>
-                )}
               </>
             )}
 
@@ -443,7 +417,7 @@ export default function GenererQRPage() {
               <div className="text-sm text-slate-500 dark:text-slate-400">
                 {context === 'individual' 
                   ? `${individualForm.duration === '7d' ? '7 jours' : '1 an'} de validité • Activation immédiate`
-                  : `${agencyForm.type === 'hajj' ? agencyForm.travelerCount * 3 : agencyForm.travelerCount * agencyForm.baggagePerTraveler} QR • En attente d'attribution`
+                  : `${agencyForm.travelerCount * agencyForm.baggagePerTraveler} QR • En attente d'attribution`
                 }
               </div>
             </div>
@@ -454,7 +428,7 @@ export default function GenererQRPage() {
                 <div>
                   <p className="text-slate-500 dark:text-slate-400">Type</p>
                   <p className="text-slate-800 dark:text-white font-medium">
-                    {context === 'individual' ? 'Individuel' : agencyForm.type === 'hajj' ? 'Hajj' : 'Voyageur'}
+                    {context === 'individual' ? 'Individuel' : 'Voyageur'}
                   </p>
                 </div>
                 <div>
@@ -479,9 +453,7 @@ export default function GenererQRPage() {
                   <p className="text-slate-800 dark:text-white font-medium">
                     {context === 'individual' 
                       ? individualForm.duration === '7d' ? '7 jours' : '1 an'
-                      : agencyForm.type === 'hajj' 
-                        ? '60 jours'
-                        : '5 jours'
+                      : '5 jours'
                     }
                   </p>
                 </div>

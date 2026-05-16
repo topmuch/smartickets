@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Conditions Générales d\'Utilisation',
-  description: 'CGU de QRTrans - Conditions d\'utilisation de nos services de protection des bagages.',
+  description: 'CGU de QRTrans - Conditions d\'utilisation de nos services de protection des colis.',
 };
 
 export default function CGU() {
@@ -27,14 +27,14 @@ export default function CGU() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">2. Description des services</h2>
               <p className="mb-4">
-                QRTrans propose un service de protection des bagages basé sur la technologie QR Code. Les services incluent :
+                QRTrans propose un service de protection des colis basé sur la technologie QR Code. Les services incluent :
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Fourniture d&apos;autocollants QR Code à apposer sur les bagages</li>
-                <li>Plateforme de signalement et de suivi des bagages perdus ou trouvés</li>
-                <li>Notifications en temps réel lors du scan d&apos;un bagage</li>
+                <li>Fourniture d&apos;autocollants QR Code à apposer sur les colis</li>
+                <li>Plateforme de signalement et de suivi des colis perdus ou trouvés</li>
+                <li>Notifications en temps réel lors du scan d&apos;un colis</li>
                 <li>Interface de gestion pour les agences de voyage et organisateurs de pèlerinage</li>
-                <li>Service client pour faciliter la restitution des bagages</li>
+                <li>Service client pour faciliter la restitution des colis</li>
               </ul>
             </section>
 
@@ -88,16 +88,16 @@ export default function CGU() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">6. Signalement et restitution</h2>
               <p className="mb-4">
-                En cas de perte ou de trouvaille d&apos;un bagage équipé d&apos;un QR Code QRTrans :
+                En cas de perte ou de trouvaille d&apos;un colis équipé d&apos;un QR Code QRTrans :
               </p>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li>Le scan du QR Code déclenche une notification au propriétaire du bagage</li>
+                <li>Le scan du QR Code déclenche une notification au propriétaire du colis</li>
                 <li>Une messagerie sécurisée permet la communication entre les parties</li>
-                <li>QRTrans facilite la mise en relation mais n&apos;assure pas le transport du bagage</li>
+                <li>QRTrans facilite la mise en relation mais n&apos;assure pas le transport du colis</li>
                 <li>Les informations personnelles restent protégées jusqu&apos;à consentement explicite</li>
               </ul>
               <p>
-                QRTrans ne peut être tenu responsable en cas d&apos;impossibilité de restitution du bagage.
+                QRTrans ne peut être tenu responsable en cas d&apos;impossibilité de restitution du colis.
               </p>
             </section>
 
@@ -122,7 +122,7 @@ export default function CGU() {
               <ul className="list-disc pl-6 space-y-2 mb-4">
                 <li>Des dommages résultant d&apos;une utilisation non conforme aux services</li>
                 <li>De l&apos;impossibilité d&apos;accès au service en cas de force majeure</li>
-                <li>Des pertes ou vols de bagages non signalés via la plateforme</li>
+                <li>Des pertes ou vols de colis non signalés via la plateforme</li>
                 <li>Des retards ou défauts de livraison des autocollants imputables aux transporteurs</li>
               </ul>
               <p>

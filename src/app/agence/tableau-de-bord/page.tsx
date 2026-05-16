@@ -187,8 +187,8 @@ function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) 
     if (stats.lost > 0) {
       suggestions.push({
         icon: '⚠️',
-        title: 'Bagages perdus',
-        text: `Vous avez ${stats.lost} bagage(s) signalé(s) comme perdu(s). Contactez rapidement les voyageurs concernés.`,
+        title: 'Colis perdus',
+        text: `Vous avez ${stats.lost} colis signalé(s) comme perdu(s). Contactez rapidement les voyageurs concernés.`,
         color: 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400'
       });
     }
@@ -197,7 +197,7 @@ function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) 
       suggestions.push({
         icon: '⏳',
         title: 'Activation en attente',
-        text: `${stats.pending} bagages sont en attente d'activation. Envoyez un rappel aux voyageurs.`,
+        text: `${stats.pending} colis sont en attente d'activation. Envoyez un rappel aux voyageurs.`,
         color: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400'
       });
     }
@@ -206,7 +206,7 @@ function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) 
       suggestions.push({
         icon: '🔍',
         title: 'Scans récents',
-        text: `${stats.scanned} bagage(s) ont été scanné(s) récemment. Vérifiez les localisations.`,
+        text: `${stats.scanned} colis ont été scanné(s) récemment. Vérifiez les localisations.`,
         color: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400'
       });
     }
@@ -215,7 +215,7 @@ function AISuggestions({ agencyId, stats }: { agencyId: string; stats: Stats }) 
       suggestions.push({
         icon: '✅',
         title: 'Excellent !',
-        text: 'Tous vos bagages sont actifs et bien suivis. Continuez comme ça !',
+        text: 'Tous vos colis sont actifs et bien suivis. Continuez comme ça !',
         color: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400'
       });
     }
@@ -596,16 +596,16 @@ export default function AgencyDashboardPage() {
   // Multicolored KPI Cards
   const kpiCards = [
     {
-      title: 'Total bagages',
+      title: 'Total colis',
       value: stats.total,
-      subtitle: 'Tous les bagages',
+      subtitle: 'Tous les colis',
       icon: <Luggage className="w-6 h-6 text-white" />,
       colorVariant: 'purple' as const,
     },
     {
       title: 'Scannés',
       value: stats.scanned + stats.active,
-      subtitle: 'Bagages actifs',
+      subtitle: 'Colis actifs',
       icon: <CheckCircle className="w-6 h-6 text-white" />,
       colorVariant: 'cyan' as const,
     },
@@ -632,7 +632,7 @@ export default function AgencyDashboardPage() {
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
           Bienvenue, <span className="text-amber-500">{agencyName}</span>
         </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Suivi en temps réel de vos bagages Hajj 2026</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Suivi en temps réel de vos colis Hajj 2026</p>
       </div>
 
       {/* Multicolored KPI Cards */}
@@ -707,11 +707,11 @@ export default function AgencyDashboardPage() {
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
                 <Clock className="w-8 h-8 text-slate-400" />
               </div>
-              <p className="text-slate-500 dark:text-slate-400">Aucun bagage trouvé</p>
+              <p className="text-slate-500 dark:text-slate-400">Aucun colis trouvé</p>
               <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">
                 {search || statusFilter !== 'all'
                   ? 'Essayez de modifier vos filtres.'
-                  : 'Vos bagages apparaîtront ici une fois générés.'
+                  : 'Vos colis apparaîtront ici une fois générés.'
                 }
               </p>
             </div>
@@ -726,7 +726,7 @@ export default function AgencyDashboardPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-emerald-500" />
                   <h2 className="text-sm font-semibold text-slate-800 dark:text-white">
-                    Bagages activés ({activatedBaggages.length})
+                    Colis activés ({activatedBaggages.length})
                   </h2>
                 </div>
               </div>
@@ -837,7 +837,7 @@ export default function AgencyDashboardPage() {
                             {isActive(baggage.status) && (
                               <button
                                 onClick={async () => {
-                                  if (confirm('Déclarer ce bagage comme perdu ?')) {
+                                  if (confirm('Déclarer ce colis comme perdu ?')) {
                                     try {
                                       const res = await fetch(`/api/baggage/${baggage.id}/declare-lost`, { method: 'PUT' });
                                       if (res.ok) fetchBaggages();
@@ -856,7 +856,7 @@ export default function AgencyDashboardPage() {
                             {isLost(baggage.status) && (
                               <button
                                 onClick={async () => {
-                                  if (confirm('Marquer ce bagage comme retrouvé ?')) {
+                                  if (confirm('Marquer ce colis comme retrouvé ?')) {
                                     try {
                                       const res = await fetch(`/api/baggage/${baggage.id}/mark-found`, { method: 'PUT' });
                                       if (res.ok) fetchBaggages();
@@ -900,7 +900,7 @@ export default function AgencyDashboardPage() {
               </div>
               <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
                 <span className="text-slate-500 dark:text-slate-400 text-sm">
-                  {activatedBaggages.length} bagage(s) activé(s)
+                  {activatedBaggages.length} colis activé(s)
                 </span>
               </div>
             </div>
@@ -1009,7 +1009,7 @@ export default function AgencyDashboardPage() {
           {/* Footer global */}
           <div className="text-center">
             <span className="text-slate-400 dark:text-slate-500 text-xs">
-              {filteredBaggages.length} bagage(s) affiché(s) sur {baggages.length}
+              {filteredBaggages.length} colis affiché(s) sur {baggages.length}
             </span>
           </div>
         </>
@@ -1123,7 +1123,7 @@ export default function AgencyDashboardPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Détails du bagage</h2>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white">Détails du colis</h2>
               <button
                 onClick={() => {
                   setShowDetailModal(false);
@@ -1174,7 +1174,7 @@ export default function AgencyDashboardPage() {
               {/* Edit Form for unassigned baggages */}
               {(!selectedBaggage.travelerFirstName && !selectedBaggage.travelerLastName) && (
                 <div className="p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-800 rounded-xl">
-                  <h4 className="text-amber-700 dark:text-amber-400 font-medium mb-3">Attribuer ce bagage</h4>
+                  <h4 className="text-amber-700 dark:text-amber-400 font-medium mb-3">Attribuer ce colis</h4>
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <input
@@ -1311,12 +1311,12 @@ export default function AgencyDashboardPage() {
                   <Trash2 className="w-5 h-5 text-rose-500" />
                 </div>
                 <div>
-                  <h3 className="text-slate-800 dark:text-white font-bold">Supprimer ce bagage ?</h3>
+                  <h3 className="text-slate-800 dark:text-white font-bold">Supprimer ce colis ?</h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm">{baggageToDelete.reference}</p>
                 </div>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-                Cette action est irréversible. Le bagage de <strong className="text-slate-700 dark:text-slate-300">{baggageToDelete.travelerFirstName || 'Non renseigné'} {baggageToDelete.travelerLastName || ''}</strong> sera définitivement supprimé.
+                Cette action est irréversible. Le colis de <strong className="text-slate-700 dark:text-slate-300">{baggageToDelete.travelerFirstName || 'Non renseigné'} {baggageToDelete.travelerLastName || ''}</strong> sera définitivement supprimé.
               </p>
               <div className="flex gap-3">
                 <button

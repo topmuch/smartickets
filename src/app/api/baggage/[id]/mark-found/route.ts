@@ -58,7 +58,7 @@ export async function PUT(
         userId: null, // broadcast to all superadmins
         agencyId: baggage.agencyId,
         baggageId: baggage.id,
-        message: `Le bagage ${baggage.reference} a été marqué comme retrouvé !`,
+        message: `Le colis ${baggage.reference} a été marqué comme retrouvé !`,
         data: JSON.stringify({
           reference: baggage.reference,
           agencyName: baggage.agency?.name,
@@ -95,7 +95,7 @@ export async function PUT(
         if (recipients.length > 0) {
           await sendEmail({
             to: recipients,
-            subject: `✅ Bagage retrouvé — ${baggage.reference}`,
+            subject: `✅ Colis retrouvé — ${baggage.reference}`,
             html: template.html,
             text: template.text,
             type: 'baggage_found',

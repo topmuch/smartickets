@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Mentions légales',
-  description: 'Mentions légales du site QRTrans - Protection intelligente des bagages.',
+  description: 'Mentions légales du site QRTrans - Protection intelligente des colis.',
 };
 
 export default function MentionsLegales() {

@@ -206,7 +206,7 @@ function SuccessContent() {
         // Footer
         ctx.font = '14px Arial';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        ctx.fillText('QRTrans - Protégez vos bagages, en toute sérénité', canvas.width / 2, 850);
+        ctx.fillText('QRTrans - Protégez vos colis, en toute sérénité', canvas.width / 2, 850);
         ctx.fillText('www.qrtrans.com', canvas.width / 2, 880);
 
         // Download
@@ -247,7 +247,7 @@ function SuccessContent() {
     const trackingUrl = typeof window !== 'undefined' ? `${window.location.origin}/suivi/${activationData.reference}` : '';
     const shareData = {
       title: 'QRTrans - Preuve d\'activation',
-      text: `Mon bagage ${activationData.reference} est protégé par QRTrans. Voici votre lien de suivi :`,
+      text: `Mon colis ${activationData.reference} est protégé par QRTrans. Voici votre lien de suivi :`,
       url: trackingUrl,
     };
 
@@ -276,7 +276,7 @@ function SuccessContent() {
               </div>
               <h1 className="text-2xl font-bold text-white mb-2">Activation réussie !</h1>
               <p className="text-white/70 mb-6">
-                {isHajj ? 'Vos 3 bagages sont maintenant protégés' : 'Votre bagage est maintenant protégé'}
+                {isHajj ? 'Vos 3 colis sont maintenant protégés' : 'Votre colis est maintenant protégé'}
               </p>
               <Link href="/" className="block">
                 <Button className="w-full bg-white text-[#0d5e34] hover:bg-white/90">
@@ -316,8 +316,8 @@ function SuccessContent() {
               </h1>
               <p className="text-white/70">
                 {isHajj
-                  ? 'Vos 3 bagages sont maintenant protégés'
-                  : 'Votre bagage est maintenant protégé'}
+                  ? 'Vos 3 colis sont maintenant protégés'
+                  : 'Votre colis est maintenant protégé'}
               </p>
             </div>
 
@@ -352,7 +352,7 @@ function SuccessContent() {
                 )}
                 <div>
                   <p className="text-white font-medium">
-                    {isHajj ? '3 bagages activés' : '1 bagage activé'}
+                    {isHajj ? '3 colis activés' : '1 colis activé'}
                   </p>
                   <p className="text-white/60 text-sm">
                     {isHajj ? 'Protection Hajj 2025' : 'Protection active'}
@@ -456,7 +456,7 @@ function SuccessContent() {
                   href={`/suivi/${activationData.reference}`}
                   className="flex-1 text-center px-3 py-2 text-sm bg-white hover:bg-white/90 text-[#0d5e34] rounded-lg transition-colors font-semibold"
                 >
-                  📍 Suivre mon bagage
+                  📍 Suivre mon colis
                 </a>
                 <button 
                   onClick={() => {
@@ -471,7 +471,7 @@ function SuccessContent() {
                 </button>
               </div>
               <p className="text-xs text-white/60 mt-2">
-                En cas de perte, cliquez sur le lien pour suivre votre bagage en temps réel.
+                En cas de perte, cliquez sur le lien pour suivre votre colis en temps réel.
               </p>
             </div>
 
@@ -492,7 +492,7 @@ function SuccessContent() {
               <ul className="space-y-2 text-white/60 text-xs">
                 <li className="flex items-start gap-2">
                   <span className="text-white">•</span>
-                  Collez le sticker sur une surface visible de votre bagage
+                  Collez le sticker sur une surface visible de votre colis
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-white">•</span>

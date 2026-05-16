@@ -29,7 +29,7 @@ export const FEATURE_DEFINITIONS = [
   {
     key: 'push_notifications',
     label: 'Notifications push',
-    description: 'Envoie des alertes SMS/WhatsApp aux chefs d\'agence quand un bagage est trouvé.',
+    description: 'Envoie des alertes SMS/WhatsApp aux chefs d\'agence quand un colis est trouvé.',
     category: 'notifications',
     icon: 'Bell',
     enabled: false,
@@ -45,7 +45,7 @@ export const FEATURE_DEFINITIONS = [
   {
     key: 'analytics_dashboard',
     label: 'Dashboard analytiques',
-    description: 'Statistiques avancées avec graphiques de scans par pays, période, et type de bagage.',
+    description: 'Statistiques avancées avec graphiques de scans par pays, période, et type de colis.',
     category: 'general',
     icon: 'BarChart3',
     enabled: false,
@@ -103,7 +103,7 @@ export const FEATURE_DEFINITIONS = [
   {
     key: 'chatbot_finder',
     label: 'Chatbot IA Trouveur',
-    description: '🤖 Widget chat sur la page scan permettant au trouveur de poser des questions contextuelles sur le bagage. Utilise Groq llama-3.3-70b.',
+    description: '🤖 Widget chat sur la page scan permettant au trouveur de poser des questions contextuelles sur le colis. Utilise Groq llama-3.3-70b.',
     category: 'ai',
     icon: 'MessageSquare',
     enabled: true,
