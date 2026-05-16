@@ -9,12 +9,22 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:/app/data/custom.db
+      - DATABASE_URL=file:/app/data/qrtrans.db
       - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-change-me-in-production}
+      - NEXTAUTH_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-change-me-in-production}
       - PAYPAL_MODE=${PAYPAL_MODE:-sandbox}
       - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-}
       - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET:-}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
+      # Optional: Wakit WhatsApp API
+      - WAKIT_API_KEY=${WAKIT_API_KEY:-}
+      - WAKIT_BASE_URL=${WAKIT_BASE_URL:-https://api.wakit.ai/v1}
+      - WAKIT_PHONE_NUMBER_ID=${WAKIT_PHONE_NUMBER_ID:-}
+      # Optional: Groq AI
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_AI_ENABLED=${GROQ_AI_ENABLED:-true}
+      - GROQ_CHAT_ENABLED=${GROQ_CHAT_ENABLED:-true}
     volumes:
       - qrtrans_data:/app/data
       - qrtrans_uploads:/app/public/uploads
@@ -24,7 +34,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
 volumes:
   qrtrans_data:

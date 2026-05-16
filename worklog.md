@@ -941,3 +941,28 @@ Stage Summary:
 - Dev server: compile success for / (homepage) and /activate routes
 - Dev server OOM on sandbox when compiling too many routes simultaneously (not a code bug)
 - Page trouveur was deleted in a previous session (not missing, intentionally removed)
+
+---
+Task ID: 18
+Agent: Main Agent
+Task: Prepare QRTrans project for Coolify deployment with Docker
+
+Work Log:
+- Read existing Dockerfile, docker-compose.yml, .dockerignore, next.config.ts, package.json, .env.example
+- Verified `output: "standalone"` already configured in next.config.ts
+- Verified prisma/seed.ts exists with upsert patterns (safe for repeated runs)
+- Replaced Dockerfile with user-provided Coolify production config (single-stage, git clone from GitHub)
+- Updated .dockerignore for Docker best practices (excluded node_modules, .next, .env, logs, IDE files)
+- Updated docker-compose.yml: changed DATABASE_URL to qrtrans.db, added NEXTAUTH_SECRET, NEXTAUTH_URL, WAKIT, GROQ env vars, increased start_period to 60s
+- Ran `bun run lint` — 0 errors
+
+Files Modified:
+- Dockerfile — replaced with Coolify production config (git clone, single-stage, runtime prisma db push + seed)
+- .dockerignore — updated with comprehensive exclusions
+- docker-compose.yml — updated env vars and volume paths to match new Dockerfile
+
+Stage Summary:
+- Project is ready for Coolify deployment
+- Dockerfile uses proven qrbags production pattern: git clone → bun install → prisma generate → build → copy static → runtime schema sync + seed
+- Database path: /app/data/qrtrans.db (persistent via Docker volume)
+- ESLint: 0 errors
