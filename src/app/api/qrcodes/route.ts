@@ -99,8 +99,9 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Get QR codes error:', error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: message },
       { status: 500 }
     );
   }

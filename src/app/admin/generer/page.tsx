@@ -178,7 +178,7 @@ export default function GenererQRPage() {
         }
         setTimeout(() => setSuccessMessage(''), 5000);
       } else {
-        setErrorMessage(data.error || 'Erreur lors de la génération');
+        setErrorMessage(data.details ? `${data.error}: ${data.details}` : (data.error || 'Erreur lors de la génération'));
       }
     } catch (error) {
       console.error('Error generating QR codes:', error);

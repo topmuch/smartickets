@@ -71,16 +71,37 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Generate QR error:', error);
-    
-    if (error instanceof z.ZodError) {
+
+    // Zod validation error
+    if (error && typeof error === 'object' && 'issues' in error) {
+      const zodError = error as z.ZodError;
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: zodError.issues || zodError.errors },
+        { status: 400 }
+      );
+    }
+
+    // Return actual error details for debugging
+    const message = error instanceof Error ? error.message : String(error);
+
+    // Known business errors → 400
+    if (message.includes('Agence introuvable') || message.includes('not found')) {
+      return NextResponse.json(
+        { error: message },
+        { status: 400 }
+      );
+    }
+
+    // Prisma foreign key / unique constraint errors
+    if (message.includes('Foreign key constraint') || message.includes('Unique constraint')) {
+      return NextResponse.json(
+        { error: 'Erreur de base de données: ' + message.split('\n')[0] },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: message },
       { status: 500 }
     );
   }
@@ -139,6 +160,14 @@ async function generateBaggages(options: {
 }): Promise<string[]> {
   const { type, agencyId, count } = options;
   const references: string[] = [];
+
+  // Validate agency exists if agencyId is provided
+  if (agencyId) {
+    const agency = await db.agency.findUnique({ where: { id: agencyId } });
+    if (!agency) {
+      throw new Error(`Agence introuvable (ID: ${agencyId})`);
+    }
+  }
 
   // Generate a unique set ID for this batch
   const setId = generateSetId(type);
