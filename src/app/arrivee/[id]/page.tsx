@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { QrCode, Truck, Globe, Loader2 } from 'lucide-react';
+import { QrCode, Loader2 } from 'lucide-react';
 import ColisInfoCard from '@/components/arrival/ColisInfoCard';
 import ContactsCard from '@/components/arrival/ContactsCard';
 import ConfirmForm from '@/components/arrival/ConfirmForm';
