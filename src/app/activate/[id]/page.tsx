@@ -32,7 +32,7 @@ export default function ActivatePage() {
 
           // If already in_transit → redirect to arrival page
           if (status === 'in_transit') {
-            router.replace(`/arrivee/${qrCode}`);
+            router.replace(`/retrieve/${qrCode}`);
             return;
           }
 

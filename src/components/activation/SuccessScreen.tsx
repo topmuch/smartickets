@@ -17,6 +17,8 @@ interface SuccessScreenProps {
   senderPhone: string;
   receiverName: string;
   receiverPhone: string;
+  waSenderUrl?: string;
+  waReceiverUrl?: string;
   lang: 'fr' | 'en';
   onReset: () => void;
 }
@@ -33,6 +35,8 @@ export default function SuccessScreen({
   senderPhone,
   receiverName,
   receiverPhone,
+  waSenderUrl,
+  waReceiverUrl,
   lang,
   onReset,
 }: SuccessScreenProps) {
@@ -62,6 +66,10 @@ export default function SuccessScreen({
 
   const links = createDepartureLinks(vars);
 
+  // Use API-provided wa.me links if available, otherwise fallback to client-side generated links
+  const senderLink = waSenderUrl || links.sender;
+  const receiverLink = waReceiverUrl || links.receiver;
+
   const [copied, setCopied] = useState(false);
 
   const copyLink = async () => {
@@ -89,10 +97,20 @@ export default function SuccessScreen({
           <CheckCircle className="w-8 h-8 text-white" />
         </div>
         <h2 className="text-xl font-bold text-gray-900">
-          ✅ {t('Colis Enregistré avec Succès !', 'Package Registered Successfully!')}
+          ✅ {t('Colis Activé avec Succès !', 'Package Activated Successfully!')}
         </h2>
         <div className="mt-3 flex items-center justify-center gap-2 text-sm text-gray-500">
           <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-xs">#{reference}</span>
+        </div>
+
+        {/* PIN warning banner */}
+        <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <p className="text-sm font-semibold text-amber-800">
+            ⚠️ {t(
+              'Le code PIN a été envoyé UNIQUEMENT au destinataire par WhatsApp. Ne le partagez pas.',
+              'The PIN code was sent ONLY to the receiver via WhatsApp. Do not share it.'
+            )}
+          </p>
         </div>
       </div>
 
@@ -148,16 +166,16 @@ export default function SuccessScreen({
       {/* WhatsApp Buttons */}
       <div className="space-y-3">
         <a
-          href={links.sender}
+          href={senderLink}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full h-[56px] bg-[#25D366] hover:bg-[#1fb855] active:bg-[#1a9e49] text-white rounded-xl font-bold text-[15px] shadow-lg shadow-green-500/25 transition-all no-underline"
         >
-          🟢 {t('NOTIFIER L\'ENVOYEUR', 'NOTIFY SENDER')}
+          🟢 {t("NOTIFIER L'EXPÉDITEUR", 'NOTIFY SENDER')}
           <ExternalLink className="w-3.5 h-3.5 opacity-50" />
         </a>
         <a
-          href={links.receiver}
+          href={receiverLink}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full h-[56px] bg-[#0077B6] hover:bg-[#005f8d] active:bg-[#004a6e] text-white rounded-xl font-bold text-[15px] shadow-lg shadow-blue-500/25 transition-all no-underline"
@@ -177,16 +195,16 @@ export default function SuccessScreen({
         </div>
         <p className="text-xs text-gray-600">
           {t(
-            'À l\'arrivée, rescannez ce QR code ou cliquez ci-dessous pour confirmer la livraison.',
-            'On arrival, rescan this QR code or click below to confirm delivery.'
+            "À l'arrivée, rescannez ce QR code ou cliquez ci-dessous pour la récupération avec PIN.",
+            'On arrival, rescan this QR code or click below for PIN-based retrieval.'
           )}
         </p>
         <Link
-          href={`/arrivee/${reference}`}
+          href={`/retrieve/${reference}`}
           className="flex items-center justify-center gap-2 w-full h-14 bg-[#FF6B35] hover:bg-[#e65a28] active:bg-[#d35400] text-white rounded-xl font-bold text-base shadow-lg shadow-orange-500/25 transition-all no-underline"
         >
           <Truck className="w-5 h-5" />
-          {t('Accéder à la Page de Livraison', 'Go to Delivery Page')}
+          {t('Accéder à la Page de Récupération', 'Go to Retrieval Page')}
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

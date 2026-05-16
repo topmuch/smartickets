@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
+import { cleanPhone, generateWaMeLink } from '@/lib/wame';
 
 const WHATSAPP_REGEX = /^\+[1-9]\d{1,14}$/;
 
@@ -119,6 +120,47 @@ export async function POST(
       },
     });
 
+    // PIN-FEATURE: Generate 6-digit retrieval PIN
+    const pin = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Save PIN to DB
+    await db.baggage.update({
+      where: { id: updated.id },
+      data: {
+        retrievalPin: pin,
+        pinGeneratedAt: new Date(),
+      },
+    });
+
+    // Build tracking URL
+    const trackingUrl = `https://qrtrans.com/suivi/${updated.reference}`;
+
+    // Format date/time for wa.me messages
+    const formattedDate = depDateTime.toLocaleDateString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+    });
+    const formattedTime = depTime;
+
+    // Sender wa.me message (no PIN)
+    const senderMessage = `🟢 *QRTrans — Colis en Partance*
+
+Bonjour *${data.sender.name}*,
+Votre colis ${updated.reference} pour ${data.arrival_city} est en route avec ${data.company_name}.
+🚌 Départ : ${formattedDate} à ${formattedTime}
+🔗 Suivi : ${trackingUrl}`;
+
+    // Receiver wa.me message (WITH PIN)
+    const receiverMessage = `🔵 *QRTrans — Colis en Transit*
+
+Bonjour *${data.receiver.name}*,
+Un colis de ${data.sender.name} arrive à ${data.arrival_city}.
+🔐 *Code de retrait à présenter au chauffeur : ${pin}*
+Conservez ce code. Il sera exigé à l'arrivée.
+🔗 Suivi : ${trackingUrl}`;
+
+    const wa_sender = generateWaMeLink(cleanPhone(data.sender.phone), senderMessage);
+    const wa_receiver = generateWaMeLink(cleanPhone(data.receiver.phone), receiverMessage);
+
     return NextResponse.json({
       success: true,
       colis: {
@@ -126,6 +168,9 @@ export async function POST(
         reference: updated.reference,
         status: updated.status,
       },
+      pin,
+      wa_sender,
+      wa_receiver,
     });
 
   } catch (error) {

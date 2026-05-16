@@ -40,6 +40,7 @@ export interface NotificationVars {
   delivery_location?: string;
   tracking_url: string;
   feedback_url?: string;
+  pin?: string;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -131,8 +132,7 @@ Un colis vous étant destiné est en route vers vous.
 🚌 Compagnie : ${v.company_name}
 📍 Destination : ${v.arrival_city}
 🕐 Arrivée estimée : ${v.departure_date}
-
-Vous serez notifié dès l'arrivée pour le retrait.
+${v.pin ? `🔐 *Code de retrait : ${v.pin}*\nConservez ce code. Il sera exigé à l'arrivée.\n` : ''}Vous serez notifié dès l'arrivée pour le retrait.
 À très bientôt ! 🤝
 
 ${SEPARATOR}
@@ -198,6 +198,15 @@ export const createNotificationLink = (
  * Génère les 4 liens wa.me pour les 2 notifications de départ (envoyeur + receveur)
  */
 export const createDepartureLinks = (vars: NotificationVars) => ({
+  sender: createNotificationLink('departure_sender', vars.sender_whatsapp, vars),
+  receiver: createNotificationLink('departure_receiver', vars.receiver_whatsapp, vars),
+});
+
+/**
+ * Génère les liens wa.me pour les 2 notifications de départ (envoyeur + receveur)
+ * Identique à createDepartureLinks mais inclut le pin.
+ */
+export const createDepartureLinksWithPin = (vars: NotificationVars) => ({
   sender: createNotificationLink('departure_sender', vars.sender_whatsapp, vars),
   receiver: createNotificationLink('departure_receiver', vars.receiver_whatsapp, vars),
 });

@@ -29,6 +29,13 @@ export async function GET(
       );
     }
 
+    // PIN-FEATURE: Mask the PIN — show only last 3 digits
+    let pin_masked: string | null = null;
+    if (colis.retrievalPin) {
+      const pin = colis.retrievalPin;
+      pin_masked = `***${pin.slice(-3)}`;
+    }
+
     // Return colis data for the arrival page
     return NextResponse.json({
       success: true,
@@ -50,6 +57,8 @@ export async function GET(
         deliveryLocation: colis.deliveryLocation,
         deliveryNotes: colis.deliveryNotes,
       },
+      pin_masked,
+      pinAttempts: colis.pinAttempts ?? 0,
     });
   } catch (error) {
     console.error('[/api/arrivee] GET error:', error);

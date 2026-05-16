@@ -117,6 +117,13 @@ model Baggage {
   arrivedAt         DateTime? // Date/heure d'arrivée confirmée
   deliveryLocation  String?   // Lieu de dépôt précis (ex: "Gare routière, Boutique X")
   deliveryNotes     String?   // Notes du chauffeur à l'arrivée
+  deliveredAt       DateTime? // Date/heure de livraison confirmée (PIN validé)
+
+  // PIN-FEATURE: Secure retrieval PIN
+  retrievalPin      String?   // PIN à 6 chiffres pour le retrait du colis
+  pinVerified       Boolean   @default(false) // true quand le PIN a été validé
+  pinAttempts       Int       @default(0)     // Nombre de tentatives de PIN
+  pinGeneratedAt    DateTime? // Date/heure de génération du PIN
 
   createdAt         DateTime  @default(now())
   expiresAt         DateTime?

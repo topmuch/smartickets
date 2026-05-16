@@ -36,6 +36,10 @@ export default function ActivationForm({ qrCode, lang }: ActivationFormProps) {
   const [receiverName, setReceiverName] = useState('');
   const [receiverPhone, setReceiverPhone] = useState('');
 
+  // wa.me links from API response
+  const [waSenderUrl, setWaSenderUrl] = useState('');
+  const [waReceiverUrl, setWaReceiverUrl] = useState('');
+
   // Validation errors
   const [senderPhoneError, setSenderPhoneError] = useState<string | null>(null);
   const [receiverPhoneError, setReceiverPhoneError] = useState<string | null>(null);
@@ -119,6 +123,8 @@ export default function ActivationForm({ qrCode, lang }: ActivationFormProps) {
       const data = await res.json();
 
       if (res.ok && data.success) {
+        setWaSenderUrl(data.wa_sender || '');
+        setWaReceiverUrl(data.wa_receiver || '');
         setSuccess(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (['already_in_transit', 'already_delivered', 'already_active'].includes(data.error)) {
@@ -159,6 +165,8 @@ export default function ActivationForm({ qrCode, lang }: ActivationFormProps) {
     setSenderPhone('');
     setReceiverName('');
     setReceiverPhone('');
+    setWaSenderUrl('');
+    setWaReceiverUrl('');
     setSenderPhoneError(null);
     setReceiverPhoneError(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -179,6 +187,8 @@ export default function ActivationForm({ qrCode, lang }: ActivationFormProps) {
         senderPhone={senderPhone.replace(/\s/g, '')}
         receiverName={receiverName}
         receiverPhone={receiverPhone.replace(/\s/g, '')}
+        waSenderUrl={waSenderUrl}
+        waReceiverUrl={waReceiverUrl}
         lang={lang}
         onReset={handleReset}
       />
@@ -195,10 +205,10 @@ export default function ActivationForm({ qrCode, lang }: ActivationFormProps) {
         <h2 className="text-lg font-bold text-gray-900">{errorMessage}</h2>
         <p className="text-sm text-gray-400 font-mono">#{qrCode}</p>
         <a
-          href={`/arrivee/${qrCode}`}
+          href={`/retrieve/${qrCode}`}
           className="inline-flex items-center gap-2 px-6 h-12 bg-[#FF6B35] hover:bg-[#e65a28] text-white rounded-xl font-semibold text-sm transition-colors no-underline shadow-lg shadow-orange-500/20"
         >
-          📦 {t('Confirmer la livraison', 'Confirm delivery')}
+          🔐 {t('Récupérer le colis', 'Retrieve package')}
         </a>
       </div>
     );

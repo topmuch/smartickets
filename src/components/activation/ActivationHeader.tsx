@@ -48,7 +48,7 @@ export default function ActivationHeader({ qrCode, onLangChange, currentLang }: 
       <div className="border-t border-white/10">
         <div className="max-w-[600px] mx-auto px-4 py-3">
           <h1 className="text-sm font-semibold text-white/80">
-            📦 {currentLang === 'fr' ? "Inscription d'un Colis" : 'Package Registration'}
+            📦 {currentLang === 'fr' ? 'Activation du Colis' : 'Package Activation'}
           </h1>
         </div>
       </div>
