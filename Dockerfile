@@ -2,7 +2,7 @@
 FROM node:20-alpine
 
 # Cache buster - increment to force rebuild
-ARG CACHEBUST=6
+ARG CACHEBUST=7
 
 # Install required packages
 RUN apk add --no-cache git libc6-compat sqlite
@@ -52,7 +52,7 @@ CMD sh -c "\
   mkdir -p /app/data /app/public/uploads && \
   export DATABASE_URL=file:/app/data/qrtrans.db && \
   echo '>>> [1/4] Syncing DB schema...' && \
-  npx prisma migrate deploy 2>&1 && echo '>>> [1/4] Migrations applied OK' || \
+  (npx prisma migrate deploy 2>&1 && echo '>>> [1/4] Migrations applied OK') || \
     (echo '>>> [1/4] No migration history, using db push...' && \
      npx prisma db push --skip-generate --accept-data-loss 2>&1 && \
      echo '>>> [1/4] DB push OK') ; \
@@ -60,8 +60,8 @@ CMD sh -c "\
   npx prisma generate 2>&1 && \
   cp -r node_modules/.prisma .next/standalone/node_modules/.prisma && \
   echo '>>> [2/4] Prisma client regenerated + copied to standalone' ; \
-  echo '>>> [3/4] Running seed...' ; \
-  bun run prisma/seed.ts 2>&1 || echo '>>> [3/4] Seed skipped (non-critical)' ; \
-  echo '>>> [4/4] Starting server...' ; \
-  HOSTNAME=0.0.0.0 exec node .next/standalone/server.js \
+  echo '>>> [3/4] Running seed...' && \
+  (bun run prisma/seed.ts 2>&1 && echo '>>> [3/4] Seed OK') || echo '>>> [3/4] Seed skipped (non-critical)' ; \
+  echo '>>> [4/4] Starting server...' && \
+  HOSTNAME=0.0.0.0 node .next/standalone/server.js \
 "
