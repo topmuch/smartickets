@@ -68,7 +68,7 @@ export default function SenderSection({
   const t = (fr: string, en: string) => lang === 'fr' ? fr : en;
 
   return (
-    <div className="bg-[#f97316] rounded-2xl p-6 shadow-lg shadow-orange-500/20">
+    <div className="bg-[#f97316] rounded-2xl p-6 shadow-lg shadow-orange-500/20 border-2 border-dashed border-white/60">
       <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
         📤 {t('EXPÉDITEUR & COLIS', 'SENDER & PACKAGE')}
       </h2>

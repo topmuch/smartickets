@@ -26,9 +26,9 @@ export default function ActivationHeader({ qrCode, onLangChange, currentLang }: 
         </div>
 
         {/* Badge Chauffeur */}
-        <div className="flex items-center gap-2 bg-[#FF6B35]/20 border border-[#FF6B35]/40 rounded-full px-4 py-2">
-          <Truck className="w-4 h-4 text-[#FF6B35]" />
-          <span className="text-sm font-semibold text-[#FF6B35]">
+        <div className="flex items-center gap-2 border-2 border-dashed border-white rounded-full px-4 py-2">
+          <Truck className="w-5 h-5 text-white" />
+          <span className="text-lg font-bold text-white uppercase">
             {currentLang === 'fr' ? 'Mode Chauffeur' : 'Driver Mode'}
           </span>
         </div>
@@ -47,7 +47,7 @@ export default function ActivationHeader({ qrCode, onLangChange, currentLang }: 
       {/* Title bar */}
       <div className="border-t border-white/10">
         <div className="max-w-[600px] mx-auto px-4 py-3">
-          <h1 className="text-lg font-bold text-white">
+          <h1 className="text-2xl font-extrabold text-white uppercase">
             📦 {currentLang === 'fr' ? 'Activation du Colis' : 'Package Activation'}
           </h1>
         </div>

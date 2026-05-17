@@ -51,7 +51,7 @@ export default function VoyageSection({
   const t = (fr: string, en: string) => lang === 'fr' ? fr : en;
 
   return (
-    <div className="bg-[#10b981] rounded-2xl p-6 shadow-lg shadow-emerald-500/20">
+    <div className="bg-[#10b981] rounded-2xl p-6 shadow-lg shadow-emerald-500/20 border-2 border-dashed border-white/60">
       <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
         🚌 {t('ITINÉRAIRE & RETRAIT', 'ITINERARY & PICKUP')}
       </h2>
