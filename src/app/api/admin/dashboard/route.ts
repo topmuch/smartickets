@@ -33,19 +33,12 @@ export async function GET() {
 
     // Calculate statistics
     const totalQR = baggages.length;
-    const qrActivatedHajj = baggages.filter(b => b.type === 'hajj' && isActive(b.status)).length;
-    const qrActivatedVoyageur = baggages.filter(b => b.type === 'voyageur' && isActive(b.status)).length;
+    const activeBaggages = baggages.filter(b => isActive(b.status)).length;
 
-    // Count unique pilgrims (Hajj) - group by name
-    const hajjBaggages = baggages.filter(b => b.type === 'hajj' && b.travelerFirstName);
-    const uniquePelerins = new Set(
-      hajjBaggages.map(b => `${b.travelerFirstName}_${b.travelerLastName}`)
-    ).size;
-
-    // Count unique travelers (Voyageur)
-    const voyageurBaggages = baggages.filter(b => b.type === 'voyageur' && b.travelerFirstName);
-    const uniqueVoyageurs = new Set(
-      voyageurBaggages.map(b => `${b.travelerFirstName}_${b.travelerLastName}`)
+    // Count unique travelers
+    const baggagesWithName = baggages.filter(b => b.travelerFirstName);
+    const uniqueTravelers = new Set(
+      baggagesWithName.map(b => `${b.travelerFirstName}_${b.travelerLastName}`)
     ).size;
 
     // Count expiring soon (within 7 days)
@@ -67,12 +60,12 @@ export async function GET() {
 
       const dayActivations = baggages.filter(b => {
         const createdAt = new Date(b.createdAt);
-        return createdAt >= dayStart && createdAt <= dayEnd && b.type === 'hajj';
+        return createdAt >= dayStart && createdAt <= dayEnd && isActive(b.status);
       }).length;
 
       last7Days.push({
         day: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][date.getDay()],
-        count: Math.floor(dayActivations / 3), // Divide by 3 to get pilgrim count
+        count: dayActivations,
       });
     }
 
@@ -106,7 +99,7 @@ export async function GET() {
     const recentActivities: ActivityType[] = recentScans.map((scan) => {
       const timeAgo = getTimeAgo(new Date(scan.createdAt));
       const name = scan.baggage.travelerFirstName 
-        ? `${scan.baggage.travelerFirstName} ${scan.baggage.travelerLastName || ''} - ${scan.baggage.type === 'hajj' ? 'Hajj' : 'Voyageur'}`
+        ? `${scan.baggage.travelerFirstName} ${scan.baggage.travelerLastName || ''}`
         : `Scan ${scan.baggage.reference}`;
 
       return {
@@ -128,10 +121,10 @@ export async function GET() {
         .map((b, index) => ({
           id: `activation-${index}`,
           type: 'activation' as const,
-          name: `${b.travelerFirstName} ${b.travelerLastName || ''} - ${b.type === 'hajj' ? 'Hajj' : 'Voyageur'}`,
+          name: `${b.travelerFirstName} ${b.travelerLastName || ''}`,
           reference: '',
           time: getTimeAgo(new Date(b.createdAt)),
-          details: b.type === 'hajj' ? '3 QR activés' : '1 QR activé',
+          details: 'QR activé',
           status: 'success' as const,
         }));
 
@@ -140,10 +133,8 @@ export async function GET() {
 
     const stats = {
       totalQR,
-      qrActivatedHajj,
-      qrActivatedVoyageur,
-      totalPelerins: uniquePelerins,
-      totalVoyageurs: uniqueVoyageurs,
+      activeBaggages,
+      uniqueTravelers,
       expiringSoon,
       pendingOrders: 0, // Placeholder for B2B orders feature
       totalAgencies: agenciesCount,

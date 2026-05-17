@@ -87,8 +87,9 @@ export async function PUT(request: NextRequest) {
     const savedSettings = await saveEmailSettings(settingsData);
 
     if (!savedSettings) {
+      console.error('❌ saveEmailSettings returned null, settingsData:', JSON.stringify(settingsData));
       return NextResponse.json(
-        { error: 'Erreur lors de la sauvegarde des paramètres' },
+        { error: 'Erreur lors de la sauvegarde des paramètres email. Vérifiez les champs saisis.' },
         { status: 500 }
       );
     }

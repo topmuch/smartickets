@@ -23,10 +23,8 @@ import {
 // Types
 interface DashboardStats {
   totalQR: number;
-  qrActivatedHajj: number;
-  qrActivatedVoyageur: number;
-  totalPelerins: number;
-  totalVoyageurs: number;
+  activeBaggages: number;
+  uniqueTravelers: number;
   expiringSoon: number;
   pendingOrders: number;
   totalAgencies: number;
@@ -205,7 +203,7 @@ function ActivationsChart({ data }: { data: DailyActivation[] }) {
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">
           <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
-          <span className="text-xs text-slate-600 dark:text-slate-300">Pèlerins</span>
+          <span className="text-xs text-slate-600 dark:text-slate-300">Activations</span>
         </div>
       </div>
 
@@ -318,10 +316,8 @@ export default function DashboardPage() {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [stats, setStats] = useState<DashboardStats>({
     totalQR: 0,
-    qrActivatedHajj: 0,
-    qrActivatedVoyageur: 0,
-    totalPelerins: 0,
-    totalVoyageurs: 0,
+    activeBaggages: 0,
+    uniqueTravelers: 0,
     expiringSoon: 0,
     pendingOrders: 0,
     totalAgencies: 0,
@@ -387,21 +383,21 @@ export default function DashboardPage() {
     { 
       title: 'Total QR Codes', 
       value: stats.totalQR, 
-      subtitle: `${stats.qrActivatedHajj} Hajj actifs`,
+      subtitle: `${stats.activeBaggages} actifs`,
       icon: <QrCode className="w-6 h-6 text-white" />,
       colorVariant: 'green' as const
     },
     { 
-      title: 'QR Voyageurs', 
-      value: stats.qrActivatedVoyageur, 
-      subtitle: 'Codes activés',
+      title: 'QR Activés', 
+      value: stats.activeBaggages, 
+      subtitle: 'En service',
       icon: <Package className="w-6 h-6 text-white" />,
       colorVariant: 'blue' as const
     },
     { 
-      title: 'Utilisateurs', 
-      value: stats.totalPelerins + stats.totalVoyageurs, 
-      subtitle: `${stats.totalPelerins} Hajj + ${stats.totalVoyageurs} Voyageurs`,
+      title: 'Voyageurs', 
+      value: stats.uniqueTravelers, 
+      subtitle: 'Utilisateurs uniques',
       icon: <Users className="w-6 h-6 text-white" />,
       colorVariant: 'purple' as const
     },

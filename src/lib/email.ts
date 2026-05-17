@@ -78,20 +78,36 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
     const existing = await prisma.emailSettings.findFirst();
     
     if (existing) {
+      // Build update data - only include fields that are explicitly provided
+      const data: {
+        provider?: string;
+        fromEmail?: string;
+        fromName?: string;
+        recipientColisEmail?: string | null;
+        recipientSystemEmail?: string | null;
+        smtpHost?: string | null;
+        smtpPort?: number | null;
+        smtpUser?: string | null;
+        smtpPassword?: string | null;
+        smtpEncryption?: string;
+      } = {};
+      
+      if (config.provider) data.provider = config.provider;
+      if (config.fromEmail) data.fromEmail = config.fromEmail;
+      if (config.fromName) data.fromName = config.fromName;
+      if (config.recipientColisEmail !== undefined) data.recipientColisEmail = config.recipientColisEmail || null;
+      if (config.recipientSystemEmail !== undefined) data.recipientSystemEmail = config.recipientSystemEmail || null;
+      if (config.smtpEncryption) data.smtpEncryption = config.smtpEncryption;
+      if (config.smtpHost !== undefined) data.smtpHost = config.smtpHost || null;
+      if (config.smtpPort !== undefined) data.smtpPort = config.smtpPort || null;
+      if (config.smtpUser !== undefined) data.smtpUser = config.smtpUser || null;
+      if (config.smtpPassword !== undefined) data.smtpPassword = config.smtpPassword || null;
+
+      console.log('📧 Saving email settings, fields:', Object.keys(data).join(', '));
+
       const updated = await prisma.emailSettings.update({
         where: { id: existing.id },
-        data: {
-          provider: config.provider || existing.provider,
-          fromEmail: config.fromEmail || existing.fromEmail,
-          fromName: config.fromName || existing.fromName,
-          recipientColisEmail: config.recipientColisEmail !== undefined ? config.recipientColisEmail || null : existing.recipientColisEmail || null,
-          recipientSystemEmail: config.recipientSystemEmail !== undefined ? config.recipientSystemEmail || null : existing.recipientSystemEmail || null,
-          smtpHost: config.smtpHost,
-          smtpPort: config.smtpPort,
-          smtpUser: config.smtpUser,
-          smtpPassword: config.smtpPassword,
-          smtpEncryption: config.smtpEncryption || existing.smtpEncryption,
-        },
+        data,
       });
       return {
         provider: updated.provider as EmailProvider,
@@ -113,10 +129,10 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
           fromName: config.fromName || 'QRTrans',
           recipientColisEmail: config.recipientColisEmail || null,
           recipientSystemEmail: config.recipientSystemEmail || null,
-          smtpHost: config.smtpHost,
-          smtpPort: config.smtpPort,
-          smtpUser: config.smtpUser,
-          smtpPassword: config.smtpPassword,
+          smtpHost: config.smtpHost || null,
+          smtpPort: config.smtpPort || null,
+          smtpUser: config.smtpUser || null,
+          smtpPassword: config.smtpPassword || null,
           smtpEncryption: config.smtpEncryption || 'tls',
         },
       });
@@ -134,7 +150,11 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
       };
     }
   } catch (error) {
-    console.error('Error saving email settings:', error);
+    console.error('❌ Error saving email settings:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return null;
   }
 }

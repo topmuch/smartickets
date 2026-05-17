@@ -344,10 +344,30 @@ export default function ParametresPage() {
     setEmailError(null);
     setEmailSaved(false);
     try {
+      // Only send relevant fields to avoid null overwrites
+      const payload: Record<string, unknown> = {
+        provider: emailSettings.provider,
+        fromEmail: emailSettings.fromEmail,
+        fromName: emailSettings.fromName,
+        recipientColisEmail: emailSettings.recipientColisEmail,
+        recipientSystemEmail: emailSettings.recipientSystemEmail,
+        smtpEncryption: emailSettings.smtpEncryption,
+      };
+
+      // Only include SMTP fields if provider is smtp
+      if (emailSettings.provider === 'smtp') {
+        if (emailSettings.smtpHost) payload.smtpHost = emailSettings.smtpHost;
+        if (emailSettings.smtpPort) payload.smtpPort = emailSettings.smtpPort;
+        if (emailSettings.smtpUser) payload.smtpUser = emailSettings.smtpUser;
+        if (emailSettings.smtpPassword && emailSettings.smtpPassword !== '••••••••') {
+          payload.smtpPassword = emailSettings.smtpPassword;
+        }
+      }
+
       const response = await fetch('/api/admin/email-settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(emailSettings),
+        body: JSON.stringify(payload),
       });
       
       const data = await response.json();

@@ -2271,3 +2271,39 @@ Stage Summary:
 - Système tab (blue): nouvelle agence, lead CRM, message agence, inscription partenaire
 - Zero lint errors, zero compilation errors
 - Backend API routes already correct — no backend changes needed
+
+---
+Task ID: 19
+Agent: Main Agent
+Task: (1) Nettoyer Hajj/Pèlerins du superadmin dashboard, (2) Fix erreur sauvegarde email
+
+Work Log:
+- **Hajj Cleanup Dashboard API** (`src/app/api/admin/dashboard/route.ts`):
+  - Removed `qrActivatedHajj`, `qrActivatedVoyageur`, `totalPelerins`, `totalVoyageurs` stats
+  - Added `activeBaggages`, `uniqueTravelers` (unified, type-agnostic)
+  - Daily activations: removed `type === 'hajj'` filter, count all active baggages
+  - Recent activity: removed Hajj/Voyageur type labels, simplified to just traveler name
+  - Removed `Math.floor(dayActivations / 3)` pilgrim count division
+
+- **Hajj Cleanup Dashboard Frontend** (`src/app/admin/tableau-de-bord/page.tsx`):
+  - Updated `DashboardStats` interface: replaced Hajj-specific fields with unified stats
+  - KPI cards: "Total QR Codes" (X actifs), "QR Activés" (En service), "Voyageurs" (Utilisateurs uniques)
+  - Chart legend: changed "Pèlerins" → "Activations"
+
+- **Email Save Fix** (`src/lib/email.ts`):
+  - Refactored `saveEmailSettings()` to build typed update data object with explicit field checks
+  - Only includes fields that are actually provided (avoids null/undefined confusion)
+  - Added detailed error logging with error message + stack trace on failure
+
+- **Email Save Fix Frontend** (`src/app/admin/parametres/page.tsx`):
+  - Changed `handleEmailSave()` to build a clean payload instead of sending full state object
+  - Only sends SMTP fields when provider is 'smtp'
+  - Password only sent when changed (not masked '••••••••')
+
+- **Email Save Fix API** (`src/app/api/admin/email-settings/route.ts`):
+  - Improved error message and logging when saveEmailSettings returns null
+
+Stage Summary:
+- Dashboard is now Hajj/pèlerin-free in superadmin — all stats are type-agnostic
+- Email save should work correctly — payload only includes relevant fields
+- Zero lint errors, zero compilation errors
