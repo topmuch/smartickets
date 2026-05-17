@@ -16,7 +16,7 @@ const services = [
     title: 'Notifications WhatsApp Automatisées',
     description:
       "Expéditeur & destinataire informés à chaque étape via wa.me.",
-    image: '/images/service-whatsapp-notifications.png',
+    image: '/images/service-whatsapp-v2.png',
     bg: 'bg-[#25D366]',
     hoverShadow: 'hover:shadow-[0_8px_32px_rgba(37,211,102,0.35)]',
   },
