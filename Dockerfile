@@ -4,8 +4,8 @@ FROM node:20-alpine
 # Cache buster - increment to force rebuild
 ARG CACHEBUST=11
 
-# Install required packages
-RUN apk add --no-cache git libc6-compat sqlite
+# Install required packages (Alpine correct package names)
+RUN apk add --no-cache git sqlite-libs
 RUN npm install -g bun
 
 WORKDIR /app
