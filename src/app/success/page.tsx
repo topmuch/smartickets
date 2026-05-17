@@ -207,7 +207,7 @@ function SuccessContent() {
         ctx.font = '14px Arial';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
         ctx.fillText('QRTrans - Protégez vos colis, en toute sérénité', canvas.width / 2, 850);
-        ctx.fillText('www.qrtrans.com', canvas.width / 2, 880);
+        ctx.fillText('www.qrtrans.pro', canvas.width / 2, 880);
 
         // Download
         const link = document.createElement('a');

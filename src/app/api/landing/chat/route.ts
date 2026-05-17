@@ -81,7 +81,7 @@ const FALLBACK_RESPONSES: Record<Language, string> = {
 // ═══════════════════════════════════════════════════════
 
 function buildSystemPrompt(locale: Language): string {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrtrans.com';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrtrans.pro';
 
   const prompts: Record<Language, string> = {
     fr: `Tu es l'assistant QRTrans, un agent de support intelligent sur la page d'accueil. Réponds en français, de façon concise (max 3 phrases) et empathique. Tu connais TOUT sur QRTrans.
@@ -90,7 +90,7 @@ function buildSystemPrompt(locale: Language): string {
 • Nom : QRTrans — édité par MMASOLUTION
 • Siège social : 43 Rue Maryse Bastié, 78300 Poissy, France
 • Origine : Né à Dakar (Sénégal), déployé dans 15 pays
-• Site web : https://qrtrans.com
+• Site web : https://qrtrans.pro
 • Mission : Protection intelligente des colis pour voyageurs et pèlerins
 • Résaux sociaux : facebook.com/qrtrans | instagram.com/qrtrans | twitter.com/qrtrans
 • Stats : +10 000 colis protégés, +500 agences partenaires, 98% de taux de récupération
@@ -150,7 +150,7 @@ RÈGLES :
 - Ne jamais inventer d'info non présente dans cette base de connaissances.
 - Ne jamais donner de conseil juridique ou médical.
 - Si l'utilisateur demande un lien de suivi, demande-lui sa référence QR (format: VOL26-XXXXXX).
-- IMPORTANT LIENS : Quand tu mentionnes une page du site (suivi, inscription, contact, etc.), donne TOUJOURS l'URL COMPLETE avec https://. Exemples : https://qrtrans.com/inscrire , https://qrtrans.com/contact , https://qrtrans.com/activate/VOL26-XXXXXX. Ne donne JAMAIS un chemin partiel comme "/inscrire" seul.`,
+- IMPORTANT LIENS : Quand tu mentionnes une page du site (suivi, inscription, contact, etc.), donne TOUJOURS l'URL COMPLETE avec https://. Exemples : https://qrtrans.pro/inscrire , https://qrtrans.pro/contact , https://qrtrans.pro/activate/VOL26-XXXXXX. Ne donne JAMAIS un chemin partiel comme "/inscrire" seul.`,
 
     en: `You are the QRTrans assistant, an intelligent support agent on the landing page. Respond in English, concisely (max 3 sentences) and empathetically. You know EVERYTHING about QRTrans.
 
@@ -158,7 +158,7 @@ RÈGLES :
 • Name: QRTrans — published by MMASOLUTION
 • Headquarters: 43 Rue Maryse Bastié, 78300 Poissy, France
 • Origin: Born in Dakar (Senegal), deployed in 15 countries
-• Website: https://qrtrans.com
+• Website: https://qrtrans.pro
 • Mission: Intelligent baggage protection for travelers and pilgrims
 • Social media: facebook.com/qrtrans | instagram.com/qrtrans | twitter.com/qrtrans
 • Stats: 10,000+ bags protected, 500+ partner agencies, 98% recovery rate
@@ -218,7 +218,7 @@ RULES:
 - Never invent info not in this knowledge base.
 - Never give legal or medical advice.
 - If the user asks for a tracking link, ask for their QR reference (format: VOL26-XXXXXX).
-- IMPORTANT LINKS: When mentioning a site page (tracking, signup, contact, etc.), ALWAYS provide the FULL URL with https://. Examples: https://qrtrans.com/inscrire , https://qrtrans.com/contact , https://qrtrans.com/activate/VOL26-XXXXXX. NEVER give a partial path like "/inscrire" alone.`,
+- IMPORTANT LINKS: When mentioning a site page (tracking, signup, contact, etc.), ALWAYS provide the FULL URL with https://. Examples: https://qrtrans.pro/inscrire , https://qrtrans.pro/contact , https://qrtrans.pro/activate/VOL26-XXXXXX. NEVER give a partial path like "/inscrire" alone.`,
 
     ar: `أنت مساعد QRTrans، وكيل دعم ذكي على الصفحة الرئيسية. أجب باللغة العربية، بطريقة موجزة (بحد أقصى 3 جمل) وبلطف. تعرف كل شيء عن QRTrans.
 
@@ -226,7 +226,7 @@ RULES:
 • الاسم: QRTrans — تصدرها شركة MMASOLUTION
 • المقر الرئيسي: 43 Rue Maryse Bastié، 78300 بواسي، فرنسا
 • المنشأ: ولدت في داكار (السنغال)، منتشرة في 15 دولة
-• الموقع: https://qrtrans.com
+• الموقع: https://qrtrans.pro
 • المهمة: حماية ذكية للأمتعة للمسافرين والحجاج
 • وسائل التواصل: facebook.com/qrtrans | instagram.com/qrtrans | twitter.com/qrtrans
 • إحصائيات: أكثر من 10,000 حقيبة محمية، أكثر من 500 وكالة شريكة، نسبة استرداد 98%
@@ -286,7 +286,7 @@ RULES:
 • لا تخترع أبداً معلومات غير موجودة في قاعدة المعرفة.
 • لا تقدم نصيحة قانونية أو طبية.
 • إذا طلب المستخدم رابط تتبع، اطلب منه مرجع QR (الصيغة: VOL26-XXXXXX).
-• مهم روابط: عند ذكر صفحة الموقع، ضع دائماً الرابط الكامل مع https://. أمثلة: https://qrtrans.com/inscrire , https://qrtrans.com/contact. لا تضع مساراً جزئياً.`,
+• مهم روابط: عند ذكر صفحة الموقع، ضع دائماً الرابط الكامل مع https://. أمثلة: https://qrtrans.pro/inscrire , https://qrtrans.pro/contact. لا تضع مساراً جزئياً.`,
   };
 
   return prompts[locale] || prompts.fr;
@@ -434,7 +434,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // ─── 3. Detect tracking request BEFORE calling Groq ───
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrtrans.com';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrtrans.pro';
     const trackingResult = detectTrackingRequest(sanitizedQuestion, locale);
 
     if (trackingResult?.type === 'link') {

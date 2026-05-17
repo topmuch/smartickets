@@ -140,7 +140,7 @@ export async function POST(
 
     const arrivedDate = arrivedAt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const arrivedTime = arrivedAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    const trackingUrl = `https://qrtrans.com/suivi/${updated.reference}`;
+    const trackingUrl = `https://qrtrans.pro/suivi/${updated.reference}`;
     const companyName = updated.busCompany || updated.airlineName || '';
 
     // Driver phone line (conditional — security: never expose if consent = false)
@@ -162,7 +162,7 @@ Bonne nouvelle ! Votre colis a bien été livré avec succès.
 
 Merci de votre confiance envers QRTrans 🙏
 
-⭐ Évaluer le service : https://qrtrans.com
+⭐ Évaluer le service : https://qrtrans.pro
 
 🔗 Suivre le colis : ${trackingUrl}`;
 

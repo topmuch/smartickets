@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   authors: [{ name: "QRTrans Team" }],
   creator: "MMASOLUTION",
   publisher: "QRTrans",
-  metadataBase: new URL("https://qrtrans.com"),
+  metadataBase: new URL("https://qrtrans.pro"),
 
   // PWA Icons
   icons: {
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "QRTrans - Traçabilité & sécurité logistique | Transport inter-villes",
     description: "Activez, tracez et sécurisez vos colis entre villes au Sénégal. Notifications WhatsApp, code PIN, suivi GPS temps réel.",
-    url: "https://qrtrans.com",
+    url: "https://qrtrans.pro",
     siteName: "QRTrans",
     type: "website",
     locale: "fr_FR",
@@ -94,7 +94,7 @@ export const metadata: Metadata = {
 
   // Alternates
   alternates: {
-    canonical: "https://qrtrans.com",
+    canonical: "https://qrtrans.pro",
   },
 };
 
@@ -167,8 +167,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "QRTrans",
-              url: "https://qrtrans.com",
-              logo: "https://qrtrans.com/icons/icon-512x512.png",
+              url: "https://qrtrans.pro",
+              logo: "https://qrtrans.pro/icons/icon-512x512.png",
               description: "Plateforme de traçabilité et sécurité logistique pour le transport inter-villes au Sénégal.",
               address: {
                 "@type": "PostalAddress",
@@ -200,7 +200,7 @@ export default function RootLayout({
               applicationCategory: "LogisticsApplication",
               operatingSystem: "Web, iOS, Android",
               description: "Solution de traçabilité et sécurité logistique pour le transport inter-villes. Activation QR, notifications WhatsApp, code PIN de retrait, suivi GPS temps réel.",
-              url: "https://qrtrans.com",
+              url: "https://qrtrans.pro",
               offers: {
                 "@type": "Offer",
                 price: "0",

@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       year: 'numeric',
     });
     const deliveryTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    const trackingUrl = `https://qrtrans.com/suivi/${updated.reference}`;
+    const trackingUrl = `https://qrtrans.pro/suivi/${updated.reference}`;
 
     // Company name for assistance
     const companyName = updated.busCompany || updated.airlineName || updated.trainCompany || '';
@@ -115,7 +115,7 @@ Bonne nouvelle ! Votre colis a bien été livré avec succès.
 
 Merci de votre confiance envers QRTrans 🙏
 
-⭐ Évaluer le service : https://qrtrans.com
+⭐ Évaluer le service : https://qrtrans.pro
 
 🔗 Suivre le colis : ${trackingUrl}`;
 
