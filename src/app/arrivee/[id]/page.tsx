@@ -154,7 +154,7 @@ export default function ArriveePage() {
                 </p>
                 <Link
                   href={`/suivi/${qrCode}`}
-                  className="inline-flex items-center gap-2 mt-3 px-4 h-10 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-semibold transition-colors no-underline"
+                  className="inline-flex items-center justify-center gap-3 mt-4 px-8 h-14 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-lg font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-amber-600/30 no-underline w-full max-w-xs mx-auto"
                 >
                   🔍 {t('Voir le suivi', 'View tracking')}
                 </Link>

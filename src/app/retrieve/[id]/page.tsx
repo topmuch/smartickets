@@ -464,9 +464,9 @@ export default function RetrievePage() {
               </p>
               <Link
                 href={`/suivi/${reference}`}
-                className="inline-flex items-center gap-2 mt-4 px-5 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors no-underline"
+                className="inline-flex items-center justify-center gap-3 mt-5 px-8 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-lg font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-600/30 no-underline w-full max-w-xs mx-auto"
               >
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-5 h-5" />
                 {tFn('Voir le suivi', 'View tracking')}
               </Link>
             </div>
@@ -687,9 +687,9 @@ export default function RetrievePage() {
             </p>
             <Link
               href={`/suivi/${reference}`}
-              className="inline-flex items-center gap-2 px-5 h-12 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold text-sm transition-colors no-underline"
+              className="inline-flex items-center justify-center gap-3 px-8 h-14 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-lg font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-gray-900/30 no-underline"
             >
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-5 h-5" />
               {tFn('Voir le suivi', 'View tracking')}
             </Link>
           </div>
