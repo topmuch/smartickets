@@ -279,6 +279,7 @@ export default function ParametresPage() {
   const [testResult, setTestResult] = useState<{ success: boolean; message: string; warning?: boolean } | null>(null);
   const [emailSaving, setEmailSaving] = useState(false);
   const [emailSaved, setEmailSaved] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSubTab, setEmailSubTab] = useState<'colis' | 'system'>('colis');
 
   // Update active tab when URL param changes
@@ -340,6 +341,8 @@ export default function ParametresPage() {
 
   const handleEmailSave = async () => {
     setEmailSaving(true);
+    setEmailError(null);
+    setEmailSaved(false);
     try {
       const response = await fetch('/api/admin/email-settings', {
         method: 'PUT',
@@ -351,13 +354,16 @@ export default function ParametresPage() {
       
       if (response.ok) {
         setEmailSaved(true);
-        setTimeout(() => setEmailSaved(false), 3000);
+        setTimeout(() => setEmailSaved(false), 4000);
         if (data.settings) {
           setEmailSettings(data.settings);
         }
+      } else {
+        setEmailError(data.error || 'Erreur lors de la sauvegarde');
       }
     } catch (error) {
       console.error('Error saving email settings:', error);
+      setEmailError('Erreur réseau. Vérifiez votre connexion.');
     } finally {
       setEmailSaving(false);
     }
@@ -390,8 +396,9 @@ export default function ParametresPage() {
       } else {
         setTestResult({ success: false, message: data.error || 'Erreur lors de l\'envoi de l\'email' });
       }
-    } catch {
-      setTestResult({ success: false, message: 'Erreur lors de l\'envoi de l\'email de test' });
+    } catch (error) {
+      console.error('Test email error:', error);
+      setTestResult({ success: false, message: 'Erreur réseau. Vérifiez votre connexion.' });
     } finally {
       setSendingTest(false);
     }
@@ -1141,35 +1148,47 @@ export default function ParametresPage() {
             </div>
 
             {/* Save Email Settings Button */}
-            <div className="flex justify-end">
-              <button
-                onClick={handleEmailSave}
-                disabled={emailSaving}
-                className={`
-                  flex items-center gap-2 px-6 py-3 rounded-2xl font-bold shadow-lg transition-all
-                  ${emailSaved
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-black text-white hover:bg-slate-800 hover:scale-105'
-                  }
-                `}
-              >
-                {emailSaving ? (
-                  <>
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                    Enregistrement...
-                  </>
-                ) : emailSaved ? (
-                  <>
-                    <CheckCircle className="w-5 h-5" />
-                    Enregistré !
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-5 h-5" />
-                    Enregistrer la configuration email
-                  </>
-                )}
-              </button>
+            <div className="space-y-3">
+              {emailError && (
+                <div className="p-3 rounded-xl flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-800">
+                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                  <span className="text-sm text-red-800 dark:text-red-200">{emailError}</span>
+                  <button onClick={() => setEmailError(null)} className="ml-auto text-red-400 hover:text-red-600">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              {emailSaved && (
+                <div className="p-3 rounded-xl flex items-center gap-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-800">
+                  <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-sm text-emerald-800 dark:text-emerald-200">Configuration email enregistrée avec succès !</span>
+                </div>
+              )}
+              <div className="flex justify-end">
+                <button
+                  onClick={handleEmailSave}
+                  disabled={emailSaving}
+                  className={`
+                    flex items-center gap-2 px-6 py-3 rounded-2xl font-bold shadow-lg transition-all
+                    ${emailSaving
+                      ? 'bg-slate-400 text-white cursor-wait'
+                      : 'bg-black text-white hover:bg-slate-800 hover:scale-105 active:scale-95'
+                    }
+                  `}
+                >
+                  {emailSaving ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      Enregistrement...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-5 h-5" />
+                      Enregistrer la configuration email
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}
