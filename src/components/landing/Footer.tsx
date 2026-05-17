@@ -21,8 +21,8 @@ const columns: FooterColumn[] = [
   {
     title: 'Produit',
     links: [
-      { label: 'Fonctionnalités', href: '#services' },
-      { label: 'Sécurité', href: '#process' },
+      { label: 'Fonctionnalités', href: '/fonctionnalites' },
+      { label: 'Sécurité', href: '/securite' },
       { label: 'Chauffeur', href: '/inscrire' },
       { label: 'Agence', href: '/agence/connexion' },
     ],
@@ -30,19 +30,19 @@ const columns: FooterColumn[] = [
   {
     title: 'Ressources',
     links: [
-      { label: 'Documentation', href: '#' },
-      { label: 'FAQ', href: '#' },
-      { label: 'Blog', href: '#services' },
-      { label: 'Support', href: WA_URL, external: true },
+      { label: 'Documentation', href: '/documentation' },
+      { label: 'FAQ', href: '/faq' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Support', href: '/support' },
     ],
   },
   {
     title: 'Entreprise',
     links: [
-      { label: 'Contact', href: WA_URL, external: true },
+      { label: 'Contact', href: '/contact' },
       { label: 'Partenariats', href: '/devenir-partenaire' },
-      { label: 'CGU', href: '#' },
-      { label: 'Confidentialité', href: '#' },
+      { label: 'CGU', href: '/cgu' },
+      { label: 'Confidentialité', href: '/confidentialite' },
     ],
   },
 ]

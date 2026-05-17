@@ -1911,3 +1911,109 @@ Stage Summary:
 - Scrolling banner component: src/components/landing/ScrollingBanner.tsx
 - Demo page: src/app/demo/page.tsx + src/app/demo/DemoContent.tsx
 - All changes compile and serve successfully
+
+---
+Task ID: 3
+Agent: fullstack-developer
+Task: Create /documentation and /faq pages
+
+Work Log:
+- Read worklog.md and SecondaryPageLayout.tsx for project context and layout component
+- Created src/app/documentation/page.tsx:
+  - 'use client' page using SecondaryPageLayout with title="Documentation" subtitle="Guides complets pour utiliser toutes les fonctionnalités de QRTrans"
+  - 4 documentation categories in a 2x2 grid (Guide Chauffeur, Guide Agence, Guide Activation de Colis, Guide Résolution de Problèmes)
+  - Each card: white bg, border border-[#E2E8F0], rounded-xl, p-6, hover:shadow-lg transition, icon in colored circle
+  - "Démarrage rapide" section with 3 numbered steps in vertical list
+  - API Reference section with dark gradient card, "API disponible bientôt" badge, and contact link to /contact
+  - Framer Motion staggered animations on all sections
+- Created src/app/faq/page.tsx:
+  - 'use client' page using SecondaryPageLayout with title="Questions Fréquentes" subtitle="Trouvez rapidement les réponses à vos questions sur QRTrans"
+  - 3 FAQ categories: Général (3 questions), Utilisation (3 questions), Sécurité (2 questions)
+  - Accordion-style FAQ using useState + AnimatePresence for smooth open/close animations
+  - ChevronDown icon rotates on toggle, answer slides in/out with height animation
+  - Category headers with colored icons and question count badges
+  - CTA section at bottom for unanswered questions linking to /contact
+  - Stats bar showing total questions and categories count
+- Design system: Navy (#0A2540), White, Orange (#FF6B35), Green (#10B981)
+- Lucide icons throughout, responsive grid layout
+- Validation: bun run lint → 0 errors, dev server clean
+
+Stage Summary:
+- src/app/documentation/page.tsx created
+- src/app/faq/page.tsx created
+---
+Task ID: 5
+Agent: fullstack-developer
+Task: Update /cgu and /confidentialite pages with new design
+
+Work Log:
+- Rewrote /cgu page to use SecondaryPageLayout, white bg, Sénégal address
+- Rewrote /confidentialite page to use SecondaryPageLayout, white bg, Sénégal address
+
+Stage Summary:
+- src/app/cgu/page.tsx updated
+- src/app/confidentialite/page.tsx updated
+
+---
+Task ID: 2
+Agent: fullstack-developer
+Task: Create /fonctionnalites and /securite pages
+
+Work Log:
+- Created /fonctionnalites page with 6 feature cards and 4-step timeline
+- Created /securite page with 3 security pillars, certifications, and stats
+
+Stage Summary:
+- src/app/fonctionnalites/page.tsx created
+- src/app/securite/page.tsx created
+
+---
+Task ID: 4
+Agent: fullstack-developer
+Task: Create /blog and /support pages
+
+Work Log:
+- Read worklog.md for project context and design patterns
+- Read SecondaryPageLayout.tsx to understand the layout component API
+- Read contact/page.tsx for design pattern reference (motion, colors, spacing)
+- Created src/app/blog/page.tsx:
+  - Uses SecondaryPageLayout with title="Blog & Ressources" and subtitle
+  - 6 blog article cards in responsive grid (1/2/3 columns)
+  - Each card: colored top bar (4px), category badge, title, excerpt (line-clamp-3), date with calendar icon, "Lire la suite →" link
+  - Cards wrap in Link for full-card clickability
+  - Newsletter CTA section: dark gradient background, email input + "S'abonner" button, success state animation
+  - Framer Motion staggered card animations
+  - Uses shadcn/ui Badge, Button, Input components + Lucide icons
+- Created src/app/support/page.tsx:
+  - Uses SecondaryPageLayout with title="Support & Aide" and subtitle
+  - 4 support channel cards in 2x2 grid (WhatsApp, Email, Telephone, Bureau)
+  - Each card: colored icon, title, description, detail, action button with channel color
+  - FAQ preview: 3 common questions with answers, "Voir plus →" link to /faq
+  - CTA section: dark gradient background, "Vous ne trouvez pas la réponse ?" with /contact button
+  - Framer Motion staggered animations for all sections
+  - External links for WhatsApp (target _blank), mailto, tel
+- Ran `bun run lint` — 0 errors
+
+Stage Summary:
+- src/app/blog/page.tsx created — 6 articles + newsletter CTA
+- src/app/support/page.tsx created — 4 channels + FAQ preview + CTA
+- Zero lint errors
+- Design consistent: Navy (#0A2540), White, Orange (#FF6B35), Green (#10B981) color system
+- Fully responsive: mobile-first grid layouts
+- Framer Motion animations: staggered card entrance, scroll-triggered sections
+---
+Task ID: 1
+Agent: Main
+Task: Create all footer pages and update footer links
+
+Work Log:
+- Created SecondaryPageLayout shared component for all secondary pages
+- Launched 4 parallel subagents to create/update pages
+- Updated Footer.tsx links to point to all new pages
+- Verified all 8 pages return HTTP 200
+
+Stage Summary:
+- New pages created: /fonctionnalites, /securite, /documentation, /faq, /blog, /support
+- Existing pages updated: /cgu, /confidentialite (new design, Sénégal address)
+- Footer updated with all correct links
+- All pages pass ESLint and return 200
