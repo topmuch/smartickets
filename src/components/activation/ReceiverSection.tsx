@@ -49,6 +49,8 @@ export default function ReceiverSection({
           hint={t('Recevra le code de retrait par WhatsApp.', 'Will receive the pickup code via WhatsApp.')}
           error={phoneError}
           name="receiver_phone"
+          labelClassName="text-white"
+          hintClassName="text-white"
         />
       </div>
     </div>

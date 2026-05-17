@@ -223,6 +223,8 @@ export default function VoyageSection({
             error={driverPhoneError}
             name="driver_phone"
             optional
+            labelClassName="text-white"
+            hintClassName="text-white"
           />
         </div>
 

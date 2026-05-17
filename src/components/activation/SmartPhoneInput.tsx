@@ -267,11 +267,11 @@ export default function SmartPhoneInput({
             </p>
           )}
           {detected ? (
-            <p className={`text-xs flex items-center gap-1 ${isDark ? 'text-white/70' : 'text-emerald-600'}`}>
+            <p className="text-sm flex items-center gap-1 text-white">
               ✅ Indicatif détecté automatiquement
             </p>
           ) : (
-            <p className={`text-xs flex items-center gap-1 ${isDark ? 'text-white/50' : 'text-gray-400'}`}>
+            <p className="text-sm flex items-center gap-1 text-white/70">
               🌐 Indicatif par défaut ({flag} {callingCode})
             </p>
           )}

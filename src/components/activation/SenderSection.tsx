@@ -101,6 +101,8 @@ export default function SenderSection({
               hint={t('Recevra la confirmation de départ.', 'Will receive the departure confirmation.')}
               error={phoneError}
               name="sender_phone"
+              labelClassName="text-white"
+              hintClassName="text-white"
             />
           </div>
         </div>
