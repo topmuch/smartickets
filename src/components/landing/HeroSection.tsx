@@ -104,9 +104,9 @@ export default function HeroSection() {
               <button
                 type="submit"
                 disabled={!isValid}
-                className="flex items-center gap-2 px-7 py-5 font-bold text-sm bg-[#FF6B35] hover:bg-[#e65a28] text-white shadow-[0_4px_16px_rgba(255,107,53,0.4)] hover:shadow-[0_6px_20px_rgba(255,107,53,0.5)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                className="flex items-center gap-2 px-7 py-5 font-bold text-sm bg-[#FF6B35] hover:bg-[#e65a28] text-white shadow-[0_4px_16px_rgba(255,107,53,0.4)] hover:shadow-[0_6px_20px_rgba(255,107,53,0.5)] transition-all duration-300 disabled:cursor-not-allowed"
               >
-                Suivre le trajet
+                Suivre le colis
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
