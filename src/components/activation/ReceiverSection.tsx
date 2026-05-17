@@ -37,7 +37,7 @@ export default function ReceiverSection({
             value={receiverName}
             onChange={(e) => setReceiverName(e.target.value)}
             placeholder={t('Ex: Fatou Sow', 'Ex: Fatou Sow')}
-            className="h-12 sm:h-14 bg-white/95 border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 placeholder:text-gray-400"
+            className="h-12 sm:h-14 bg-white border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
             aria-required="true"
           />
         </div>

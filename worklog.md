@@ -1639,3 +1639,25 @@ Stage Summary:
 - 4 pages improved with proper auth error handling and credentials
 - All admin API calls now use credentials: 'same-origin' for consistent cookie transmission
 - Error banners now properly display auth failure messages to users
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Style activation page — dashed borders on payment/share rubriques, grey backgrounds → white
+
+Work Log:
+- Read all activation page components (page.tsx, ActivationForm, VoyageSection, SenderSection, ReceiverSection, SmartPhoneInput, ActivationHeader, SuccessScreen)
+- Added `border-dashed` to payment buttons (✅ Payé / 💸 À payer) in VoyageSection.tsx
+- Changed share toggle section border from `border border-white/20` to `border-2 border-dashed border-white/60`
+- Changed all input field backgrounds from `bg-white/95` to `bg-white` across VoyageSection, SenderSection, ReceiverSection
+- Changed placeholder text from `placeholder:text-gray-400` to `placeholder:text-gray-500` for better readability
+- Changed SmartPhoneInput country badge from `bg-gray-50` to `bg-white` and `text-gray-700` to `text-gray-900`
+- Changed SmartPhoneInput border from `border-[#E5E7EB]` to `border-gray-200`
+- Verified with ESLint (clean) and dev server (compiled successfully)
+
+Stage Summary:
+- Payment buttons and share toggle section now have dashed white borders matching the card style
+- All form input backgrounds are now fully opaque white (no grey tint from semi-transparency)
+- Phone input country badge is now white background with darker text
+- No functionality changed, styling only
+

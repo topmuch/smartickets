@@ -229,13 +229,13 @@ export default function SmartPhoneInput({
         className={`flex items-center h-12 sm:h-14 rounded-md border overflow-hidden transition-[color,box-shadow] ${
           error
             ? 'border-red-400 focus-within:ring-2 focus-within:ring-red-400/30'
-            : 'border-[#E5E7EB] focus-within:border-[#25D366] focus-within:ring-2 focus-within:ring-[#25D366]/20'
+            : 'border-gray-200 focus-within:border-[#25D366] focus-within:ring-2 focus-within:ring-[#25D366]/20'
         }`}
       >
         {/* Country badge — fixed on the left */}
-        <div className="flex items-center gap-1.5 pl-3 pr-2 bg-gray-50 border-r border-[#E5E7EB] h-full shrink-0 select-none">
+        <div className="flex items-center gap-1.5 pl-3 pr-2 bg-white border-r border-gray-200 h-full shrink-0 select-none">
           <span className="text-sm sm:text-base leading-none">{flag}</span>
-          <span className="text-sm sm:text-base font-mono font-semibold text-gray-700">{callingCode}</span>
+          <span className="text-sm sm:text-base font-mono font-semibold text-gray-900">{callingCode}</span>
         </div>
 
         {/* Local number input */}

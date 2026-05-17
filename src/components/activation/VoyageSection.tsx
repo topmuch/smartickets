@@ -102,7 +102,7 @@ export default function VoyageSection({
             value={company}
             onChange={(e) => setCompany(e.target.value)}
             placeholder="Ex: Salam, Aline, Fatick Express..."
-            className="h-12 sm:h-14 bg-white/95 border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 placeholder:text-gray-400"
+            className="h-12 sm:h-14 bg-white border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
             aria-required="true"
           />
         </div>
@@ -118,7 +118,7 @@ export default function VoyageSection({
               value={departureCity}
               onChange={(e) => setDepartureCity(e.target.value)}
               placeholder={t('Ex: Dakar', 'Ex: Dakar')}
-              className="h-12 sm:h-14 bg-white/95 border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 placeholder:text-gray-400"
+              className="h-12 sm:h-14 bg-white border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
               aria-required="true"
             />
           </div>
@@ -131,7 +131,7 @@ export default function VoyageSection({
               value={arrivalCity}
               onChange={(e) => setArrivalCity(e.target.value)}
               placeholder={t('Ex: Ziguinchor', 'Ex: Ziguinchor')}
-              className="h-12 sm:h-14 bg-white/95 border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 placeholder:text-gray-400"
+              className="h-12 sm:h-14 bg-white border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
               aria-required="true"
             />
           </div>
@@ -149,7 +149,7 @@ export default function VoyageSection({
               value={departureDate}
               min={new Date().toISOString().split('T')[0]}
               onChange={(e) => setDepartureDate(e.target.value)}
-              className="h-12 sm:h-14 bg-white/95 border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 [color-scheme:light]"
+              className="h-12 sm:h-14 bg-white border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 [color-scheme:light]"
               aria-required="true"
             />
           </div>
@@ -162,7 +162,7 @@ export default function VoyageSection({
               type="time"
               value={departureTime}
               onChange={(e) => setDepartureTime(e.target.value)}
-              className="h-12 sm:h-14 bg-white/95 border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 [color-scheme:light]"
+              className="h-12 sm:h-14 bg-white border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 [color-scheme:light]"
               aria-required="true"
             />
           </div>
@@ -186,7 +186,7 @@ export default function VoyageSection({
             value={pickupAddress}
             onChange={(e) => setPickupAddress(e.target.value)}
             placeholder={t('Ex: Gare routière, Boutique X, N° de porte...', 'Ex: Bus station, Shop X, Door number...')}
-            className="w-full min-h-[56px] sm:min-h-[70px] px-3 py-2.5 sm:py-3 bg-white/95 border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 rounded-lg text-sm sm:text-base text-gray-900 placeholder:text-gray-400 resize-none"
+            className="w-full min-h-[56px] sm:min-h-[70px] px-3 py-2.5 sm:py-3 bg-white border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 rounded-lg text-sm sm:text-base text-gray-900 placeholder:text-gray-500 resize-none"
             minRows={2}
           />
         </div>
@@ -202,7 +202,7 @@ export default function VoyageSection({
             type="time"
             value={estimatedArrival}
             onChange={(e) => setEstimatedArrival(e.target.value)}
-            className="h-12 sm:h-14 bg-white/95 border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 [color-scheme:light]"
+            className="h-12 sm:h-14 bg-white border-white/30 focus-visible:ring-white/50 focus-visible:border-white/60 text-sm sm:text-base text-gray-900 [color-scheme:light]"
           />
         </div>
 
@@ -229,7 +229,7 @@ export default function VoyageSection({
         </div>
 
         {/* Share Toggle — stacked on mobile */}
-        <div className="p-3 sm:p-3.5 bg-white/10 rounded-xl border border-white/20">
+        <div className="p-3 sm:p-3.5 bg-white/10 rounded-xl border-2 border-dashed border-white/60">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex-1 min-w-0">
               <Label className="text-sm sm:text-base font-semibold text-white cursor-pointer leading-snug">
@@ -269,7 +269,7 @@ export default function VoyageSection({
               type="button"
               onClick={() => setPaymentStatus('SENDER_PAID')}
               aria-pressed={paymentStatus === 'SENDER_PAID'}
-              className={`flex items-center justify-center gap-1 sm:gap-2 h-12 sm:h-14 rounded-xl border-2 text-xs sm:text-base font-bold transition-all px-1.5 sm:px-3 ${
+              className={`flex items-center justify-center gap-1 sm:gap-2 h-12 sm:h-14 rounded-xl border-2 border-dashed text-xs sm:text-base font-bold transition-all px-1.5 sm:px-3 ${
                 paymentStatus === 'SENDER_PAID'
                   ? 'border-white bg-white/25 text-white shadow-sm shadow-black/10'
                   : 'border-white/30 text-white hover:border-white/50'
@@ -281,7 +281,7 @@ export default function VoyageSection({
               type="button"
               onClick={() => setPaymentStatus('RECEIVER_PAY')}
               aria-pressed={paymentStatus === 'RECEIVER_PAY'}
-              className={`flex items-center justify-center gap-1 sm:gap-2 h-12 sm:h-14 rounded-xl border-2 text-xs sm:text-base font-bold transition-all px-1.5 sm:px-3 ${
+              className={`flex items-center justify-center gap-1 sm:gap-2 h-12 sm:h-14 rounded-xl border-2 border-dashed text-xs sm:text-base font-bold transition-all px-1.5 sm:px-3 ${
                 paymentStatus === 'RECEIVER_PAY'
                   ? 'border-yellow-300 bg-yellow-400/25 text-yellow-100 shadow-sm shadow-black/10'
                   : 'border-white/30 text-white hover:border-white/50'
