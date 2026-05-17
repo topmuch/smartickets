@@ -40,7 +40,7 @@ const services = [
     title: 'Dashboard Agence Temps Réel',
     description:
       'Flotte, chauffeurs, statuts, export CSV. Pilotage complet.',
-    image: '/images/service-dashboard.png',
+    image: '/images/service-dashboard-v2.png',
     bg: 'bg-[#ff8c00]',
     hoverShadow: 'hover:shadow-[0_8px_32px_rgba(255,140,0,0.35)]',
   },
