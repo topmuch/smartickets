@@ -2457,3 +2457,32 @@ Stage Summary:
   ✅ FR/EN bilingual
   ✅ WCAG AA accessible (ARIA, semantic HTML, ≥44px touch targets)
   ✅ Mobile-first responsive (max-w-600px)
+---
+Task ID: 18
+Agent: Main Agent
+Task: Add bulk delete feature for QR codes on admin etiquettes page
+
+Work Log:
+- Read existing QR code management system: Prisma schema, etiquettes page, API routes
+- Extended `src/app/api/qrcodes/route.ts` with POST handler for bulk delete:
+  - Accepts `{ setIds: string[] }` in JSON body
+  - Builds OR conditions for all setIds (matches setId field or reference prefix)
+  - Deletes all matching baggages via `deleteMany`
+  - Returns deletedCount, deletedSetCount, deletedReferences
+- Rewrote `src/app/admin/etiquettes/page.tsx` with bulk selection UI:
+  - Added checkbox column to each set row (CheckSquare/Square icons)
+  - Added "Tout sélectionner / Tout désélectionner" bar above agency groups
+  - Added sticky bottom action bar that appears when items are selected
+  - Shows selected count + total QR count in action bar
+  - Bulk delete confirmation modal with scrollable list of sets to be deleted
+  - Loading state during bulk deletion with spinner
+  - Red highlight on selected rows for visual feedback
+  - Added `selectedSetIds` state (Set<string>) for O(1) lookups
+  - Added `useMemo` for computed values (selectedQrCount, allSelected, someSelected)
+
+Stage Summary:
+- 2 files modified: API route + admin etiquettes page
+- Zero lint errors (pre-existing error in scripts/migrate-db.js only)
+- Dev server compiles clean
+- Bulk delete supports any number of sets simultaneously
+- Visual feedback: checkboxes, red highlights, sticky action bar, confirmation modal

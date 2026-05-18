@@ -170,3 +170,65 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+// POST - Bulk delete multiple QR code sets
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { setIds } = body as { setIds?: string[] };
+
+    if (!setIds || !Array.isArray(setIds) || setIds.length === 0) {
+      return NextResponse.json(
+        { error: 'setIds array is required' },
+        { status: 400 }
+      );
+    }
+
+    console.log(`[BULK DELETE QR] Attempting to delete ${setIds.length} sets:`, setIds);
+
+    // Build OR conditions for all setIds
+    const orConditions = setIds.flatMap(setId => [
+      { setId: setId },
+      { reference: { startsWith: `${setId}-` } }
+    ]);
+
+    // Find all baggages matching these sets
+    const baggages = await db.baggage.findMany({
+      where: { OR: orConditions },
+      select: { id: true, reference: true }
+    });
+
+    if (baggages.length === 0) {
+      return NextResponse.json(
+        { error: 'No baggages found for the provided sets', setIds },
+        { status: 404 }
+      );
+    }
+
+    console.log(`[BULK DELETE QR] Found ${baggages.length} baggages`);
+
+    const baggageIds = baggages.map(b => b.id);
+
+    // Delete all baggages
+    const deleteResult = await db.baggage.deleteMany({
+      where: { id: { in: baggageIds } }
+    });
+
+    console.log(`[BULK DELETE QR] Successfully deleted ${deleteResult.count} baggages`);
+
+    return NextResponse.json({
+      success: true,
+      deletedCount: deleteResult.count,
+      deletedSetCount: setIds.length,
+      setIds,
+      deletedReferences: baggages.map(b => b.reference)
+    });
+
+  } catch (error) {
+    console.error('Bulk delete QR codes error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', details: String(error) },
+      { status: 500 }
+    );
+  }
+}

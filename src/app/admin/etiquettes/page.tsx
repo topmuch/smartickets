@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -21,6 +21,8 @@ import {
   Archive,
   Image as ImageIcon,
   Loader2,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 
 interface QRSet {
@@ -68,9 +70,13 @@ export default function EtiquettesPage() {
   const [search, setSearch] = useState('');
   const [activeTab] = useState<'voyageur'>('voyageur');
 
+  // Selection state
+  const [selectedSetIds, setSelectedSetIds] = useState<Set<string>>(new Set());
+
   // Modals
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [selectedSet, setSelectedSet] = useState<QRSet | null>(null);
 
   // Download states
@@ -78,9 +84,48 @@ export default function EtiquettesPage() {
   const [downloadingSingle, setDownloadingSingle] = useState<string | null>(null);
   const [downloadProgress, setDownloadProgress] = useState<string>('');
 
+  // Bulk delete state
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  // Computed: total QR in selection
+  const selectedQrCount = useMemo(() => {
+    return sets
+      .filter(s => selectedSetIds.has(s.setId))
+      .reduce((sum, s) => sum + s.qrCount, 0);
+  }, [sets, selectedSetIds]);
+
+  const allSetIds = useMemo(() => sets.map(s => s.setId), [sets]);
+  const allSelected = allSetIds.length > 0 && selectedSetIds.size === allSetIds.length;
+  const someSelected = selectedSetIds.size > 0 && !allSelected;
+
   useEffect(() => {
     fetchSets();
   }, [activeTab, search]);
+
+  // ─── Selection helpers ───
+  const toggleSelectSet = (setId: string) => {
+    setSelectedSetIds(prev => {
+      const next = new Set(prev);
+      if (next.has(setId)) {
+        next.delete(setId);
+      } else {
+        next.add(setId);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedSetIds(new Set());
+    } else {
+      setSelectedSetIds(new Set(allSetIds));
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedSetIds(new Set());
+  };
 
   const fetchSets = async () => {
     setLoading(true);
@@ -177,6 +222,34 @@ export default function EtiquettesPage() {
     } catch (error) {
       console.error('Error deleting set:', error);
       alert('Erreur lors de la suppression');
+    }
+  };
+
+  // ─── Bulk Delete ───
+  const handleBulkDelete = async () => {
+    if (selectedSetIds.size === 0) return;
+    setBulkDeleting(true);
+
+    try {
+      const response = await fetch('/api/qrcodes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setIds: Array.from(selectedSetIds) }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        fetchSets();
+        setShowBulkDeleteModal(false);
+        setSelectedSetIds(new Set());
+      } else {
+        alert(`Erreur: ${data.error || 'Erreur lors de la suppression en masse'}`);
+      }
+    } catch (error) {
+      console.error('Error bulk deleting:', error);
+      alert('Erreur lors de la suppression en masse');
+    } finally {
+      setBulkDeleting(false);
     }
   };
 
@@ -366,6 +439,31 @@ export default function EtiquettesPage() {
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Select all bar */}
+          <div className="flex items-center justify-between bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2.5">
+            <button
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              {allSelected ? (
+                <CheckSquare className="w-4 h-4 text-green-600" />
+              ) : someSelected ? (
+                <div className="relative">
+                  <Square className="w-4 h-4 text-green-600" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-green-600 rounded-sm" />
+                  </div>
+                </div>
+              ) : (
+                <Square className="w-4 h-4 text-slate-400" />
+              )}
+              {allSelected ? 'Tout désélectionner' : 'Tout sélectionner'}
+            </button>
+            <span className="text-xs text-slate-400">
+              {allSetIds.length} set{allSetIds.length > 1 ? 's' : ''} au total
+            </span>
+          </div>
+
           {agencyGroups.map((group) => (
             <div
               key={group.agencyId || 'no-agency'}
@@ -398,93 +496,149 @@ export default function EtiquettesPage() {
               {group.isExpanded && (
                 <div className="border-t border-slate-200 dark:border-slate-700">
                   <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                    {group.sets.map((set) => (
-                      <div
-                        key={set.id}
-                        className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                      >
-                        <div className="flex items-center gap-4">
-                          {/* QR Icon */}
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-amber-100 dark:bg-amber-500/20`}>
-                            <QrCode className={`w-6 h-6 text-amber-600`} />
-                          </div>
-
-                          {/* Info */}
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium text-slate-800 dark:text-white">
-                                {set.setId}
-                              </h4>
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                set.activationStatus === 'activated'
-                                  ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
-                                  : set.activationStatus === 'partial'
-                                  ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400'
-                                  : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
-                              }`}>
-                                {set.activationStatus === 'activated' ? 'Activé' : set.activationStatus === 'partial' ? 'Partiel' : 'Nouveau'}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-4 mt-1 text-sm text-slate-500 dark:text-slate-400">
-                              <span>{set.qrCount} QR</span>
-                              {set.travelerName && (
-                                <span>• {set.travelerName}</span>
+                    {group.sets.map((set) => {
+                      const isSelected = selectedSetIds.has(set.setId);
+                      return (
+                        <div
+                          key={set.id}
+                          className={`flex items-center justify-between p-4 transition-colors ${
+                            isSelected
+                              ? 'bg-red-50 dark:bg-red-500/10 border-l-4 border-red-500'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-4">
+                            {/* Checkbox */}
+                            <button
+                              onClick={() => toggleSelectSet(set.setId)}
+                              className="flex-shrink-0"
+                              title={isSelected ? 'Désélectionner' : 'Sélectionner'}
+                            >
+                              {isSelected ? (
+                                <CheckSquare className="w-5 h-5 text-red-600" />
+                              ) : (
+                                <Square className="w-5 h-5 text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 transition-colors" />
                               )}
-                              <span>• {formatDate(set.createdAt)}</span>
+                            </button>
+
+                            {/* QR Icon */}
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-amber-100 dark:bg-amber-500/20`}>
+                              <QrCode className={`w-6 h-6 text-amber-600`} />
+                            </div>
+
+                            {/* Info */}
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-medium text-slate-800 dark:text-white">
+                                  {set.setId}
+                                </h4>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  set.activationStatus === 'activated'
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
+                                    : set.activationStatus === 'partial'
+                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400'
+                                    : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                                }`}>
+                                  {set.activationStatus === 'activated' ? 'Activé' : set.activationStatus === 'partial' ? 'Partiel' : 'Nouveau'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-4 mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                <span>{set.qrCount} QR</span>
+                                {set.travelerName && (
+                                  <span>• {set.travelerName}</span>
+                                )}
+                                <span>• {formatDate(set.createdAt)}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              setSelectedSet(set);
-                              setShowDetailModal(true);
-                            }}
-                            className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
-                            title="Voir les QR codes"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          {/* Bulk download (ZIP) */}
-                          <button
-                            onClick={() => handleBulkDownload(set)}
-                            disabled={downloadingSet === set.setId}
-                            className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Télécharger tout en ZIP"
-                          >
-                            {downloadingSet === set.setId ? (
-                              <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
-                            ) : (
-                              <Archive className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleShareSet(set)}
-                            className="p-2 text-slate-400 hover:text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors"
-                            title="Partager"
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedSet(set);
-                              setShowDeleteModal(true);
-                            }}
-                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
-                            title="Supprimer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {/* Actions */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedSet(set);
+                                setShowDetailModal(true);
+                              }}
+                              className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
+                              title="Voir les QR codes"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            {/* Bulk download (ZIP) */}
+                            <button
+                              onClick={() => handleBulkDownload(set)}
+                              disabled={downloadingSet === set.setId}
+                              className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Télécharger tout en ZIP"
+                            >
+                              {downloadingSet === set.setId ? (
+                                <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                              ) : (
+                                <Archive className="w-4 h-4" />
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleShareSet(set)}
+                              className="p-2 text-slate-400 hover:text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-lg transition-colors"
+                              title="Partager"
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedSet(set);
+                                setShowDeleteModal(true);
+                              }}
+                              className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ─── Bulk Delete Action Bar (sticky bottom) ─── */}
+      {selectedSetIds.size > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-2xl shadow-black/10">
+          <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/20 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800 dark:text-white text-sm">
+                  {selectedSetIds.size} set{selectedSetIds.size > 1 ? 's' : ''} sélectionné{selectedSetIds.size > 1 ? 's' : ''}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {selectedQrCount} QR codes au total
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={clearSelection}
+                className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => setShowBulkDeleteModal(true)}
+                className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-red-500/30"
+              >
+                <Trash2 className="w-4 h-4" />
+                Supprimer en masse
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -646,7 +800,7 @@ export default function EtiquettesPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal (single) */}
       {showDeleteModal && selectedSet && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full">
@@ -678,6 +832,79 @@ export default function EtiquettesPage() {
                   className="flex-1 py-2 px-4 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
                 >
                   Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteModal && selectedSetIds.size > 0 && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60] backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-slate-800 dark:text-white font-bold">Suppression en masse</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">
+                    {selectedSetIds.size} set{selectedSetIds.size > 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-4 mb-4">
+                <p className="text-sm font-semibold text-red-800 dark:text-red-400 mb-2">
+                  Les éléments suivants seront supprimés définitivement :
+                </p>
+                <div className="max-h-40 overflow-y-auto space-y-1">
+                  {Array.from(selectedSetIds).map((setId) => {
+                    const set = sets.find(s => s.setId === setId);
+                    return (
+                      <p key={setId} className="text-xs text-red-700 dark:text-red-300 font-mono flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-red-400 rounded-full flex-shrink-0" />
+                        {setId} {set ? `(${set.qrCount} QR)` : ''}
+                      </p>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3 mb-6">
+                <p className="text-sm text-slate-600 dark:text-slate-300 text-center">
+                  <strong className="text-red-600 dark:text-red-400">{selectedQrCount}</strong> QR codes seront supprimés au total.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowBulkDeleteModal(false);
+                  }}
+                  disabled={bulkDeleting}
+                  className="flex-1 py-2.5 px-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors font-medium disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={bulkDeleting}
+                  className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {bulkDeleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Confirmer la suppression
+                    </>
+                  )}
                 </button>
               </div>
             </div>
