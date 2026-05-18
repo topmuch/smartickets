@@ -38,6 +38,39 @@ export async function GET(
       pin_masked = `***${pin.slice(-3)}`;
     }
 
+    // Build timeline from ColisEvent + ScanLog
+    const [events, scans] = await Promise.all([
+      db.colisEvent.findMany({
+        where: { baggageId: colis.id },
+        orderBy: { createdAt: 'asc' },
+      }),
+      db.scanLog.findMany({
+        where: { baggageId: colis.id },
+        orderBy: { createdAt: 'asc' },
+      }),
+    ]);
+
+    const timeline = [
+      ...events.map((e) => ({
+        id: e.id,
+        type: 'event' as const,
+        title: e.messageTitle,
+        description: (e.messageContent || '').length > 100
+          ? (e.messageContent || '').slice(0, 100) + '…'
+          : (e.messageContent || ''),
+        timestamp: e.createdAt,
+        location: null as string | null,
+      })),
+      ...scans.map((s) => ({
+        id: s.id,
+        type: 'scan' as const,
+        title: `Scan à ${s.location || 'Position inconnue'}`,
+        description: s.context || '',
+        timestamp: s.createdAt,
+        location: s.location,
+      })),
+    ].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
     // Return colis data for the arrival page
     return NextResponse.json({
       success: true,
@@ -58,9 +91,20 @@ export async function GET(
         arrivedAt: colis.arrivedAt,
         deliveryLocation: colis.deliveryLocation,
         deliveryNotes: colis.deliveryNotes,
+        pickupAddress: colis.pickupAddress,
+        estimatedArrival: colis.estimatedArrival,
+        paymentStatus: colis.paymentStatus,
+        colisType: colis.colisType,
+        colisTypeOther: colis.colisTypeOther,
+        colisWeight: colis.colisWeight,
+        isFragile: colis.isFragile,
+        driverPhone: colis.shareDriverPhone ? colis.driverPhone : null,
+        shareDriverPhone: colis.shareDriverPhone,
+        deliveredAt: colis.deliveredAt,
       },
       pin_masked,
       pinAttempts: colis.pinAttempts ?? 0,
+      timeline,
     });
   } catch (error) {
     console.error('[/api/arrivee] GET error:', error);
