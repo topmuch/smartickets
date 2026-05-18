@@ -1,27 +1,24 @@
-# QRTrans - Dockerfile for Coolify
-FROM node:20-alpine
+# ============================================================
+# QRTrans — Multi-stage Dockerfile for Coolify (lightweight)
+# ============================================================
 
-# Cache buster - increment to force rebuild
-ARG CACHEBUST=15
+# ── Stage 1: Build ──
+FROM node:20-alpine AS builder
 
-# Install required packages (Alpine correct package names)
-# sqlite = CLI tool + shared library (needed for runtime migrations)
-# build-base = gcc/make for native module compilation (prisma, etc.)
+ARG CACHEBUST=16
+
+# Install required packages for building
 RUN apk add --no-cache git sqlite build-base
 RUN npm install -g bun
 
 WORKDIR /app
 
-# Clone the repository from main branch
+# Clone the repository
 RUN git clone --branch main --depth 1 https://github.com/topmuch/qrtrans.git /app/tmp && \
-    cp -r /app/tmp/. /app/ && rm -rf /app/tmp && \
-    echo "--- Build context files ---" && ls -la /app/package.json /app/bun.lock
+    cp -r /app/tmp/. /app/ && rm -rf /app/tmp
 
-# ⚠️ CRITICAL: Force development mode during build so devDependencies are installed
-# (typescript, prisma, next, tailwindcss, etc. are needed for `bun run build`)
+# Install ALL dependencies (including devDependencies) for build
 ENV NODE_ENV=development
-
-# Install ALL dependencies (including devDependencies)
 RUN bun install
 
 # Generate Prisma Client
@@ -32,56 +29,67 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=file:/app/data/qrtrans.db
 RUN bun run build
 
-# Copy static assets into standalone for runtime
-RUN cp -r .next/static .next/standalone/.next/static
-RUN cp -r public .next/standalone/public
+# ── Stage 2: Production (minimal image) ──
+FROM node:20-alpine AS runner
 
-# Copy Prisma client into standalone for runtime queries
-RUN cp -r node_modules/.prisma .next/standalone/node_modules/.prisma
-RUN cp -r node_modules/@prisma/client .next/standalone/node_modules/@prisma/client
-RUN cp -r node_modules/@prisma/engines .next/standalone/node_modules/@prisma/engines 2>/dev/null || true
+ARG CACHEBUST=16
 
-# Copy qrcode + pngjs + dijkstrajs into standalone (needed for download API)
-RUN cp -r node_modules/qrcode .next/standalone/node_modules/qrcode 2>/dev/null || true
-RUN cp -r node_modules/pngjs .next/standalone/node_modules/pngjs 2>/dev/null || true
-RUN cp -r node_modules/dijkstrajs .next/standalone/node_modules/dijkstrajs 2>/dev/null || true
-RUN cp -r node_modules/jszip .next/standalone/node_modules/jszip 2>/dev/null || true
+# Only install runtime essentials
+RUN apk add --no-cache sqlite
 
-# Copy prisma schema for reference
-RUN mkdir -p .next/standalone/prisma
-RUN cp prisma/schema.prisma .next/standalone/prisma/schema.prisma
+WORKDIR /app
 
-# IMPORTANT: Keep full node_modules at /app/node_modules for migration scripts.
-# The standalone node_modules is incomplete (missing prisma CLI dependencies),
-# so we run migrations using the FULL node_modules before starting the server.
-# Do NOT delete /app/node_modules.
-
-# Create data directories
-RUN mkdir -p /app/data /app/public/uploads
-
-EXPOSE 3000
-
+ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL=file:/app/data/qrtrans.db
-ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Health check — Coolify expects the container to respond on its port
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy standalone server
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+
+# Copy static assets
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Copy runtime-only node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
+
+# Copy runtime packages needed by API routes
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/qrcode ./node_modules/qrcode
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pngjs ./node_modules/pngjs
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/dijkstrajs ./node_modules/dijkstrajs
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/jszip ./node_modules/jszip
+
+# Copy Prisma schema + migration script
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+
+# Create data directories
+RUN mkdir -p /app/data /app/public/uploads && \
+    chown nextjs:nodejs /app/data /app/public/uploads
+
+USER nextjs
+
+EXPOSE 3000
+
+# Health check
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
   CMD wget -qO- http://localhost:3000/api/health || exit 1
 
-# Start command:
-# Step 1: prisma db push creates tables from scratch (fresh DB) or syncs schema
-# Step 2: migrate-db.js adds missing columns to existing tables (existing DB upgrade)
-# Both run against /app/node_modules (full deps) — NOT standalone's incomplete node_modules
-# Step 3: Start the Next.js standalone server
+# Start command
 CMD ["sh", "-c", "\
   mkdir -p /app/data /app/public/uploads && \
-  export DATABASE_URL=file:/app/data/qrtrans.db && \
-  echo '>>> [1/3] Creating/syncing database tables via Prisma CLI...' && \
-  (./node_modules/.bin/prisma db push --skip-generate --accept-data-loss 2>&1 && echo '    ✅ Schema synced' || echo '    ⚠️ prisma db push issue — column migration will handle it') && \
-  echo '>>> [2/3] Running column migrations for existing databases...' && \
+  echo '>>> [1/3] Syncing database schema...' && \
+  (npx prisma db push --skip-generate --accept-data-loss 2>&1 && echo '    ✅ Schema synced' || echo '    ⚠️ Schema sync issue') && \
+  echo '>>> [2/3] Running column migrations...' && \
   node scripts/migrate-db.js 2>&1 && \
-  echo '>>> [3/3] Starting server on port 3000...' && \
-  exec node .next/standalone/server.js \
+  echo '>>> [3/3] Starting server...' && \
+  exec node server.js \
 "]
