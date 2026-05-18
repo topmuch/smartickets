@@ -5,7 +5,7 @@
 # ── Stage 1: Build ──
 FROM node:20-alpine AS builder
 
-ARG CACHEBUST=17
+ARG CACHEBUST=18
 
 # Install required packages for building
 RUN apk add --no-cache git sqlite build-base
@@ -32,7 +32,7 @@ RUN bun run build
 # ── Stage 2: Production (minimal image) ──
 FROM node:20-alpine AS runner
 
-ARG CACHEBUST=17
+ARG CACHEBUST=18
 
 # Only install runtime essentials
 RUN apk add --no-cache sqlite-libs
