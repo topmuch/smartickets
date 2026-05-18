@@ -249,31 +249,27 @@ async function generateBulkBaggages(options: {
   const setId = generateSetId(type);
   const references: string[] = [];
 
-  // Generate all references in a batch using createMany for performance
-  // First, generate all unique references
-  const baggageData = [];
+  // Generate all unique references
   for (let i = 0; i < totalQrCount; i++) {
     const reference = await generateReference(type);
     references.push(reference);
-    baggageData.push({
-      reference,
-      type,
-      setId,
-      agencyId: agencyId || null,
-      baggageIndex: i + 1,
-      baggageType: 'cabine', // All bulk QR are "cabine" type
-      status: 'pending_activation',
-    });
   }
 
-  // Insert in batches of 50 to avoid SQLite variable limit (max 999 per query)
-  // 50 records × ~10 fields = ~500 params per batch (well under limit)
-  const BATCH_SIZE = 50;
-  for (let i = 0; i < baggageData.length; i += BATCH_SIZE) {
-    const batch = baggageData.slice(i, i + BATCH_SIZE);
-    await db.baggage.createMany({
-      data: batch,
-      skipDuplicates: true,
+  // Insert one by one to avoid SQLite createMany limitations
+  // (no skipDuplicates support, default values not applied, variable limit)
+  for (let i = 0; i < references.length; i++) {
+    await db.baggage.create({
+      data: {
+        reference: references[i],
+        type,
+        setId,
+        agencyId: agencyId || null,
+        baggageIndex: i + 1,
+        baggageType: 'cabine',
+        status: 'pending_activation',
+        transportMode: 'flight',
+        paymentStatus: 'SENDER_PAID',
+      }
     });
   }
 
