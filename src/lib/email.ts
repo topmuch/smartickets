@@ -159,7 +159,8 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
     }
-    return null;
+    // Re-throw so the caller (API route) can return the actual error to the user
+    throw error;
   }
 }
 

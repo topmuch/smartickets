@@ -84,7 +84,17 @@ export async function PUT(request: NextRequest) {
     }
     if (body.smtpEncryption) settingsData.smtpEncryption = body.smtpEncryption;
 
-    const savedSettings = await saveEmailSettings(settingsData);
+    let savedSettings;
+    try {
+      savedSettings = await saveEmailSettings(settingsData);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('❌ saveEmailSettings threw:', message);
+      return NextResponse.json(
+        { error: `Erreur lors de la sauvegarde: ${message}` },
+        { status: 500 }
+      );
+    }
 
     if (!savedSettings) {
       console.error('❌ saveEmailSettings returned null, settingsData:', JSON.stringify(settingsData));

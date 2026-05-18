@@ -66,6 +66,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/qrcode ./node_module
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pngjs ./node_modules/pngjs
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/dijkstrajs ./node_modules/dijkstrajs
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/jszip ./node_modules/jszip
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/nodemailer ./node_modules/nodemailer
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/mailparser ./node_modules/mailparser
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/iconv-lite ./node_modules/iconv-lite
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/he ./node_modules/he
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/mimetic ./node_modules/mimetic 2>/dev/null || true
 
 # Copy Prisma schema + migration script
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
