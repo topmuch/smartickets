@@ -19,6 +19,7 @@ import {
   Lock,
 } from 'lucide-react';
 import Link from 'next/link';
+import { notificationSound } from '@/lib/notification-sound';
 
 // ═══════════════════════════════════════════════════
 //  TYPES
@@ -631,6 +632,7 @@ function RetrieveContent() {
                 <button
                   type="button"
                   onClick={() => {
+                    notificationSound.unlock();
                     const p = new URLSearchParams({
                       waLink: successData.wa_sender,
                       to: colis.senderName,
@@ -656,6 +658,7 @@ function RetrieveContent() {
                 <button
                   type="button"
                   onClick={() => {
+                    notificationSound.unlock();
                     const p = new URLSearchParams({
                       waLink: successData.wa_receiver,
                       to: colis.receiverName,

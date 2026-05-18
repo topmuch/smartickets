@@ -360,11 +360,12 @@ export default function ActivationForm({ qrCode, lang }: ActivationFormProps) {
         </div>
         <h2 className="text-lg sm:text-xl font-bold text-white">{errorMessage}</h2>
         <p className="text-sm sm:text-base text-white/70 font-mono">#{qrCode}</p>
+        {/* FIX: was /activate/${qrCode} (infinite loop), now correctly goes to retrieve */}
         <a
-          href={`/activate/${qrCode}`}
-          className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 sm:h-14 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-bold text-sm sm:text-base transition-colors no-underline"
+          href={`/retrieve/${qrCode}`}
+          className="inline-flex items-center gap-2 px-5 sm:px-6 h-12 sm:h-14 bg-[#FF6B35] hover:bg-[#e65a28] text-white rounded-xl font-bold text-sm sm:text-base transition-colors no-underline shadow-lg shadow-orange-500/20"
         >
-          🔍 {t('Voir le suivi', 'View tracking')}
+          📦 {t('Aller à la récupération', 'Go to retrieval')}
         </a>
       </div>
     );

@@ -10,6 +10,7 @@ import {
   QrCode,
   Package,
 } from 'lucide-react';
+import { notificationSound } from '@/lib/notification-sound';
 
 // ═══════════════════════════════════════════════════
 //  WHATSAPP SVG PATH
@@ -62,7 +63,9 @@ function SendingContent() {
     try {
       window.open(waLink, '_blank');
     } catch {
+      // Fallback: open in same tab
       window.location.href = waLink;
+      return;
     }
 
     // 2. Countdown
@@ -71,12 +74,14 @@ function SendingContent() {
         if (prev <= 1) {
           clearInterval(timer);
           setIsDone(true);
+          // 🔊 Play ding sound
+          notificationSound.play();
           // Vibrate on mobile
           try { navigator.vibrate?.([200, 100, 200]); } catch { /* noop */ }
           // Auto-redirect after brief pause
           setTimeout(() => {
             setRedirecting(true);
-            router.push(callbackUrl);
+            router.replace(callbackUrl); // Clean history, no back-button loop
           }, 800);
           return 0;
         }
@@ -88,11 +93,11 @@ function SendingContent() {
   }, [waLink, callbackUrl, router]);
 
   const handleReturn = useCallback(() => {
-    router.push(callbackUrl);
+    router.replace(callbackUrl); // Clean history
   }, [callbackUrl, router]);
 
   const handleTracking = useCallback(() => {
-    router.push(suiviUrl);
+    router.replace(suiviUrl);
   }, [suiviUrl, router]);
 
   const progress = totalDelay > 0 ? ((totalDelay - countdown) / totalDelay) * 100 : 100;

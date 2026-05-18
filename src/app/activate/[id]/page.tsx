@@ -5,12 +5,18 @@ import { useParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import ActivationHeader from '@/components/activation/ActivationHeader';
 import ActivationForm from '@/components/activation/ActivationForm';
+import { notificationSound } from '@/lib/notification-sound';
 
 function ActivateContent() {
   const params = useParams();
   const router = useRouter();
   const qrCode = ((params?.id as string) || '').toUpperCase().trim();
   const [lang, setLang] = useState<'fr' | 'en'>('fr');
+
+  // Pre-load audio on page mount (doesn't play, just unlocks context)
+  useEffect(() => {
+    notificationSound.unlock();
+  }, []);
 
   // Status-based routing: check if colis is already in_transit → redirect to arrivee
   const [checking, setChecking] = useState(true);

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, Copy, RotateCcw, ArrowRight, Truck, MessageCircle } from 'lucide-react';
 import { createDepartureLinks, formatDateFR, formatTime } from '@/lib/wame';
+import { notificationSound } from '@/lib/notification-sound';
 
 interface SuccessScreenProps {
   reference: string;
@@ -95,6 +96,9 @@ export default function SuccessScreen({
   // ─── Navigate to /sending page for WhatsApp notification ───
   const handleNotify = useCallback(
     (waLink: string, name: string, type: 'sender' | 'receiver') => {
+      // Unlock audio on first user gesture (iOS/Safari requirement)
+      notificationSound.unlock();
+
       // If both notified, go to retrieve page; otherwise come back here
       const otherNotified = notified !== 'none' && notified !== type;
       const callback = otherNotified
