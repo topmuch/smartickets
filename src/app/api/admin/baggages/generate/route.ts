@@ -15,7 +15,7 @@ const individualSchema = z.object({
   baggageCount: z.number().min(1).max(3),
 });
 
-// Schema for agency generation
+// Schema for agency generation (traveler-based)
 const agencySchema = z.object({
   context: z.literal('agency'),
   type: z.enum(['hajj', 'voyageur']),
@@ -24,10 +24,19 @@ const agencySchema = z.object({
   travelerCount: z.number().min(1).max(1000),
 });
 
+// Schema for bulk generation (direct QR count)
+const bulkSchema = z.object({
+  context: z.literal('bulk'),
+  type: z.enum(['hajj', 'voyageur']),
+  agencyId: z.string().optional().default(''),
+  totalQrCount: z.number().min(1).max(2000),
+});
+
 // Combined schema using discriminated union
 const combinedSchema = z.discriminatedUnion('context', [
   individualSchema,
-  agencySchema
+  agencySchema,
+  bulkSchema,
 ]);
 
 export async function POST(request: NextRequest) {
@@ -60,8 +69,8 @@ export async function POST(request: NextRequest) {
         generated: references.length,
         references
       });
-    } else {
-      // Generate for agency
+    } else if (validatedData.context === 'agency') {
+      // Generate for agency (traveler-based)
       const allReferences: string[] = [];
 
       for (let i = 0; i < validatedData.travelerCount; i++) {
@@ -77,6 +86,20 @@ export async function POST(request: NextRequest) {
         success: true,
         generated: allReferences.length,
         references: allReferences
+      });
+    } else {
+      // Bulk generation — direct QR count, all in one set
+      const result = await generateBulkBaggages({
+        type: validatedData.type,
+        agencyId: validatedData.agencyId || undefined,
+        totalQrCount: validatedData.totalQrCount,
+      });
+
+      return NextResponse.json({
+        success: true,
+        generated: result.generated,
+        setId: result.setId,
+        references: result.references,
       });
     }
   } catch (error) {
@@ -137,7 +160,7 @@ async function generateBaggagesWithTraveler(options: {
   for (let i = 0; i < baggageCount; i++) {
     const reference = await generateReference(type);
     const expiresAt = calculateExpirationDate(type, duration === '1y' ? 'tag' : 'sticker');
-    
+
     await db.baggage.create({
       data: {
         reference,
@@ -184,7 +207,7 @@ async function generateBaggages(options: {
 
   for (let i = 0; i < count; i++) {
     const reference = await generateReference(type);
-    
+
     await db.baggage.create({
       data: {
         reference,
@@ -201,6 +224,57 @@ async function generateBaggages(options: {
   }
 
   return references;
+}
+
+/**
+ * Generate a large batch of baggages — all in one set, no traveler info.
+ * Optimized for bulk (200+ QR codes in one operation).
+ */
+async function generateBulkBaggages(options: {
+  type: 'hajj' | 'voyageur';
+  agencyId?: string;
+  totalQrCount: number;
+}): Promise<{ generated: number; setId: string; references: string[] }> {
+  const { type, agencyId, totalQrCount } = options;
+
+  // Validate agency exists if agencyId is provided
+  if (agencyId) {
+    const agency = await db.agency.findUnique({ where: { id: agencyId } });
+    if (!agency) {
+      throw new Error(`Agence introuvable (ID: ${agencyId})`);
+    }
+  }
+
+  // One unique set ID for the entire batch
+  const setId = generateSetId(type);
+  const references: string[] = [];
+
+  // Generate all references in a batch using createMany for performance
+  // First, generate all unique references
+  const baggageData = [];
+  for (let i = 0; i < totalQrCount; i++) {
+    const reference = await generateReference(type);
+    references.push(reference);
+    baggageData.push({
+      reference,
+      type,
+      setId,
+      agencyId: agencyId || null,
+      baggageIndex: i + 1,
+      baggageType: 'cabine', // All bulk QR are "cabine" type
+      status: 'pending_activation',
+    });
+  }
+
+  // Insert all at once for performance
+  if (baggageData.length > 0) {
+    await db.baggage.createMany({
+      data: baggageData,
+      skipDuplicates: true,
+    });
+  }
+
+  return { generated: references.length, setId, references };
 }
 
 // GET - Get all baggages (for QR codes list)
@@ -222,15 +296,15 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '500');
 
     const where: Record<string, unknown> = {};
-    
+
     if (agencyId) {
       where.agencyId = agencyId;
     }
-    
+
     if (type) {
       where.type = type;
     }
-    
+
     if (status) {
       where.status = status;
     }
