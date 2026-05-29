@@ -288,21 +288,61 @@ async function main() {
   // ═══════════════════════════════════════════════════════════
   console.log('Creating sample passenger tickets...');
 
+  // Find any Mbour outbound departure (even if DEPARTED — for demo purposes)
   const mbourDep = await prisma.departure.findFirst({
     where: {
       routeId: routes['Dakar ↔ Mbour'],
       departureType: 'OUTBOUND',
-      status: 'SCHEDULED',
     },
+    orderBy: { scheduledTime: 'asc' },
   });
 
   if (mbourDep) {
+    // Create baggage records for tickets (required relation)
+    const ticketBaggage1 = await prisma.baggage.upsert({
+      where: { reference: 'TKT-DEMO-001' },
+      update: {},
+      create: {
+        id: 'demo-baggage-1',
+        reference: 'TKT-DEMO-001',
+        type: 'voyageur',
+        agencyId: agency.id,
+        travelerFirstName: 'Mamadou',
+        travelerLastName: 'Diallo',
+        whatsappOwner: '+221771234567',
+        baggageIndex: 1,
+        baggageType: 'soute',
+        status: 'active',
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        destination: 'Mbour',
+      },
+    });
+
+    const ticketBaggage2 = await prisma.baggage.upsert({
+      where: { reference: 'TKT-DEMO-002' },
+      update: {},
+      create: {
+        id: 'demo-baggage-2',
+        reference: 'TKT-DEMO-002',
+        type: 'voyageur',
+        agencyId: agency.id,
+        travelerFirstName: 'Aminata',
+        travelerLastName: 'Fall',
+        whatsappOwner: '+221789876543',
+        baggageIndex: 1,
+        baggageType: 'soute',
+        status: 'active',
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        destination: 'Mbour',
+      },
+    });
+
     await prisma.passengerTicket.upsert({
       where: { id: 'demo-ticket-1' },
       update: {},
       create: {
         id: 'demo-ticket-1',
-        baggageId: null,
+        baggageId: ticketBaggage1.id,
         agencyId: agency.id,
         departureId: mbourDep.id,
         passengerName: 'Mamadou Diallo',
@@ -312,6 +352,7 @@ async function main() {
         departureTime: mbourDep.scheduledTime,
         controlCode: '123456',
         ticketStatus: 'ACTIVE',
+        activatedAt: mbourDep.scheduledTime,
         documentType: 'CNI',
         documentNumber: 'SN123456',
         passengerAge: 28,
@@ -326,7 +367,7 @@ async function main() {
       update: {},
       create: {
         id: 'demo-ticket-2',
-        baggageId: null,
+        baggageId: ticketBaggage2.id,
         agencyId: agency.id,
         departureId: mbourDep.id,
         passengerName: 'Aminata Fall',
@@ -336,6 +377,7 @@ async function main() {
         departureTime: mbourDep.scheduledTime,
         controlCode: '654321',
         ticketStatus: 'ACTIVE',
+        activatedAt: mbourDep.scheduledTime,
         documentType: 'PASSPORT',
         documentNumber: 'PS987654',
         passengerAge: 34,

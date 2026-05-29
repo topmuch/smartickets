@@ -105,3 +105,27 @@ Stage Summary:
 - 2 admin pages created with full CRUD UI
 - Routes: create/edit dialog, table, delete confirmation
 - Departures: CRUD + tabs (manual/CSV), filter, progress bars
+---
+Task ID: 1
+Agent: Main Agent
+Task: Create all missing features for SmarticketS (public horaires page, schedules API, demo data, bugfixes)
+
+Work Log:
+- Audited the entire SmarticketS project to identify missing modules
+- Created public API `/api/schedules` — supports filtering by origin, destination, date, agency
+- Created public page `/horaires` — mobile-responsive schedule search with SecondaryPageLayout
+- Updated `prisma/seed.ts` with:
+  - 6 sample routes (Dakar-Mbour, Saint-Louis, Thiès, Touba, Kaolack, Ziguinchor)
+  - 30+ sample departures with aller-retour support
+  - 2 sample passenger tickets (code 123456 and 654321) for testing
+  - `boardingAlertThresholdMinutes` setting (default 5)
+  - Changed all baggage create to upsert for idempotent seeding
+- Fixed soundEnabled dependency in signage useEffect polling
+- Pushed to GitHub (commit 33e4c07)
+
+Stage Summary:
+- All originally requested modules are now COMPLETE
+- `/horaires` page serves as public-facing schedule browser
+- `/api/schedules` provides public endpoint for schedule data
+- Demo data includes real Senegalese routes with prices in FCFA
+- Controller validation can test with codes 123456 (Mamadou Diallo) and 654321 (Aminata Fall)

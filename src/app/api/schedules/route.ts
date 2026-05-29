@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
 
     // Build where clause for routes
     const routeWhere: Record<string, unknown> = {};
-    if (origin) routeWhere.origin = { contains: origin, mode: 'insensitive' };
-    if (destination) routeWhere.destination = { contains: destination, mode: 'insensitive' };
+    if (origin) routeWhere.origin = { contains: origin };
+    if (destination) routeWhere.destination = { contains: destination };
     if (agencyId) routeWhere.agencyId = agencyId;
 
     // Fetch matching routes with their departures
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       status: { not: 'CANCELLED' },
     };
     if (origin || destination) {
-      if (destination) departureWhere.destination = { contains: destination, mode: 'insensitive' };
+      if (destination) departureWhere.destination = { contains: destination };
     }
     if (agencyId) departureWhere.agencyId = agencyId;
 
