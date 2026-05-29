@@ -29,6 +29,7 @@ interface StationData {
   totalDepartures: number;
   boardingCount: number;
   delayedCount: number;
+  alertThreshold: number;
 }
 
 // Statut config
@@ -52,26 +53,7 @@ export default function SignagePage() {
   const prevBoardingRef = useRef<Set<string>>(new Set());
   const prevDataRef = useRef<StationData | null>(null);
 
-  // Charger le seuil d'alerte configurable
-  useEffect(() => {
-    const fetchThreshold = async () => {
-      try {
-        const res = await fetch(`/api/admin/settings`);
-        if (res.ok) {
-          const settings = await res.json();
-          const thresholdSetting = Array.isArray(settings)
-            ? settings.find((s: any) => s.key === 'boardingAlertThresholdMinutes')
-            : null;
-          if (thresholdSetting?.value) {
-            setAlertThreshold(parseInt(thresholdSetting.value) || 5);
-          }
-        }
-      } catch {
-        // Use default 5 minutes
-      }
-    };
-    fetchThreshold();
-  }, []);
+
 
   // Horloge locale
   useEffect(() => {
@@ -129,6 +111,11 @@ export default function SignagePage() {
         if (res.ok) {
           setData(json);
           setLastUpdate(new Date().toLocaleTimeString('fr-FR'));
+
+          // Update alert threshold from API response
+          if (json.alertThreshold) {
+            setAlertThreshold(json.alertThreshold);
+          }
 
           // Vérifier nouveaux embarquements pour alerte sonore
           if (prevDataRef.current) {

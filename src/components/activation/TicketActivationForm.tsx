@@ -48,10 +48,10 @@ export default function TicketActivationForm({ baggageId, agencyId, reference }:
   useEffect(() => {
     async function loadDepartures() {
       try {
-        const res = await fetch(`/api/admin/departures/available?agencyId=${agencyId}`);
+        const res = await fetch(`/api/departures/available?agencyId=${agencyId}`);
         if (res.ok) {
           const data = await res.json();
-          setDepartures(data);
+          setDepartures(data.departures || []);
         }
       } catch (err) {
         console.error('Erreur chargement départs:', err);

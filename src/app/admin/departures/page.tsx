@@ -377,7 +377,7 @@ export default function DeparturesPage() {
       formData.append('file', csvFile);
       formData.append('agencyId', agencyId);
 
-      const res = await fetch('/api/admin/departures/import-csv', {
+      const res = await fetch('/api/admin/departures', {
         method: 'POST',
         body: formData,
       });

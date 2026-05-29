@@ -83,6 +83,14 @@ export async function GET(
       !(dep.status === 'DEPARTED' && dep.countdownMin > 30)
     );
 
+    // Récupérer le seuil d'alerte configurable (default 5 min)
+    const thresholdSetting = await db.setting.findUnique({
+      where: { key: 'boardingAlertThresholdMinutes' },
+    });
+    const alertThreshold = thresholdSetting
+      ? parseInt(thresholdSetting.value) || 5
+      : 5;
+
     return NextResponse.json({
       stationId,
       stationName: 'Gare Routière',
@@ -97,6 +105,7 @@ export async function GET(
       totalDepartures: filtered.length,
       boardingCount: filtered.filter(d => d.status === 'BOARDING').length,
       delayedCount: filtered.filter(d => d.status === 'DELAYED').length,
+      alertThreshold,
     });
 
   } catch (error) {
