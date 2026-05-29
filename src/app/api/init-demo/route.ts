@@ -2,65 +2,54 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
-// Initialize demo users for login
+// Initialize / ensure demo users exist (idempotent - upsert)
 export async function GET() {
   try {
-    // Check if superadmin exists
-    const existingAdmin = await prisma.user.findUnique({
-      where: { email: 'admin@smartickets.com' }
+    const adminPassword = await bcrypt.hash('admin123', 10);
+    const agencyPassword = await bcrypt.hash('agence123', 10);
+
+    // Upsert superadmin
+    await prisma.user.upsert({
+      where: { email: 'admin@smartickets.com' },
+      update: { password: adminPassword },
+      create: {
+        email: 'admin@smartickets.com',
+        name: 'Super Admin',
+        password: adminPassword,
+        role: 'superadmin',
+      }
     });
 
-    if (!existingAdmin) {
-      // Hash passwords
-      const adminPassword = await bcrypt.hash('admin123', 10);
-      const agencyPassword = await bcrypt.hash('agence123', 10);
+    // Ensure demo agency exists
+    const demoAgency = await prisma.agency.upsert({
+      where: { slug: 'smartickets-demo' },
+      update: {},
+      create: {
+        name: 'SmarticketS Demo',
+        slug: 'smartickets-demo',
+        email: 'demo@smartickets.com',
+        phone: '+221 77 123 45 67',
+        address: 'Dakar, Sénégal',
+        active: true,
+      }
+    });
 
-      // Create superadmin user
-      await prisma.user.create({
-        data: {
-          email: 'admin@smartickets.com',
-          name: 'Super Admin',
-          password: adminPassword,
-          role: 'superadmin',
-        }
-      });
-
-      // Create demo agency first
-      const demoAgency = await prisma.agency.create({
-        data: {
-          name: 'FRANCINE MAKELA',
-          slug: 'francine-makela',
-          email: 'contact@francine-makela.com',
-          phone: '+221 77 123 45 67',
-          address: 'Dakar, Sénégal',
-          active: true,
-        }
-      });
-
-      // Create demo agency user
-      await prisma.user.create({
-        data: {
-          email: 'agence@smartickets.com',
-          name: 'FRANCINE MAKELA',
-          password: agencyPassword,
-          role: 'agency',
-          agencyId: demoAgency.id,
-        }
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: 'Demo users created successfully',
-        users: [
-          { email: 'admin@smartickets.com', password: 'admin123', role: 'superadmin' },
-          { email: 'agence@smartickets.com', password: 'agence123', role: 'agency' }
-        ]
-      });
-    }
+    // Upsert agency user
+    await prisma.user.upsert({
+      where: { email: 'agence@smartickets.com' },
+      update: { password: agencyPassword },
+      create: {
+        email: 'agence@smartickets.com',
+        name: 'Chef Agence',
+        password: agencyPassword,
+        role: 'agency',
+        agencyId: demoAgency.id,
+      }
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Demo users already exist',
+      message: 'Users ready',
       users: [
         { email: 'admin@smartickets.com', password: 'admin123', role: 'superadmin' },
         { email: 'agence@smartickets.com', password: 'agence123', role: 'agency' }
@@ -70,8 +59,7 @@ export async function GET() {
     console.error('Init error:', error);
     return NextResponse.json({
       success: false,
-      error: 'Failed to initialize demo users',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

@@ -69,12 +69,12 @@ async function main() {
   await prisma.user.upsert({
     where: { email: 'agency@smartickets.com' },
     update: {
-      password: await hashPassword('agency123'),
+      password: await hashPassword('agence123'),
     },
     create: {
       email: 'agency@smartickets.com',
       name: 'Chef Agence',
-      password: await hashPassword('agency123'),
+      password: await hashPassword('agence123'),
       role: 'agency',
       agencyId: agency.id,
     },
