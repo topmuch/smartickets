@@ -25,6 +25,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://qrtrans.pro/sitemap.xml",
+    sitemap: "https://smartickets.com/sitemap.xml",
   };
 }

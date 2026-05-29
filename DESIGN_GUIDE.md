@@ -1,6 +1,6 @@
-# QRTrans — Guide de Design & Développement
+# SmarticketS — Guide de Design & Développement
 
-> Référence officielle du système de design pour la landing page QRTrans.
+> Référence officielle du système de design pour la landing page SmarticketS.
 > Next.js 16 · Tailwind CSS 4 · Framer Motion
 
 ---
@@ -26,7 +26,7 @@
 
 ## 1. Vue d'ensemble du système de design
 
-**QRTrans** est une plateforme de suivi logistique pour le transport inter-villes au Sénégal. Le système de design reflète une identité **corporate, crédible et premium**, inspirée des leaders du secteur comme DHL et Kuehne+Nagel.
+**SmarticketS** est une plateforme de suivi logistique pour le transport inter-villes au Sénégal. Le système de design reflète une identité **corporate, crédible et premium**, inspirée des leaders du secteur comme DHL et Kuehne+Nagel.
 
 ### Principes directeurs
 
@@ -232,7 +232,7 @@ src/components/landing/
 ├── HeroSection.tsx
 ├── ServicesSection.tsx
 ├── ProcessSection.tsx
-├── WhyQRTransSection.tsx
+├── WhySmarticketSSection.tsx
 ├── SpacesSection.tsx
 ├── TestimonialsSection.tsx
 ├── BlogSection.tsx
@@ -285,7 +285,7 @@ import FadeIn from './FadeIn';
 |---|---|
 | Services | `bg-white` |
 | Process | `bg-[#0A2540]` (plein navy) |
-| Why QRTrans | `bg-[#F8FAFC]` |
+| Why SmarticketS | `bg-[#F8FAFC]` |
 | Espaces | `bg-white` |
 | Témoignages | `bg-[#F8FAFC]` |
 | Blog | `bg-white` |
@@ -388,10 +388,10 @@ Tous les éléments doivent respecter **WCAG AA** (niveau minimum).
 | Type | Description |
 |---|---|
 | Photos | Chauffeurs, camions, entrepôts, scènes logistiques au Sénégal |
-| Dashboards | Mockups d'interface de suivi QRTrans |
+| Dashboards | Mockups d'interface de suivi SmarticketS |
 | Cartes | Cartes géographiques avec itinéraires inter-villes |
 | QR Codes | Illustrations de QR codes scannés |
-| SVG décoratifs | Illustrations inline (ex: dashboard mockup dans WhyQRTrans) |
+| SVG décoratifs | Illustrations inline (ex: dashboard mockup dans WhySmarticketS) |
 
 ### SVG
 
@@ -445,25 +445,25 @@ const shouldReduceMotion = useReducedMotion();
 
 ### Routes principales
 
-Tous les CTA de la landing page pointent vers des **routes réelles** de l'application QRTrans.
+Tous les CTA de la landing page pointent vers des **routes réelles** de l'application SmarticketS.
 
 | CTA | Route | Description |
 |---|---|---|
 | Suivi de colis | `/activate/[id]` | Activation et suivi d'un envoi |
 | Espace chauffeur | `/inscrire` | Inscription chauffeur |
 | Connexion agence | `/agence/connexion` | Login back-office agence |
-| Partenariat | `/devenir-partenaire` | Devenir partenaire QRTrans |
+| Partenariat | `/devenir-partenaire` | Devenir partenaire SmarticketS |
 | Blog | `/blog` | Articles et actualités |
 | Contact | `/contact` | Page de contact |
 
 ### WhatsApp
 
 ```
-https://wa.me/221784858226?text=Bonjour%20!%20Je%20souhaite%20en%20savoir%20plus%20sur%20QRTrans.
+https://wa.me/221784858226?text=Bonjour%20!%20Je%20souhaite%20en%20savoir%20plus%20sur%20SmarticketS.
 ```
 
 - Numéro : +221 78 485 82 26
-- Message pré-rempli : "Bonjour ! Je souhaite en savoir plus sur QRTrans."
+- Message pré-rempli : "Bonjour ! Je souhaite en savoir plus sur SmarticketS."
 - Bouton flottant en bas à droite, présent sur toutes les pages
 
 ### Composant Link
@@ -532,4 +532,4 @@ text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0A2540] mb-12 s
 
 ---
 
-*Document généré pour l'équipe QRTrans. Pour toute question ou mise à jour, contacter le lead design.*
+*Document généré pour l'équipe SmarticketS. Pour toute question ou mise à jour, contacter le lead design.*

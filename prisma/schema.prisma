@@ -66,9 +66,12 @@ model Agency {
   address   String?
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
-  baggages  Baggage[]
-  users     User[]
-  invoices  Invoice[]
+  baggages        Baggage[]
+  routes          Route[]
+  users           User[]
+  invoices        Invoice[]
+  departures      Departure[]
+  passengerTickets PassengerTicket[]
 }
 
 // Baggage model - main entity for luggage tracking
@@ -76,6 +79,7 @@ model Baggage {
   id                String    @id @default(cuid())
   reference         String    @unique // HAJJ26-MLQGY7, VOL26-K9X2P4
   type              String    // "hajj" or "voyageur"
+  category          String    @default("parcel") // "parcel" | "ticket" | "hajj"
   setId             String?   // Groups QR codes together (e.g., SET-2026-0966)
   agencyId          String?
   travelerFirstName String?
@@ -159,6 +163,7 @@ model Baggage {
   founderPhone      String?   // WhatsApp number of the finder
   founderAt         DateTime? // Timestamp when founder info was submitted
   agency            Agency?       @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+  passengerTicket  PassengerTicket?
   scanLogs          ScanLog[]
   events            ColisEvent[]
 }
@@ -280,8 +285,8 @@ model Notification {
 model EmailSettings {
   id              String   @id @default(cuid())
   provider        String   @default("console") // "console" or "smtp"
-  fromEmail       String   @default("noreply@qrtrans.com")
-  fromName        String   @default("QRTrans")
+  fromEmail       String   @default("noreply@smartickets.com")
+  fromName        String   @default("SmarticketS")
   recipientColisEmail  String?  // Destination for package tracking notifications (activated, delivered, lost, found)
   recipientSystemEmail String?  // Destination for system notifications (leads, agencies, contact messages)
   // SMTP settings
@@ -526,4 +531,98 @@ model SystemLog {
   @@index([level])
   @@index([source])
   @@index([createdAt])
+}
+
+// Route model - transport routes (ex: Dakar ↔ Mbour)
+model Route {
+  id                String      @id @default(cuid())
+  name              String      // Ex: "Dakar ↔ Mbour"
+  origin            String      // Ex: "Dakar"
+  destination       String      // Ex: "Mbour"
+  isRoundTrip       Boolean     @default(false)
+  durationMinutes   Int?        // Durée en minutes
+  distanceKm        Int?        // Distance en km
+  price             Int?        // Prix en FCFA
+  agencyId          String
+  agency            Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  departures        Departure[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([agencyId])
+}
+
+// PassengerTicket model - billetterie transport
+model PassengerTicket {
+  id                String    @id @default(cuid())
+  baggageId         String    @unique
+  baggage           Baggage   @relation(fields: [baggageId], references: [id], onDelete: Cascade)
+  agencyId          String
+  agency            Agency    @relation(fields: [agencyId], references: [id])
+  departureId       String?
+  departure         Departure? @relation(fields: [departureId], references: [id], onDelete: SetNull)
+
+  // Passager
+  passengerName     String
+  passengerPhone    String
+  passengerAge      Int
+  documentType      String
+  documentNumber    String
+  hasParentalAuth   Boolean   @default(false)
+
+  // Trajet
+  destination       String
+  seatNumber        String
+  platform          String?
+  departureTime     DateTime?
+
+  // Bagages
+  luggageCount      Int       @default(1)
+  luggageWeightKg   Float     @default(0)
+  luggageFee        Int       @default(0)
+
+  // Controle
+  controlCode       String    @unique
+  ticketStatus      String    @default("ACTIVE")
+  validatedAt       DateTime?
+  validatedBy       String?
+  cancelledAt       DateTime?
+  cancelReason      String?
+
+  activatedAt       DateTime
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([agencyId])
+  @@index([controlCode])
+  @@index([ticketStatus])
+  @@index([passengerPhone])
+}
+
+// Departure model - horaires de depart (affichage gare)
+model Departure {
+  id              String   @id @default(cuid())
+  routeId         String?
+  route           Route?   @relation(fields: [routeId], references: [id], onDelete: SetNull)
+  departureType   String   @default("OUTBOUND") // "OUTBOUND" | "RETURN"
+  lineNumber      String
+  destination     String
+  scheduledTime   DateTime
+  platform        String?
+  availableSeats  Int      @default(45)
+  totalSeats      Int      @default(45)
+  status          String   @default("SCHEDULED") // SCHEDULED, BOARDING, DEPARTED, CANCELLED, DELAYED
+  delayMinutes    Int      @default(0)
+
+  agencyId        String
+  agency          Agency   @relation(fields: [agencyId], references: [id])
+
+  tickets         PassengerTicket[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([agencyId, scheduledTime])
+  @@index([status])
+  @@index([routeId])
 }

@@ -1,5 +1,5 @@
 # ============================================================
-# QRTrans — Multi-stage Dockerfile for Coolify (lightweight)
+# SmarticketS — Multi-stage Dockerfile for Coolify (lightweight)
 # ============================================================
 
 # ── Stage 1: Build ──
@@ -14,7 +14,7 @@ RUN npm install -g bun
 WORKDIR /app
 
 # Clone the repository
-RUN git clone --branch main --depth 1 https://github.com/topmuch/qrtrans.git /app/tmp && \
+RUN git clone --branch main --depth 1 https://github.com/topmuch/smartickets.git /app/tmp && \
     cp -r /app/tmp/. /app/ && rm -rf /app/tmp
 
 # Install ALL dependencies (including devDependencies) for build

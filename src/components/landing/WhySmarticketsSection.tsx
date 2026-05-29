@@ -38,7 +38,7 @@ function DashboardIllustration() {
           <circle cx="66" cy="44" r="6" fill="#F59E0B" />
           <circle cx="88" cy="44" r="6" fill="#10B981" />
           <text x="240" y="48" textAnchor="middle" fontSize="12" fill="white" fontWeight="bold">
-            QRTrans — Dashboard Agence
+            SmarticketS — Dashboard Agence
           </text>
 
           {/* Sidebar */}
@@ -108,7 +108,7 @@ function DashboardIllustration() {
   );
 }
 
-export default function WhyQRTransSection() {
+export default function WhySmarticketSSection() {
   return (
     <section
       id="advantages"

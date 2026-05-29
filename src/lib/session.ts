@@ -4,7 +4,8 @@ import { LoginLog, Session } from '@prisma/client';
 
 // Session duration: 7 days
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
-const SESSION_COOKIE_NAME = 'qrtrans_session';
+const SESSION_COOKIE_NAME = 'smartickets_session';
+const LEGACY_SESSION_COOKIE_NAME = 'qrtrans_session'; // Legacy support during migration
 
 // Inactivity timeout: 24 hours (session expires if no activity)
 const INACTIVITY_TIMEOUT_MS = 24 * 60 * 60 * 1000;
@@ -133,7 +134,8 @@ export async function createSession(userId: string): Promise<Session> {
 export async function getSession(): Promise<SessionUser | null> {
   try {
     const cookieStore = await cookies();
-    const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value
+      || cookieStore.get(LEGACY_SESSION_COOKIE_NAME)?.value; // Legacy fallback
 
     if (!sessionId) {
       return null;
@@ -214,7 +216,8 @@ export async function getSession(): Promise<SessionUser | null> {
 export async function deleteSession(): Promise<void> {
   try {
     const cookieStore = await cookies();
-    const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value
+      || cookieStore.get(LEGACY_SESSION_COOKIE_NAME)?.value; // Legacy fallback
 
     if (sessionId) {
       // Delete from database
@@ -223,8 +226,9 @@ export async function deleteSession(): Promise<void> {
       });
     }
 
-    // Clear cookie
+    // Clear cookie (both new and legacy)
     cookieStore.delete(SESSION_COOKIE_NAME);
+    cookieStore.delete(LEGACY_SESSION_COOKIE_NAME);
   } catch (error) {
     console.error('Error deleting session:', error);
   }
@@ -236,7 +240,8 @@ export async function deleteSession(): Promise<void> {
 export async function extendSession(): Promise<boolean> {
   try {
     const cookieStore = await cookies();
-    const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value
+      || cookieStore.get(LEGACY_SESSION_COOKIE_NAME)?.value; // Legacy fallback
 
     if (!sessionId) {
       return false;
@@ -253,7 +258,8 @@ export async function extendSession(): Promise<boolean> {
       },
     });
 
-    // Update cookie expiration
+    // Update cookie expiration (migrate to new cookie name)
+    cookieStore.delete(LEGACY_SESSION_COOKIE_NAME); // Clear legacy if present
     cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

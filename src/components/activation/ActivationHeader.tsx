@@ -19,7 +19,7 @@ export default function ActivationHeader({ qrCode, onLangChange, currentLang }: 
             <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <span className="text-lg sm:text-xl font-bold tracking-tight block leading-tight text-white">QRTrans</span>
+            <span className="text-lg sm:text-xl font-bold tracking-tight block leading-tight text-white">SmarticketS</span>
             {qrCode && (
               <span className="text-[10px] sm:text-xs font-mono text-white/80 leading-tight">{qrCode}</span>
             )}

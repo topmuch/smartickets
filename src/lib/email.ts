@@ -88,8 +88,8 @@ export async function getEmailSettings(): Promise<EmailConfig | null> {
       settings = await prisma.emailSettings.create({
         data: {
           provider: 'console',
-          fromEmail: 'noreply@qrtrans.com',
-          fromName: 'QRTrans',
+          fromEmail: 'noreply@smartickets.com',
+          fromName: 'SmarticketS',
           smtpEncryption: 'tls',
         },
       });
@@ -168,8 +168,8 @@ export async function saveEmailSettings(config: Partial<EmailConfig>): Promise<E
       const created = await prisma.emailSettings.create({
         data: {
           provider: config.provider || 'console',
-          fromEmail: config.fromEmail || 'noreply@qrtrans.com',
-          fromName: config.fromName || 'QRTrans',
+          fromEmail: config.fromEmail || 'noreply@smartickets.com',
+          fromName: config.fromName || 'SmarticketS',
           recipientColisEmail: config.recipientColisEmail || null,
           recipientSystemEmail: config.recipientSystemEmail || null,
           smtpHost: config.smtpHost || null,
@@ -364,12 +364,12 @@ export function getVerificationEmailTemplate(name: string, verificationUrl: stri
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Vérification de votre email</h2>
           <p style="color: #666;">Bonjour ${name},</p>
-          <p style="color: #666;">Merci de vous être inscrit sur QRTrans. Vérifiez votre adresse email en utilisant le code ci-dessous :</p>
+          <p style="color: #666;">Merci de vous être inscrit sur SmarticketS. Vérifiez votre adresse email en utilisant le code ci-dessous :</p>
           <div style="text-align: center; margin: 30px 0;">
             <div style="background: #fff; border: 2px solid #ff7f00; border-radius: 10px; padding: 20px; display: inline-block;">
               <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #ff7f00;">${code}</span>
@@ -382,11 +382,11 @@ export function getVerificationEmailTemplate(name: string, verificationUrl: stri
           <p style="color: #999; font-size: 12px; text-align: center;">Ce code expire dans 24 heures. Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.</p>
         </div>
         <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `QRTrans - Vérification de votre email\n\nBonjour ${name},\n\nMerci de vous être inscrit sur QRTrans.\n\nVotre code de vérification : ${code}\n\nOu utilisez ce lien : ${verificationUrl}\n\nCe code expire dans 24 heures. Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.\n\n© QRTrans`,
+    text: `SmarticketS - Vérification de votre email\n\nBonjour ${name},\n\nMerci de vous être inscrit sur SmarticketS.\n\nVotre code de vérification : ${code}\n\nOu utilisez ce lien : ${verificationUrl}\n\nCe code expire dans 24 heures. Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.\n\n© SmarticketS`,
   };
 }
 
@@ -395,7 +395,7 @@ export function getPasswordResetEmailTemplate(name: string, resetUrl: string, co
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Réinitialisation de votre mot de passe</h2>
@@ -413,11 +413,11 @@ export function getPasswordResetEmailTemplate(name: string, resetUrl: string, co
           <p style="color: #999; font-size: 12px; text-align: center;">Ce code expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.</p>
         </div>
         <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `QRTrans - Réinitialisation de votre mot de passe\n\nBonjour ${name},\n\nVous avez demandé la réinitialisation de votre mot de passe.\n\nVotre code : ${code}\n\nOu utilisez ce lien : ${resetUrl}\n\nCe code expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.\n\n© QRTrans`,
+    text: `SmarticketS - Réinitialisation de votre mot de passe\n\nBonjour ${name},\n\nVous avez demandé la réinitialisation de votre mot de passe.\n\nVotre code : ${code}\n\nOu utilisez ce lien : ${resetUrl}\n\nCe code expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.\n\n© SmarticketS`,
   };
 }
 
@@ -427,11 +427,11 @@ export function getTestEmailTemplate(): { html: string; text: string } {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #f9f9f9; border-radius: 10px; padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">Email de test</h2>
-          <p style="color: #666;">Ceci est un email de test envoyé depuis le panneau d'administration QRTrans.</p>
+          <p style="color: #666;">Ceci est un email de test envoyé depuis le panneau d'administration SmarticketS.</p>
           <p style="color: #666;">Si vous recevez cet email, votre configuration email fonctionne correctement !</p>
           <div style="background: #e8f5e9; border-radius: 5px; padding: 15px; margin-top: 20px;">
             <p style="color: #2e7d32; margin: 0; font-weight: bold;">✓ Configuration email valide</p>
@@ -439,11 +439,11 @@ export function getTestEmailTemplate(): { html: string; text: string } {
           </div>
         </div>
         <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `QRTrans - Email de test\n\nCeci est un email de test envoyé depuis le panneau d'administration QRTrans.\n\nSi vous recevez cet email, votre configuration email fonctionne correctement !\n\n✓ Configuration email valide\nEnvoyé le ${now}\n\n© QRTrans`,
+    text: `SmarticketS - Email de test\n\nCeci est un email de test envoyé depuis le panneau d'administration SmarticketS.\n\nSi vous recevez cet email, votre configuration email fonctionne correctement !\n\n✓ Configuration email valide\nEnvoyé le ${now}\n\n© SmarticketS`,
   };
 }
 
@@ -513,7 +513,7 @@ export function getBaggageLostEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #fff3f3; border: 2px solid #e74c3c; border-radius: 10px; padding: 30px;">
           <h2 style="color: #e74c3c; margin-top: 0;">🚨 Colis déclaré comme perdu</h2>
@@ -549,13 +549,13 @@ export function getBaggageLostEmailTemplate(data: {
             </tr>` : ''}
           </table>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRTrans — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique SmarticketS — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `🚨 QRTrans - Colis déclaré comme perdu\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\nVol: ${data.flightNumber || 'Non renseigné'}\nDestination: ${data.destination || 'Non renseignée'}\n\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `🚨 SmarticketS - Colis déclaré comme perdu\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\nVol: ${data.flightNumber || 'Non renseigné'}\nDestination: ${data.destination || 'Non renseignée'}\n\nNotification automatique SmarticketS — ${now}\n© SmarticketS`,
   };
 }
 
@@ -571,7 +571,7 @@ export function getBaggageFoundEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #e8f5e9; border: 2px solid #27ae60; border-radius: 10px; padding: 30px;">
           <h2 style="color: #27ae60; margin-top: 0;">✅ Colis retrouvé !</h2>
@@ -597,13 +597,13 @@ export function getBaggageFoundEmailTemplate(data: {
             </tr>` : ''}
           </table>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRTrans — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique SmarticketS — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `✅ QRTrans - Colis retrouvé !\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\n\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `✅ SmarticketS - Colis retrouvé !\n\nRéférence: ${data.reference}\nVoyageur: ${travelerDisplay}\nAgence: ${data.agencyName || 'Non renseignée'}\nType: ${data.baggageType || 'Non renseigné'}\n\nNotification automatique SmarticketS — ${now}\n© SmarticketS`,
   };
 }
 
@@ -618,7 +618,7 @@ export function getNewAgencyEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #eef2ff; border: 2px solid #6366f1; border-radius: 10px; padding: 30px;">
           <h2 style="color: #4f46e5; margin-top: 0;">🏢 Nouvelle agence créée</h2>
@@ -645,13 +645,13 @@ export function getNewAgencyEmailTemplate(data: {
             </tr>` : ''}
           </table>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRTrans — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique SmarticketS — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `🏢 QRTrans - Nouvelle agence créée\n\nNom: ${data.name}\nEmail: ${data.email || 'Non renseigné'}\nTéléphone: ${data.phone || 'Non renseigné'}\nAdresse: ${data.address || 'Non renseignée'}\n\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `🏢 SmarticketS - Nouvelle agence créée\n\nNom: ${data.name}\nEmail: ${data.email || 'Non renseigné'}\nTéléphone: ${data.phone || 'Non renseigné'}\nAdresse: ${data.address || 'Non renseignée'}\n\nNotification automatique SmarticketS — ${now}\n© SmarticketS`,
   };
 }
 
@@ -672,7 +672,7 @@ export function getAgencyMessageEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 10px; padding: 30px;">
           <h2 style="color: #d97706; margin-top: 0;">💬 Nouveau message d'une agence</h2>
@@ -697,13 +697,13 @@ export function getAgencyMessageEmailTemplate(data: {
             <p style="color: #333; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${data.message}</p>
           </div>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRTrans — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique SmarticketS — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `💬 QRTrans - Nouveau message d'une agence\n\nAgence: ${data.agencyName}\n${data.subject ? `Sujet: ${data.subject}\n` : ''}${data.senderEmail ? `Email: ${data.senderEmail}\n` : ''}${data.priority ? `Priorité: ${data.priority}\n` : ''}\nMessage:\n${data.message}\n\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `💬 SmarticketS - Nouveau message d'une agence\n\nAgence: ${data.agencyName}\n${data.subject ? `Sujet: ${data.subject}\n` : ''}${data.senderEmail ? `Email: ${data.senderEmail}\n` : ''}${data.priority ? `Priorité: ${data.priority}\n` : ''}\nMessage:\n${data.message}\n\nNotification automatique SmarticketS — ${now}\n© SmarticketS`,
   };
 }
 
@@ -720,7 +720,7 @@ export function getNewLeadEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 10px; padding: 30px;">
           <h2 style="color: #16a34a; margin-top: 0;">🆕 Nouveau lead CRM</h2>
@@ -752,13 +752,13 @@ export function getNewLeadEmailTemplate(data: {
           </table>
           ${data.notes ? `<div style="background: #fff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; margin-top: 20px;"><p style="color: #666; font-size: 14px;"><strong>Notes :</strong> ${data.notes}</p></div>` : ''}
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRTrans — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique SmarticketS — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `🆕 QRTrans - Nouveau lead CRM\n\nNom: ${data.name}\nEmail: ${data.email}\nTéléphone: ${data.phone || 'Non renseigné'}\nEntreprise: ${data.company || 'Non renseignée'}\nSource: ${data.source || 'Non renseignée'}\n${data.notes ? `Notes: ${data.notes}\n` : ''}\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `🆕 SmarticketS - Nouveau lead CRM\n\nNom: ${data.name}\nEmail: ${data.email}\nTéléphone: ${data.phone || 'Non renseigné'}\nEntreprise: ${data.company || 'Non renseignée'}\nSource: ${data.source || 'Non renseignée'}\n${data.notes ? `Notes: ${data.notes}\n` : ''}\nNotification automatique SmarticketS — ${now}\n© SmarticketS`,
   };
 }
 
@@ -786,7 +786,7 @@ export function getColisActivatedEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 10px; padding: 30px;">
           <h2 style="color: #d97706; margin-top: 0;">${transportIcon} Colis activé — En transit</h2>
@@ -835,13 +835,13 @@ export function getColisActivatedEmailTemplate(data: {
             </tr>` : ''}
           </table>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRTrans — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique SmarticketS — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `${transportIcon} QRTrans — Colis activé (En transit)\n\nRéférence: ${data.reference}\nAgence: ${data.agencyName || 'Non renseignée'}\nExpéditeur: ${data.senderName || 'Non renseigné'}${data.senderPhone ? ' (' + data.senderPhone + ')' : ''}\nDestinataire: ${data.receiverName || 'Non renseigné'}${data.receiverPhone ? ' (' + data.receiverPhone + ')' : ''}\nCompagnie: ${data.companyName || 'Non renseignée'}\nTrajet: ${data.departureCity || '—'} → ${data.arrivalCity || '—'}\n${data.departureDate ? `Départ: ${data.departureDate}${data.departureTime ? ' à ' + data.departureTime : ''}\n` : ''}${data.colisType ? `Type: ${data.colisType}\n` : ''}${data.paymentStatus ? `Paiement: ${data.paymentStatus === 'SENDER_PAID' ? 'Payé par l\'expéditeur' : 'À payer par le destinataire'}\n` : ''}\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `${transportIcon} SmarticketS — Colis activé (En transit)\n\nRéférence: ${data.reference}\nAgence: ${data.agencyName || 'Non renseignée'}\nExpéditeur: ${data.senderName || 'Non renseigné'}${data.senderPhone ? ' (' + data.senderPhone + ')' : ''}\nDestinataire: ${data.receiverName || 'Non renseigné'}${data.receiverPhone ? ' (' + data.receiverPhone + ')' : ''}\nCompagnie: ${data.companyName || 'Non renseignée'}\nTrajet: ${data.departureCity || '—'} → ${data.arrivalCity || '—'}\n${data.departureDate ? `Départ: ${data.departureDate}${data.departureTime ? ' à ' + data.departureTime : ''}\n` : ''}${data.colisType ? `Type: ${data.colisType}\n` : ''}${data.paymentStatus ? `Paiement: ${data.paymentStatus === 'SENDER_PAID' ? 'Payé par l\'expéditeur' : 'À payer par le destinataire'}\n` : ''}\nNotification automatique SmarticketS — ${now}\n© SmarticketS`,
   };
 }
 
@@ -864,7 +864,7 @@ export function getColisDeliveredEmailTemplate(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #ff7f00; margin: 0;">QRTrans</h1>
+          <h1 style="color: #ff7f00; margin: 0;">SmarticketS</h1>
         </div>
         <div style="background: #e8f5e9; border: 2px solid #22c55e; border-radius: 10px; padding: 30px;">
           <h2 style="color: #16a34a; margin-top: 0;">✅ Colis livré avec succès !</h2>
@@ -911,13 +911,13 @@ export function getColisDeliveredEmailTemplate(data: {
             </tr>` : ''}
           </table>
         </div>
-        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique QRTrans — ${now}</p>
+        <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">Notification automatique SmarticketS — ${now}</p>
         <div style="text-align: center; color: #999; font-size: 12px;">
-          <p>© QRTrans - Tous droits réservés</p>
+          <p>© SmarticketS - Tous droits réservés</p>
         </div>
       </div>
     `,
-    text: `✅ QRTrans — Colis livré avec succès !\n\n${methodLabel}\n\nRéférence: ${data.reference}\nAgence: ${data.agencyName || 'Non renseignée'}\nExpéditeur: ${data.senderName || 'Non renseigné'}\nDestinataire: ${data.receiverName || 'Non renseigné'}\n${data.departureCity && data.arrivalCity ? `Trajet: ${data.departureCity} → ${data.arrivalCity}\n` : ''}${data.companyName ? `Compagnie: ${data.companyName}\n` : ''}Lieu: ${data.deliveryLocation || 'Non renseigné'}\n${data.deliveryDate ? `Date: ${data.deliveryDate}${data.deliveryTime ? ' à ' + data.deliveryTime : ''}\n` : ''}\nNotification automatique QRTrans — ${now}\n© QRTrans`,
+    text: `✅ SmarticketS — Colis livré avec succès !\n\n${methodLabel}\n\nRéférence: ${data.reference}\nAgence: ${data.agencyName || 'Non renseignée'}\nExpéditeur: ${data.senderName || 'Non renseigné'}\nDestinataire: ${data.receiverName || 'Non renseigné'}\n${data.departureCity && data.arrivalCity ? `Trajet: ${data.departureCity} → ${data.arrivalCity}\n` : ''}${data.companyName ? `Compagnie: ${data.companyName}\n` : ''}Lieu: ${data.deliveryLocation || 'Non renseigné'}\n${data.deliveryDate ? `Date: ${data.deliveryDate}${data.deliveryTime ? ' à ' + data.deliveryTime : ''}\n` : ''}\nNotification automatique SmarticketS — ${now}\n© SmarticketS`,
   };
 }
 

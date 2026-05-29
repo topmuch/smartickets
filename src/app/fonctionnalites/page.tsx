@@ -103,7 +103,7 @@ export default function FonctionnalitesPage() {
   return (
     <SecondaryPageLayout
       title="Fonctionnalités"
-      subtitle="Découvrez toutes les fonctionnalités de la plateforme QRTrans pour la traçabilité logistique"
+      subtitle="Découvrez toutes les fonctionnalités de la plateforme SmarticketS pour la traçabilité logistique"
     >
       {/* Feature Cards Section */}
       <motion.section

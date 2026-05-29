@@ -195,7 +195,7 @@ function Sidebar({
               <QrCode className="w-6 h-6 text-white" />
             </div>
             <div>
-              <span className="text-white font-bold text-xl tracking-tight">QRTrans</span>
+              <span className="text-white font-bold text-xl tracking-tight">SmarticketS</span>
               <span className="block text-xs text-white/60 font-medium">Administration</span>
             </div>
           </Link>

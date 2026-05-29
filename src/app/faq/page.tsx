@@ -30,17 +30,17 @@ const faqCategories: FAQCategory[] = [
     color: '#0A2540',
     questions: [
       {
-        question: "Qu'est-ce que QRTrans ?",
+        question: "Qu'est-ce que SmarticketS ?",
         answer:
-          "QRTrans est une plateforme de traçabilité et de sécurité logistique pour le transport inter-villes au Sénégal. Elle permet d'activer, tracer et sécuriser les colis grâce à des QR codes, des notifications WhatsApp automatiques et des codes PIN de retrait.",
+          "SmarticketS est une plateforme de traçabilité et de sécurité logistique pour le transport inter-villes au Sénégal. Elle permet d'activer, tracer et sécuriser les colis grâce à des QR codes, des notifications WhatsApp automatiques et des codes PIN de retrait.",
       },
       {
-        question: 'Comment fonctionne QRTrans ?',
+        question: 'Comment fonctionne SmarticketS ?',
         answer:
           "Le chauffeur scanne le QR code du colis, active l'expédition via un formulaire digital, un code PIN est généré et envoyé au destinataire par WhatsApp. À l'arrivée, le destinataire saisit le PIN pour récupérer son colis.",
       },
       {
-        question: 'QRTrans est-il gratuit ?',
+        question: 'SmarticketS est-il gratuit ?',
         answer:
           "L'inscription est gratuite pour les agences. Les tarifs dépendent du volume de colis et du forfait choisi. Contactez-nous pour un devis personnalisé.",
       },
@@ -54,12 +54,12 @@ const faqCategories: FAQCategory[] = [
       {
         question: 'Comment activer un colis ?',
         answer:
-          "Scannez le QR code avec votre smartphone ou saisissez la référence sur le site QRTrans. Remplissez le formulaire d'activation (expéditeur, destinataire, itinéraire) et validez.",
+          "Scannez le QR code avec votre smartphone ou saisissez la référence sur le site SmarticketS. Remplissez le formulaire d'activation (expéditeur, destinataire, itinéraire) et validez.",
       },
       {
         question: "Que faire si je n'ai pas de réseau ?",
         answer:
-          "QRTrans dispose d'un mode hors-ligne. Activez et scannez vos colis sans connexion internet. La synchronisation se fait automatiquement dès que le réseau revient.",
+          "SmarticketS dispose d'un mode hors-ligne. Activez et scannez vos colis sans connexion internet. La synchronisation se fait automatiquement dès que le réseau revient.",
       },
       {
         question: 'Comment suivre mon colis ?',
@@ -81,7 +81,7 @@ const faqCategories: FAQCategory[] = [
       {
         question: 'Mes données sont-elles protégées ?',
         answer:
-          'Oui, toutes les données sont chiffrées et hébergées de manière sécurisée. QRTrans est conforme au RGPD.',
+          'Oui, toutes les données sont chiffrées et hébergées de manière sécurisée. SmarticketS est conforme au RGPD.',
       },
     ],
   },
@@ -154,7 +154,7 @@ export default function FAQPage() {
   return (
     <SecondaryPageLayout
       title="Questions Fréquentes"
-      subtitle="Trouvez rapidement les réponses à vos questions sur QRTrans"
+      subtitle="Trouvez rapidement les réponses à vos questions sur SmarticketS"
     >
       <motion.div
         variants={containerVariants}
@@ -233,7 +233,7 @@ export default function FAQPage() {
           </h3>
           <p className="text-white/70 mb-6 max-w-lg mx-auto">
             Notre équipe est disponible pour répondre à toutes vos questions et
-            vous accompagner dans l&apos;utilisation de QRTrans.
+            vous accompagner dans l&apos;utilisation de SmarticketS.
           </p>
           <a
             href="/contact"

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "QRTrans",
+    "appName": "SmarticketS",
     "tagline": "Ne perdez plus jamais un bagage"
   },
   "landing": {
@@ -50,7 +50,7 @@
       "title": "Contactez-nous",
       "address": "Poissy, France",
       "phone": "+33 7 45 34 93 39",
-      "email": "contact@qrtrans.com"
+      "email": "contact@smartickets.com"
     }
   },
   "scan": {

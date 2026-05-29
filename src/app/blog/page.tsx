@@ -41,14 +41,14 @@ const articles = [
     href: '/blog/reglementation-transport',
   },
   {
-    title: 'Comment QRTrans réduit les pertes de colis de 90%',
+    title: 'Comment SmarticketS réduit les pertes de colis de 90%',
     category: 'Actu',
     badgeColor: 'bg-[#8a2be2] text-white',
     barColor: '#8a2be2',
     date: '28 Avril 2026',
     excerpt:
       'Étude de cas sur l\'impact de la traçabilité QR code sur les pertes de colis dans le réseau de transport Dakar-Saint-Louis.',
-    href: '/blog/qrtrans-reduit-pertes',
+    href: '/blog/smartickets-reduit-pertes',
   },
   {
     title: 'Guide complet : Première activation de colis',
@@ -57,7 +57,7 @@ const articles = [
     barColor: '#3B82F6',
     date: '20 Avril 2026',
     excerpt:
-      'Pas à pas pour activer votre premier colis sur QRTrans, du scan du QR code à la notification WhatsApp.',
+      'Pas à pas pour activer votre premier colis sur SmarticketS, du scan du QR code à la notification WhatsApp.',
     href: '/blog/premiere-activation',
   },
   {

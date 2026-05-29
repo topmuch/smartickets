@@ -1,6 +1,6 @@
 {
-  "name": "QRTrans — Traçabilité de Colis par QR Code",
-  "short_name": "QRTrans",
+  "name": "SmarticketS — Traçabilité de Colis par QR Code",
+  "short_name": "SmarticketS",
   "description": "Plateforme de traçabilité de colis par QR code pour le transport inter-villes. Activation en 30s, notifications WhatsApp, code PIN sécurisé, suivi GPS, dashboard agence.",
   "start_url": "/",
   "display": "standalone",
@@ -97,7 +97,7 @@
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Page d'accueil QRTrans"
+      "label": "Page d'accueil SmarticketS"
     }
   ],
   "related_applications": [],

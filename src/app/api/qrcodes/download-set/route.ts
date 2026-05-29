@@ -34,13 +34,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://qrtrans.pro';
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://smartickets.com';
     const isHajj = baggages[0].type === 'hajj';
     const fgColor = isHajj ? '#059669' : '#d35400';
 
     // Generate QR codes as PNG buffers
     const zip = new JSZip();
-    const folderName = `QRTrans-${setId}`;
+    const folderName = `SmarticketS-${setId}`;
     const folder = zip.folder(folderName);
 
     if (!folder) {

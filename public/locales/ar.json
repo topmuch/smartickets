@@ -79,7 +79,7 @@
     "context_static": "مكان ثابت (فندق، منزل...)"
   },
   "whatsapp": {
-    "baggage_found": "📦 *QRTrans – تم العثور على الحقيبة!*",
+    "baggage_found": "📦 *SmarticketS – تم العثور على الحقيبة!*",
     "reference": "📍 *المرجع* :",
     "location": "📍 *المكان* :",
     "map": "🗺️ *الخريطة* :",
@@ -88,7 +88,7 @@
     "contact": "📱 *الاتصال* :",
     "tracking_link": "🔗 *تتبع أمتعتك في الوقت الحقيقي* :",
     "pickup_message": "👉 شكراً لاسترجاعها بسرعة.",
-    "signature": "*QRTrans – احمِ أمتعتك براحة بال.*",
+    "signature": "*SmarticketS – احمِ أمتعتك براحة بال.*",
     "title_departure_urgent": "عاجل — أمتعة في {place} !",
     "title_arrival": "تم تحديد موقع الأمتعة في الوجهة",
     "title_in_transit": "أمتعة في طريق",
@@ -101,21 +101,21 @@
     "bag_type_soute": "شحن",
     "bag_type_pont": "سطح",
     "see_bagage": "👉 رؤية الأمتعة المحددة :",
-    "whatsapp_signature": "QRTrans – احمِ أمتعتك براحة بال."
+    "whatsapp_signature": "SmarticketS – احمِ أمتعتك براحة بال."
   },
   "chatbot": {
-    "title": "مساعد QRTrans",
+    "title": "مساعد SmarticketS",
     "placeholder": "اطرح سؤالك...",
     "send": "إرسال",
     "close": "إغلاق",
     "thinking": "المساعد يفكر...",
     "error": "خطأ في الاتصال. حاول مرة أخرى.",
-    "error_fallback": "أواجه مشكلة تقنية. يرجى التواصل مع الدعم: support@qrtrans.com",
+    "error_fallback": "أواجه مشكلة تقنية. يرجى التواصل مع الدعم: support@smartickets.com",
     "suggestion_1": "ماذا أفعل بهذه الأمتعة؟",
     "suggestion_2": "كيف أتواصل مع الوكالة؟",
     "suggestion_3": "هل الأمر عاجل؟",
-    "suggestion_4": "كيف يعمل QRTrans؟",
-    "welcome": "مرحباً! 👋 أنا مساعد QRTrans. كيف يمكنني مساعدتك بخصوص هذه الأمتعة؟",
+    "suggestion_4": "كيف يعمل SmarticketS؟",
+    "welcome": "مرحباً! 👋 أنا مساعد SmarticketS. كيف يمكنني مساعدتك بخصوص هذه الأمتعة؟",
     "aria_open": "فتح الدردشة",
     "aria_close": "إغلاق الدردشة",
     "aria_message": "رسالة الدردشة"
@@ -184,7 +184,7 @@
     "badge_found": "تم العثور على الأمتعة",
     "badge_active": "أمتعتك محمية",
     "lost_description": "تم الإبلاغ عن فقدان هذه الأمتعة. سيتم إبلاغك إذا وجدها أحد.",
-    "active_description": "أمتعتك تحت حماية QRTrans. سيتم إبلاغك إذا قام أحد بمسحها.",
+    "active_description": "أمتعتك تحت حماية SmarticketS. سيتم إبلاغك إذا قام أحد بمسحها.",
     "found_description": "تم العثور على أمتعتك! اتصل بمن وجدها لترتيب الاستلام.",
     "scan_count": "{count} مسح",
     "trust_note": "كيو آر باغ — تتبع آمن لأمتعتك",

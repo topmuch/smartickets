@@ -10,7 +10,7 @@ function AProposContent() {
       <section className="text-center py-20 bg-gradient-to-r from-[#080c1a] via-[#1e3a2e] to-[#080c1a]">
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            À propos de QRTrans
+            À propos de SmarticketS
           </h1>
           <p className="text-[#a0a8b8] max-w-2xl mx-auto text-xl leading-relaxed">
             Nous croyons qu&apos;un voyageur ne devrait jamais perdre son colis — ni sa sérénité.
@@ -127,7 +127,7 @@ function AProposContent() {
       <section className="py-16 max-w-4xl mx-auto px-4 text-center">
         <h2 className="text-3xl font-bold text-white mb-6">Qui sommes-nous ?</h2>
         <p className="text-[#e0e6f0] mb-8 max-w-2xl mx-auto leading-relaxed">
-          QRTrans est développé par <strong className="text-[#b8860b]">MMASOLUTION</strong>, une entreprise
+          SmarticketS est développé par <strong className="text-[#b8860b]">MMASOLUTION</strong>, une entreprise
           spécialisée dans les solutions digitales pour le tourisme religieux et les voyages internationaux.
           Notre équipe combine des expertises en technologie, logistique et expérience client pour créer
           des solutions qui font la différence.
@@ -147,8 +147,8 @@ function AProposContent() {
             </div>
             <div className="flex items-center justify-center gap-2">
               <span className="text-xl">✉️</span>
-              <a href="mailto:contact@qrtrans.com" className="hover:text-[#ff2a6d] transition-colors">
-                contact@qrtrans.com
+              <a href="mailto:contact@smartickets.com" className="hover:text-[#ff2a6d] transition-colors">
+                contact@smartickets.com
               </a>
             </div>
           </div>
@@ -158,7 +158,7 @@ function AProposContent() {
       {/* Chiffres clés */}
       <section className="py-16 bg-gradient-to-r from-[#1e3a2e] to-[#080c1a]">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">QRTrans en chiffres</h2>
+          <h2 className="text-3xl font-bold text-center text-white mb-12">SmarticketS en chiffres</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { number: '10 000+', label: 'Colis protégés' },

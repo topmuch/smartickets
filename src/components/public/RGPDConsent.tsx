@@ -6,7 +6,7 @@ import Link from 'next/link';
 // Store externe pour le consentement RGPD
 function getConsentSnapshot() {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('qrtrans_rgpd_consent');
+  return localStorage.getItem('smartickets_rgpd_consent');
 }
 
 function getServerSnapshot() {
@@ -22,7 +22,7 @@ export default function RGPDConsent() {
   const consent = useSyncExternalStore(subscribe, getConsentSnapshot, getServerSnapshot);
 
   const handleAccept = useCallback(() => {
-    localStorage.setItem('qrtrans_rgpd_consent', 'accepted');
+    localStorage.setItem('smartickets_rgpd_consent', 'accepted');
     window.dispatchEvent(new Event('storage'));
     
     // Activer Google Analytics si disponible
@@ -34,7 +34,7 @@ export default function RGPDConsent() {
   }, []);
 
   const handleReject = useCallback(() => {
-    localStorage.setItem('qrtrans_rgpd_consent', 'rejected');
+    localStorage.setItem('smartickets_rgpd_consent', 'rejected');
     window.dispatchEvent(new Event('storage'));
   }, []);
 

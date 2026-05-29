@@ -1,5 +1,5 @@
 /**
- * QRTrans — Système Centralisé de Notifications WhatsApp
+ * SmarticketS — Système Centralisé de Notifications WhatsApp
  *
  * 4 templates professionnels :
  *   1. departure_sender   — Départ → Expéditeur (🟢)
@@ -106,7 +106,7 @@ export const NOTIFICATION_TEMPLATES: Record<NotificationType, (vars: Notificatio
 
   // ─── NOTIFICATION 1 : DÉPART → ENVOYEUR ───
   departure_sender: (v) =>
-`🟢 *QRTrans — Colis en Partance*
+`🟢 *SmarticketS — Colis en Partance*
 
 Bonjour *${v.sender_name}*,
 
@@ -126,7 +126,7 @@ Merci de votre confiance 🙏
   // ─── NOTIFICATION 2 : DÉPART → RECEVEUR ───
   departure_receiver: (v) => {
     const pickupLine = v.pickup_address ? `\n📍 Adresse de retrait : ${v.pickup_address}` : '';
-    return `🔵 *QRTrans — Colis en Transit*
+    return `🔵 *SmarticketS — Colis en Transit*
 
 Bonjour *${v.receiver_name}*,
 
@@ -139,7 +139,7 @@ Un colis destiné à votre attention est actuellement en route.
 🕐 Arrivée estimée : ${v.departure_date}${pickupLine}
 ${v.pin ? `🔐 *Code de retrait : ${v.pin}*\nConservez ce code. Il sera exigé à l'arrivée.\n` : ''}${v.share_driver_phone && v.driver_phone ? `📞 Contacter le transporteur : ${v.driver_phone}\n` : '📞 Pour toute question, contactez l\'agence au +221 78 123 00 00\n'}Vous serez notifié immédiatement dès l'arrivée du colis.
 
-🤝 Merci d'utiliser QRTrans
+🤝 Merci d'utiliser SmarticketS
 
 🔗 Suivre le colis : ${v.tracking_url}`;
   },
@@ -147,7 +147,7 @@ ${v.pin ? `🔐 *Code de retrait : ${v.pin}*\nConservez ce code. Il sera exigé 
   // ─── NOTIFICATION 3 : ARRIVÉE/LIVRAISON → ENVOYEUR ───
   arrival_sender: (v) => {
     const location = v.delivery_location || v.pickup_address || 'Non renseigné';
-    return `🟢 *QRTrans — Colis Livré ✅*
+    return `🟢 *SmarticketS — Colis Livré ✅*
 
 Bonjour *${v.sender_name}*,
 
@@ -158,7 +158,7 @@ Bonne nouvelle ! Votre colis a bien été livré avec succès.
 ✅ Livré le : ${v.arrived_date || ''} à ${v.arrived_time || ''}
 👤 Destinataire : ${v.receiver_name}
 
-Merci de votre confiance envers QRTrans 🙏
+Merci de votre confiance envers SmarticketS 🙏
 
 ⭐ Évaluer le service : ${v.feedback_url || ''}
 
@@ -168,7 +168,7 @@ Merci de votre confiance envers QRTrans 🙏
   // ─── NOTIFICATION 4 : ARRIVÉE → RECEVEUR (Colis Disponible) ───
   arrival_receiver: (v) => {
     const location = v.delivery_location || v.pickup_address || 'Non renseigné';
-    return `🔵 *QRTrans — Colis Disponible 📦*
+    return `🔵 *SmarticketS — Colis Disponible 📦*
 
 Bonjour *${v.receiver_name}*,
 
@@ -180,7 +180,7 @@ Votre colis est arrivé et peut maintenant être retiré.
 ✅ Arrivé le : ${v.arrived_date || ''} à ${v.arrived_time || ''}
 ${v.share_driver_phone && v.driver_phone ? `📞 Contacter le transporteur : ${v.driver_phone}` : `📞 Assistance : ${v.company_name}`}
 
-Merci d'utiliser QRTrans 🙏
+Merci d'utiliser SmarticketS 🙏
 
 🔗 Suivre le colis : ${v.tracking_url}`;
   },

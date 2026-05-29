@@ -7,7 +7,7 @@ export async function GET() {
   try {
     // Check if superadmin exists
     const existingAdmin = await prisma.user.findUnique({
-      where: { email: 'admin@qrtrans.com' }
+      where: { email: 'admin@smartickets.com' }
     });
 
     if (!existingAdmin) {
@@ -18,7 +18,7 @@ export async function GET() {
       // Create superadmin user
       await prisma.user.create({
         data: {
-          email: 'admin@qrtrans.com',
+          email: 'admin@smartickets.com',
           name: 'Super Admin',
           password: adminPassword,
           role: 'superadmin',
@@ -40,7 +40,7 @@ export async function GET() {
       // Create demo agency user
       await prisma.user.create({
         data: {
-          email: 'agence@qrtrans.com',
+          email: 'agence@smartickets.com',
           name: 'FRANCINE MAKELA',
           password: agencyPassword,
           role: 'agency',
@@ -52,8 +52,8 @@ export async function GET() {
         success: true,
         message: 'Demo users created successfully',
         users: [
-          { email: 'admin@qrtrans.com', password: 'admin123', role: 'superadmin' },
-          { email: 'agence@qrtrans.com', password: 'agence123', role: 'agency' }
+          { email: 'admin@smartickets.com', password: 'admin123', role: 'superadmin' },
+          { email: 'agence@smartickets.com', password: 'agence123', role: 'agency' }
         ]
       });
     }
@@ -62,8 +62,8 @@ export async function GET() {
       success: true,
       message: 'Demo users already exist',
       users: [
-        { email: 'admin@qrtrans.com', password: 'admin123', role: 'superadmin' },
-        { email: 'agence@qrtrans.com', password: 'agence123', role: 'agency' }
+        { email: 'admin@smartickets.com', password: 'admin123', role: 'superadmin' },
+        { email: 'agence@smartickets.com', password: 'agence123', role: 'agency' }
       ]
     });
   } catch (error) {

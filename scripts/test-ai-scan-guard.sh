@@ -20,7 +20,7 @@ curl -s -X POST "$BASE_URL/api/scan/NONEXISTENT-999" -H "Content-Type: applicati
 # 4. GET scan info
 echo -e "\nTest 4: GET scan info (expect baggage data or not_found)..."
 curl -s "$BASE_URL/api/scan/$REF" | jq .
-# 5. Check qrtrans_locale cookie is set
-echo -e "\nTest 5: Check qrtrans_locale cookie..."
-curl -sI "$BASE_URL/api/scan/$REF" | grep -i "set-cookie.*qrtrans_locale"
+# 5. Check smartickets_locale cookie is set
+echo -e "\nTest 5: Check smartickets_locale cookie..."
+curl -sI "$BASE_URL/api/scan/$REF" | grep -i "set-cookie.*smartickets_locale"
 echo -e "\n=== Scan Guard tests complete ==="

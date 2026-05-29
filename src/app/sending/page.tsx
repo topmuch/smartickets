@@ -112,7 +112,7 @@ function SendingContent() {
             <div className="w-9 h-9 rounded-lg bg-[#25D366] flex items-center justify-center">
               <QrCode className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg font-bold tracking-tight">QRTrans</span>
+            <span className="text-lg font-bold tracking-tight">SmarticketS</span>
           </div>
           <div
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"

@@ -5,13 +5,13 @@ import { getSession } from '@/lib/session';
 // Default settings
 const defaultSettings = {
   // Company Info
-  company_name: 'QRTrans',
+  company_name: 'SmarticketS',
   company_address: 'Poissy, France',
   company_phone: '+33 7 45 34 93 39',
-  company_email: 'contact@qrtrans.com',
+  company_email: 'contact@smartickets.com',
   company_logo: '',
   // SEO
-  seo_title: 'QRTrans - Protection intelligente des colis',
+  seo_title: 'SmarticketS - Protection intelligente des colis',
   seo_description: 'Protégez vos colis avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS.',
   seo_keywords: 'QR, colis, voyage, hajj, protection, sticker',
   seo_image: '',

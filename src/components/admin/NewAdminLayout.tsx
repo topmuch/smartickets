@@ -21,7 +21,10 @@ import {
   ShoppingBag,
   Scan,
   HelpCircle,
-  ChevronRight
+  ChevronRight,
+  Route,
+  Clock,
+  TicketCheck,
 } from "lucide-react";
 
 // Modern color palette - Orange & Black theme
@@ -75,6 +78,10 @@ export default function AdminLayout({ children, title, subtitle, unreadMessages 
     { label: "GESTION", icon: null, isCategory: true },
     { label: "Utilisateurs", icon: <Users className="w-5 h-5" />, href: "/admin/utilisateurs" },
     { label: "Agences", icon: <Building className="w-5 h-5" />, href: "/admin/agences" },
+    { label: "BILLETERIE", icon: null, isCategory: true },
+    { label: "Trajets", icon: <Route className="w-5 h-5" />, href: "/admin/routes" },
+    { label: "Horaires", icon: <Clock className="w-5 h-5" />, href: "/admin/departures" },
+    { label: "Contrôle Tickets", icon: <TicketCheck className="w-5 h-5" />, href: "/controller/validate" },
     { label: "PRODUITS", icon: null, isCategory: true },
     { label: "Générer QR", icon: <QrCode className="w-5 h-5" />, href: "/admin/generer" },
     { label: "Étiquettes", icon: <Layers className="w-5 h-5" />, href: "/admin/etiquettes" },
@@ -113,7 +120,7 @@ export default function AdminLayout({ children, title, subtitle, unreadMessages 
                 <QrCode className="w-6 h-6 text-white" />
               </div>
               <div>
-                <span className="text-white font-bold text-xl tracking-tight">QRTrans</span>
+                <span className="text-white font-bold text-xl tracking-tight">SmarticketS</span>
                 <span className="block text-xs text-white/60">Administration</span>
               </div>
             </Link>

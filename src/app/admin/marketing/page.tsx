@@ -100,7 +100,7 @@ function getMailtoUrl(email: string, subject: string, body: string): string {
 }
 
 function buildRenewalMessage(name: string, reference: string, expiryDate: string): string {
-  return `Bonjour ${name}, votre colis QRTrans (${reference}) arrive à expiration le ${expiryDate}. Souhaitez-vous le renouveler pour 7€ ?`;
+  return `Bonjour ${name}, votre colis SmarticketS (${reference}) arrive à expiration le ${expiryDate}. Souhaitez-vous le renouveler pour 7€ ?`;
 }
 
 function statusBadgeClass(status: string): string {
@@ -189,7 +189,7 @@ export default function MarketingPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `qrtrans-marketing-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `smartickets-marketing-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }, [data]);
@@ -492,7 +492,7 @@ function TravelerRow({ traveler, onView }: { traveler: Traveler; onView: () => v
     expiryStr
   );
   const mailtoUrl = traveler.email
-    ? getMailtoUrl(traveler.email, 'Renouvellement QRTrans', emailBody)
+    ? getMailtoUrl(traveler.email, 'Renouvellement SmarticketS', emailBody)
     : null;
 
   return (
@@ -579,7 +579,7 @@ function TravelerCard({ traveler, onView }: { traveler: Traveler; onView: () => 
     expiryStr
   );
   const mailtoUrl = traveler.email
-    ? getMailtoUrl(traveler.email, 'Renouvellement QRTrans', emailBody)
+    ? getMailtoUrl(traveler.email, 'Renouvellement SmarticketS', emailBody)
     : null;
 
   return (
@@ -669,7 +669,7 @@ function DetailModalContent({ traveler }: { traveler: Traveler }) {
     expiryStr
   );
   const mailtoUrl = traveler.email
-    ? getMailtoUrl(traveler.email, 'Renouvellement QRTrans', emailBody)
+    ? getMailtoUrl(traveler.email, 'Renouvellement SmarticketS', emailBody)
     : null;
 
   return (
@@ -778,7 +778,7 @@ function DetailModalContent({ traveler }: { traveler: Traveler }) {
         ) : (
           <button
             onClick={() => {
-              window.location.href = getMailtoUrl('contact@qrtrans.com', 'Renouvellement QRTrans', emailBody);
+              window.location.href = getMailtoUrl('contact@smartickets.com', 'Renouvellement SmarticketS', emailBody);
             }}
             className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-medium transition-colors"
           >

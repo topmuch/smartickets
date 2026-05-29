@@ -29,10 +29,10 @@ const supportChannels = [
   {
     icon: Mail,
     title: 'Email',
-    description: 'contact@qrtrans.com',
+    description: 'contact@smartickets.com',
     detail: 'Réponse sous 24h',
     buttonText: "Envoyer un email",
-    href: 'mailto:contact@qrtrans.com',
+    href: 'mailto:contact@smartickets.com',
     color: '#FF6B35',
     external: false,
   },
@@ -62,7 +62,7 @@ const faqItems = [
   {
     question: 'Comment activer un colis ?',
     answer:
-      'Scannez le QR code ou saisissez la référence sur QRTrans, puis suivez les étapes pour enregistrer votre colis et activer la protection.',
+      'Scannez le QR code ou saisissez la référence sur SmarticketS, puis suivez les étapes pour enregistrer votre colis et activer la protection.',
   },
   {
     question: "Je n'ai pas reçu mon code PIN",

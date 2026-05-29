@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     
     await sendEmail({
       to: email,
-      subject: 'QRTrans - Vérification de votre email',
+      subject: 'SmarticketS - Vérification de votre email',
       html: template.html,
       text: template.text,
       type: 'verification',

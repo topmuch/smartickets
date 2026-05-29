@@ -1,5 +1,5 @@
 /**
- * AI Services for QRTrans
+ * AI Services for SmarticketS
  * 
  * All AI features are:
  * - Toggleable via feature flags

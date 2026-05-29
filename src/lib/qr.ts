@@ -10,6 +10,30 @@ export function generateRandomCode(length: number = 6): string {
   return result;
 }
 
+// Generate unique control code for ticket validation (6-8 digits)
+export async function generateControlCode(length: number = 6): Promise<string> {
+  let code = '';
+  let attempts = 0;
+  const maxAttempts = 50;
+
+  while (attempts < maxAttempts) {
+    const min = 10 ** length;
+    const max = 10 ** (length + 1);
+    code = String(Math.floor(Math.random() * (max - min)) + min);
+    
+    const existing = await db.passengerTicket.findUnique({
+      where: { controlCode: code },
+    });
+
+    if (!existing) {
+      return code;
+    }
+    attempts++;
+  }
+
+  throw new Error('Failed to generate unique control code after ' + maxAttempts + ' attempts');
+}
+
 // Generate unique reference
 export async function generateReference(type: 'hajj' | 'voyageur'): Promise<string> {
   const year = new Date().getFullYear().toString().slice(-2);

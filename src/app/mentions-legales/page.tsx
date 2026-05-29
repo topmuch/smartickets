@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Mentions légales',
-  description: 'Mentions légales du site QRTrans - Protection intelligente des colis.',
+  description: 'Mentions légales du site SmarticketS - Protection intelligente des colis.',
 };
 
 export default function MentionsLegales() {
@@ -17,12 +17,12 @@ export default function MentionsLegales() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">1. Éditeur du site</h2>
               <p className="mb-4">
-                Le site QRTrans est édité par la société MMASOLUTION, société [forme juridique] au capital de [montant] euros, immatriculée au Registre du Commerce et des Sociétés de [ville] sous le numéro [numéro SIRET].
+                Le site SmarticketS est édité par la société MMASOLUTION, société [forme juridique] au capital de [montant] euros, immatriculée au Registre du Commerce et des Sociétés de [ville] sous le numéro [numéro SIRET].
               </p>
               <p>
                 <strong>Siège social :</strong> Poissy, France<br />
                 <strong>Téléphone :</strong> [numéro de téléphone]<br />
-                <strong>Email :</strong> contact@qrtrans.com<br />
+                <strong>Email :</strong> contact@smartickets.com<br />
                 <strong>Directeur de la publication :</strong> [Nom du directeur]
               </p>
             </section>
@@ -37,7 +37,7 @@ export default function MentionsLegales() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">3. Propriété intellectuelle</h2>
               <p className="mb-4">
-                L&apos;ensemble du contenu du site QRTrans (textes, images, vidéos, logos, icônes, sons, logiciels, etc.) est la propriété exclusive de MMASOLUTION ou de ses partenaires et est protégé par les lois françaises et internationales relatives à la propriété intellectuelle.
+                L&apos;ensemble du contenu du site SmarticketS (textes, images, vidéos, logos, icônes, sons, logiciels, etc.) est la propriété exclusive de MMASOLUTION ou de ses partenaires et est protégé par les lois françaises et internationales relatives à la propriété intellectuelle.
               </p>
               <p>
                 Toute reproduction, représentation, modification, publication, adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite, sauf autorisation écrite préalable de MMASOLUTION.
@@ -50,14 +50,14 @@ export default function MentionsLegales() {
                 Les informations concernant la collecte et le traitement des données personnelles sont détaillées dans notre <a href="/confidentialite" className="text-[#b8860b] hover:underline">Politique de confidentialité</a>.
               </p>
               <p>
-                Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d&apos;un droit d&apos;accès, de rectification, de suppression et de portabilité de vos données personnelles. Pour exercer ces droits, vous pouvez nous contacter à : contact@qrtrans.com.
+                Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d&apos;un droit d&apos;accès, de rectification, de suppression et de portabilité de vos données personnelles. Pour exercer ces droits, vous pouvez nous contacter à : contact@smartickets.com.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">5. Cookies</h2>
               <p className="mb-4">
-                Le site QRTrans utilise des cookies pour améliorer l&apos;expérience utilisateur. Ces cookies sont soumis à votre consentement préalable, conformément à la réglementation applicable.
+                Le site SmarticketS utilise des cookies pour améliorer l&apos;expérience utilisateur. Ces cookies sont soumis à votre consentement préalable, conformément à la réglementation applicable.
               </p>
               <p>
                 Pour en savoir plus sur l&apos;utilisation des cookies, veuillez consulter notre <a href="/confidentialite" className="text-[#b8860b] hover:underline">Politique de confidentialité</a>.
@@ -84,7 +84,7 @@ export default function MentionsLegales() {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-4">8. Contact</h2>
               <p>
-                Pour toute question relative aux présentes mentions légales, vous pouvez nous contacter à : <a href="mailto:contact@qrtrans.com" className="text-[#b8860b] hover:underline">contact@qrtrans.com</a>
+                Pour toute question relative aux présentes mentions légales, vous pouvez nous contacter à : <a href="mailto:contact@smartickets.com" className="text-[#b8860b] hover:underline">contact@smartickets.com</a>
               </p>
             </section>
           </div>

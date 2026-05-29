@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  qrtrans:
+  smartickets:
     build:
       context: .
       dockerfile: Dockerfile
@@ -26,8 +26,8 @@ services:
       - GROQ_AI_ENABLED=${GROQ_AI_ENABLED:-true}
       - GROQ_CHAT_ENABLED=${GROQ_CHAT_ENABLED:-true}
     volumes:
-      - qrtrans_data:/app/data
-      - qrtrans_uploads:/app/public/uploads
+      - smartickets_data:/app/data
+      - smartickets_uploads:/app/public/uploads
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api"]
@@ -37,5 +37,5 @@ services:
       start_period: 60s
 
 volumes:
-  qrtrans_data:
-  qrtrans_uploads:
+  smartickets_data:
+  smartickets_uploads:

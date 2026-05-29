@@ -18,7 +18,7 @@ export default function CTAFinalSection() {
             Prêt à sécuriser et tracer vos expéditions ?
           </h2>
           <p className="text-white/80 text-base sm:text-lg mb-10 leading-relaxed">
-            Rejoignez les agences et chauffeurs qui ont modernisé leur logistique avec QRTrans.
+            Rejoignez les agences et chauffeurs qui ont modernisé leur logistique avec SmarticketS.
           </p>
 
           {/* Dual CTA */}
@@ -30,7 +30,7 @@ export default function CTAFinalSection() {
               🚀 Commencer gratuitement
             </Link>
             <a
-              href="https://wa.me/221784858226?text=Bonjour%20QRTrans%2C%20je%20souhaite%20en%20savoir%20plus"
+              href="https://wa.me/221784858226?text=Bonjour%20SmarticketS%2C%20je%20souhaite%20en%20savoir%20plus"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 border-2 border-white/30 hover:border-white/60 text-white font-semibold rounded-lg transition-all duration-200 text-sm sm:text-base w-full sm:w-auto"

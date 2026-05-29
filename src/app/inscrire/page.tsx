@@ -214,7 +214,7 @@ function InscrireContent() {
           <div className="w-8 h-8 bg-[#0A192F] rounded-lg flex items-center justify-center">
             <QrCode className="w-5 h-5 text-orange-400" />
           </div>
-          <span className="font-bold text-blue-900 text-sm">QRTrans</span>
+          <span className="font-bold text-blue-900 text-sm">SmarticketS</span>
         </div>
         <LanguageSelector lang={lang} setLang={setLang} />
       </header>

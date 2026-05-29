@@ -1,4 +1,4 @@
-# QRTrans — Design System & Landing Page Documentation
+# SmarticketS — Design System & Landing Page Documentation
 
 ## 1. Color Palette
 
@@ -138,7 +138,7 @@ bg-gradient-to-r from-[#FF6B35] to-[#D4AF37] bg-clip-text text-transparent
 |---|---------|-----------|-------------|
 | 1 | Navigation | `bg-white/80` → `bg-white/95` (scrolled) | Backdrop blur, sticky |
 | 2 | Hero | `#FFF5F0` → `#FFFFFF` gradient + Particles | Canvas animation, parallax |
-| 3 | Why QRTrans | `#F8FAFC` | 3D tilt cards |
+| 3 | Why SmarticketS | `#F8FAFC` | 3D tilt cards |
 | 4 | How it Works | White | Animated timeline (progress bar) |
 | 5 | Stats | White | Animated counters (scroll-triggered) |
 | 6 | Chauffeur | `#FFF5F0` | Split 50/50, SVG illustration |

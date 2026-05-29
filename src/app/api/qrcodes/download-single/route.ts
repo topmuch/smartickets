@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://qrtrans.pro';
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://smartickets.com';
     const qrUrl = `${origin}/scan/${baggage.reference}`;
     const isHajj = baggage.type === 'hajj';
     const fgColor = isHajj ? '#059669' : '#d35400';

@@ -14,14 +14,14 @@ const testimonials: Testimonial[] = [
   {
     name: 'Moussa D.',
     role: 'Chauffeur indépendant Dakar-Ziguinchor',
-    content: "Depuis que j'utilise QRTrans, mes clients ne m'appellent plus toutes les 2 heures pour savoir où est leur colis. Le WhatsApp automatique change tout.",
+    content: "Depuis que j'utilise SmarticketS, mes clients ne m'appellent plus toutes les 2 heures pour savoir où est leur colis. Le WhatsApp automatique change tout.",
     initials: 'MD',
     rating: 5,
   },
   {
     name: 'Fatou K.',
     role: 'Agence Salam Transport',
-    content: "On gérait 200 colis par jour avec des fichiers Excel. Maintenant, tout est sur le dashboard QRTrans : on sait exactement où est chaque colis.",
+    content: "On gérait 200 colis par jour avec des fichiers Excel. Maintenant, tout est sur le dashboard SmarticketS : on sait exactement où est chaque colis.",
     initials: 'FK',
     rating: 5,
   },
@@ -35,7 +35,7 @@ const testimonials: Testimonial[] = [
   {
     name: 'Aminata B.',
     role: 'Expéditrice régulière Dakar-Thiès',
-    content: "Je reçois mon lien WhatsApp dès que le colis part. Je peux suivre chaque étape en temps réel. Je recommande QRTrans à tout le monde.",
+    content: "Je reçois mon lien WhatsApp dès que le colis part. Je peux suivre chaque étape en temps réel. Je recommande SmarticketS à tout le monde.",
     initials: 'AB',
     rating: 5,
   },
@@ -105,7 +105,7 @@ export default function TestimonialCarousel() {
             TÉMOIGNAGES
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-5 tracking-tight">
-            Ils transportent avec QRTrans
+            Ils transportent avec SmarticketS
           </h2>
           <p className="text-slate-500 max-w-xl mx-auto">
             Des chauffeurs et agences qui nous font confiance chaque jour.

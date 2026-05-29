@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     // Send the test email
     const result = await sendEmail({
       to,
-      subject: 'QRTrans - Email de test',
+      subject: 'SmarticketS - Email de test',
       html: template.html,
       text: template.text,
       type: 'test',

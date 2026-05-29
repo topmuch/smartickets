@@ -1,5 +1,5 @@
 /**
- * QRTrans — Server Instrumentation
+ * SmarticketS — Server Instrumentation
  *
  * Runs once at server startup (before any API route or page is served).
  * Ensures all required database columns exist via raw SQL ALTER TABLE.

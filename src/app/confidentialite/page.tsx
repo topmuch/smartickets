@@ -12,7 +12,7 @@ export default function Confidentialite() {
         <section>
           <h2 className="text-2xl font-bold text-[#0A2540] mb-4">1. Introduction</h2>
           <p className="text-gray-600 leading-relaxed mb-4">
-            La société MMASOLUTION s&apos;engage à protéger la vie privée des utilisateurs de son site QRTrans. La présente politique de confidentialité a pour but de vous informer sur la manière dont nous collectons, utilisons et protégeons vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD).
+            La société MMASOLUTION s&apos;engage à protéger la vie privée des utilisateurs de son site SmarticketS. La présente politique de confidentialité a pour but de vous informer sur la manière dont nous collectons, utilisons et protégeons vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD).
           </p>
           <p className="text-gray-600 leading-relaxed">
             En utilisant notre site et nos services, vous acceptez les pratiques décrites dans cette politique de confidentialité.
@@ -35,7 +35,7 @@ export default function Confidentialite() {
           <h2 className="text-2xl font-bold text-[#0A2540] mb-4">3. Finalités du traitement</h2>
           <p className="text-gray-600 leading-relaxed mb-4">Vos données personnelles sont collectées et traitées pour les finalités suivantes :</p>
           <ul className="list-disc pl-6 space-y-2 text-gray-600">
-            <li>Gestion et suivi des colis enregistrés via le système QRTrans</li>
+            <li>Gestion et suivi des colis enregistrés via le système SmarticketS</li>
             <li>Faciliter la restitution des colis perdus ou trouvés</li>
             <li>Communication avec les utilisateurs (notifications, alertes)</li>
             <li>Amélioration de nos services et de l&apos;expérience utilisateur</li>
@@ -99,7 +99,7 @@ export default function Confidentialite() {
           </ul>
           <p className="text-gray-600 leading-relaxed">
             Pour exercer ces droits, contactez-nous à :{' '}
-            <a href="mailto:contact@qrtrans.com" className="text-[#FF6B35] hover:underline">contact@qrtrans.com</a>
+            <a href="mailto:contact@smartickets.com" className="text-[#FF6B35] hover:underline">contact@smartickets.com</a>
           </p>
         </section>
 
@@ -109,7 +109,7 @@ export default function Confidentialite() {
             Vos données personnelles peuvent être partagées avec :
           </p>
           <ul className="list-disc pl-6 space-y-2 text-gray-600">
-            <li>Nos partenaires de livraison pour l&apos;expédition des autocollants QRTrans</li>
+            <li>Nos partenaires de livraison pour l&apos;expédition des autocollants SmarticketS</li>
             <li>Les autorités compétentes si la loi l&apos;exige</li>
             <li>Nos prestataires techniques (hébergement, paiement) sous strictes conditions de confidentialité</li>
           </ul>
@@ -132,7 +132,7 @@ export default function Confidentialite() {
           </p>
           <p className="text-gray-600 leading-relaxed mb-4">
             <strong className="text-[#0A2540]">Email :</strong>{' '}
-            <a href="mailto:contact@qrtrans.com" className="text-[#FF6B35] hover:underline">contact@qrtrans.com</a>
+            <a href="mailto:contact@smartickets.com" className="text-[#FF6B35] hover:underline">contact@smartickets.com</a>
             <br />
             <strong className="text-[#0A2540]">Adresse :</strong> Cité Alia Diène, Ouest Foire, Yoff, Sénégal
           </p>

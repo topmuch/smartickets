@@ -7,10 +7,10 @@
  *   ✅ Message généré sans crash
  *   ✅ Longueur ≤ 400 caractères
  *   ✅ Présence du formatage WhatsApp (*gras*, `monospace`)
- *   ✅ Lien de suivi qrtrans.com/activate/[REF] présent
+ *   ✅ Lien de suivi smartickets.com/activate/[REF] présent
  *   ✅ Icône du mode de transport présente
  *   ✅ Icône du contexte présente
- *   ✅ Signature QRTrans présente
+ *   ✅ Signature SmarticketS présente
  *
  * Usage : bun run scripts/validate-whatsapp.ts
  */
@@ -113,7 +113,7 @@ function runTest(mode: string, context: string, locale: string): TestResult {
     errors.push('❌ Pas de formatage `monospace`');
   }
 
-  // CHECK 5: Tracking link (localhost ou qrtrans.com selon env)
+  // CHECK 5: Tracking link (localhost ou smartickets.com selon env)
   if (message.includes('/activate/VOL26-TEST99')) {
     checks.push('✅ Lien suivi présent');
   } else {
@@ -136,11 +136,11 @@ function runTest(mode: string, context: string, locale: string): TestResult {
     errors.push(`❌ Icône contexte ${ctxEmoji} manquante`);
   }
 
-  // CHECK 8: QRTrans signature
-  if (message.includes('QRTrans')) {
-    checks.push('✅ Signature QRTrans présente');
+  // CHECK 8: SmarticketS signature
+  if (message.includes('SmarticketS')) {
+    checks.push('✅ Signature SmarticketS présente');
   } else {
-    errors.push('❌ Signature QRTrans manquante');
+    errors.push('❌ Signature SmarticketS manquante');
   }
 
   // CHECK 9: buildWhatsAppUrl works

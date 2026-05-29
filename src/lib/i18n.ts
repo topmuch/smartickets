@@ -141,7 +141,7 @@ export function detectLanguageFromCountry(countryCode: string): Language {
 }
 
 // AI-FEATURE: Cookie name for locale persistence (server-side)
-export const LANGUAGE_COOKIE_NAME = 'qrtrans_locale';
+export const LANGUAGE_COOKIE_NAME = 'smartickets_locale';
 export const LANGUAGE_COOKIE_MAX_AGE_DAYS = 7;
 
 /**
@@ -149,7 +149,7 @@ export const LANGUAGE_COOKIE_MAX_AGE_DAYS = 7;
  * Used by API routes that don't have access to the client-side useTranslation() hook.
  *
  * Detection order:
- *   1. Cookie 'qrtrans_locale' (previously detected)
+ *   1. Cookie 'smartickets_locale' (previously detected)
  *   2. Accept-Language header
  *   3. Fallback: 'fr'
  *
@@ -160,7 +160,7 @@ export function detectLocaleFromHeaders(headers: Headers): Language {
   // 1. Check cookie first (previously detected language)
   const cookieHeader = headers.get('cookie');
   if (cookieHeader) {
-    const localeMatch = cookieHeader.match(/qrtrans_locale=(fr|en|ar)/);
+    const localeMatch = cookieHeader.match(/smartickets_locale=(fr|en|ar)/);
     if (localeMatch?.[1]) {
       return localeMatch[1] as Language;
     }

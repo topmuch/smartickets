@@ -277,7 +277,7 @@ export default function EtiquettesPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `QRTrans-${set.setId}.zip`;
+      a.download = `SmarticketS-${set.setId}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -329,7 +329,7 @@ export default function EtiquettesPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `QRTrans - ${set.setId}`,
+          title: `SmarticketS - ${set.setId}`,
           text: `${set.qrCount} QR codes pour ${set.agencyName || 'agence'}`,
           url: shareUrl,
         });

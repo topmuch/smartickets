@@ -1,5 +1,5 @@
 /**
- * QRTrans — Notification Sound Utility
+ * SmarticketS — Notification Sound Utility
  *
  * Plays a short 'ding' sound when a WhatsApp notification is confirmed.
  * Handles iOS audio context unlocking (requires user gesture).

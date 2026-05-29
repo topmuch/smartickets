@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     ].join('\n');
 
     // Create response with CSV file
-    const filename = `qrtrans-export-${new Date().toISOString().split('T')[0]}.csv`;
+    const filename = `smartickets-export-${new Date().toISOString().split('T')[0]}.csv`;
     
     return new NextResponse(csvContent, {
       headers: {

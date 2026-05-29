@@ -129,7 +129,7 @@ export default function QRCodesPage() {
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('QRTrans - QR Codes', canvas.width / 2, 40);
+      ctx.fillText('SmarticketS - QR Codes', canvas.width / 2, 40);
 
       ctx.font = '16px Arial';
       ctx.fillStyle = '#a0a8b8';
@@ -183,11 +183,11 @@ export default function QRCodesPage() {
       ctx.fillStyle = '#a0a8b8';
       ctx.font = '12px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('QRTrans - Protégez vos colis, en toute sérénité.', canvas.width / 2, canvas.height - 20);
+      ctx.fillText('SmarticketS - Protégez vos colis, en toute sérénité.', canvas.width / 2, canvas.height - 20);
 
       // Download
       const link = document.createElement('a');
-      link.download = `QRTrans-${set.setId}.png`;
+      link.download = `SmarticketS-${set.setId}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
 
@@ -208,12 +208,12 @@ export default function QRCodesPage() {
   };
 
   const handleShareSet = async (set: QRSet) => {
-    const shareText = `QRTrans - ${set.setId}\n${set.qrCount} QR codes générés\nType: ${set.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'}`;
+    const shareText = `SmarticketS - ${set.setId}\n${set.qrCount} QR codes générés\nType: ${set.type === 'hajj' ? 'Hajj 2026' : 'Voyageur'}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `QRTrans - ${set.setId}`,
+          title: `SmarticketS - ${set.setId}`,
           text: shareText,
           url: window.location.href,
         });

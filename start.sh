@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "🚀 Starting QRTrans..."
+echo "🚀 Starting SmarticketS..."
 
 # Create data directory if it doesn't exist
 mkdir -p /app/data

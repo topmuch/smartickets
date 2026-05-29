@@ -233,7 +233,7 @@ function ArriveeHeader({ qrCode, lang, label }: { qrCode: string; lang: 'fr' | '
             <QrCode className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-lg font-bold tracking-tight block leading-tight">QRTrans</span>
+            <span className="text-lg font-bold tracking-tight block leading-tight">SmarticketS</span>
             {qrCode && <span className="text-[10px] font-mono text-white/40 leading-tight">{qrCode}</span>}
           </div>
         </div>

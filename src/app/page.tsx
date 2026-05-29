@@ -5,7 +5,7 @@ import HeroSection from '@/components/landing/HeroSection';
 import ScrollingBanner from '@/components/landing/ScrollingBanner';
 import ServicesSection from '@/components/landing/ServicesSection';
 import ProcessSection from '@/components/landing/ProcessSection';
-import WhyQRTransSection from '@/components/landing/WhyQRTransSection';
+import WhySmarticketsSection from '@/components/landing/WhySmarticketsSection';
 import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import BlogSection from '@/components/landing/BlogSection';
 import CTAFinalSection from '@/components/landing/CTAFinalSection';
@@ -21,7 +21,7 @@ export default function HomePage() {
         <ScrollingBanner />
         <ServicesSection />
         <ProcessSection />
-        <WhyQRTransSection />
+        <WhySmarticketsSection />
         <TestimonialsSection />
         <BlogSection />
         <CTAFinalSection />

@@ -14,11 +14,11 @@ async function main() {
   // Create settings
   console.log('Creating settings...');
   const settings = [
-    { key: 'company_name', value: 'QRTrans' },
+    { key: 'company_name', value: 'SmarticketS' },
     { key: 'company_address', value: 'Poissy, France' },
     { key: 'company_phone', value: '+33 7 45 34 93 39' },
-    { key: 'company_email', value: 'contact@qrtrans.com' },
-    { key: 'seo_title', value: 'QRTrans - Protection intelligente des bagages' },
+    { key: 'company_email', value: 'contact@smartickets.com' },
+    { key: 'seo_title', value: 'SmarticketS - Protection intelligente des bagages' },
     { key: 'seo_description', value: 'Protégez vos bagages avec un autocollant QR intelligent. Sans application, sans batterie, sans GPS.' },
     { key: 'seo_keywords', value: 'QR, bagage, voyage, hajj, protection, sticker' },
     { key: 'languages', value: 'fr,en,ar' },
@@ -52,12 +52,12 @@ async function main() {
   // Create superadmin user
   console.log('Creating superadmin user...');
   await prisma.user.upsert({
-    where: { email: 'admin@qrtrans.com' },
+    where: { email: 'admin@smartickets.com' },
     update: {
       password: await hashPassword('admin123'),
     },
     create: {
-      email: 'admin@qrtrans.com',
+      email: 'admin@smartickets.com',
       name: 'SuperAdmin',
       password: await hashPassword('admin123'),
       role: 'superadmin',
@@ -67,12 +67,12 @@ async function main() {
   // Create agency user
   console.log('Creating agency user...');
   await prisma.user.upsert({
-    where: { email: 'agency@qrtrans.com' },
+    where: { email: 'agency@smartickets.com' },
     update: {
       password: await hashPassword('agency123'),
     },
     create: {
-      email: 'agency@qrtrans.com',
+      email: 'agency@smartickets.com',
       name: 'Chef Agence',
       password: await hashPassword('agency123'),
       role: 'agency',
@@ -158,8 +158,8 @@ async function main() {
   console.log('✅ Seed completed successfully!');
   console.log('');
   console.log('📋 Demo credentials:');
-  console.log('  SuperAdmin: admin@qrtrans.com / admin123');
-  console.log('  Agency: agency@qrtrans.com / agency123');
+  console.log('  SuperAdmin: admin@smartickets.com / admin123');
+  console.log('  Agency: agency@smartickets.com / agency123');
   console.log('');
   console.log('📱 Test QR codes:');
   console.log('  VOL25-DEMO01 - Active traveler baggage');

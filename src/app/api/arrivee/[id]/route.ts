@@ -185,7 +185,7 @@ export async function POST(
 
     const arrivedDate = arrivedAt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const arrivedTime = arrivedAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    const trackingUrl = `https://qrtrans.pro/suivi/${updated.reference}`;
+    const trackingUrl = `https://smartickets.com/suivi/${updated.reference}`;
     const companyName = updated.busCompany || updated.airlineName || '';
 
     // Driver phone line (conditional — security: never expose if consent = false)
@@ -236,7 +236,7 @@ export async function POST(
     const pickupLocation = data.delivery_location || colis.pickupAddress || 'Non renseigné';
 
     // ─── 🟢 SENDER MESSAGE (Arrival confirmed) ───
-    const senderArrivalMessage = `🟢 *QRTrans — Colis Livré ✅*
+    const senderArrivalMessage = `🟢 *SmarticketS — Colis Livré ✅*
 
 Bonjour *${updated.travelerFirstName || 'Expéditeur'}*,
 
@@ -247,14 +247,14 @@ Bonne nouvelle ! Votre colis a bien été livré avec succès.
 ✅ Livré le : ${arrivedDate} à ${arrivedTime}
 👤 Destinataire : ${updated.receiverName || '—'}
 
-Merci de votre confiance envers QRTrans 🙏
+Merci de votre confiance envers SmarticketS 🙏
 
-⭐ Évaluer le service : https://qrtrans.pro
+⭐ Évaluer le service : https://smartickets.com
 
 🔗 Suivre le colis : ${trackingUrl}`;
 
     // ─── 🔵 RECEIVER MESSAGE (Package available for pickup) ───
-    const receiverArrivalMessage = `🔵 *QRTrans — Colis Disponible 📦*
+    const receiverArrivalMessage = `🔵 *SmarticketS — Colis Disponible 📦*
 
 Bonjour *${updated.receiverName || 'Destinataire'}*,
 
@@ -266,7 +266,7 @@ Votre colis est arrivé et peut maintenant être retiré.
 ✅ Arrivé le : ${arrivedDate} à ${arrivedTime}
 ${driverLine}
 
-Merci d'utiliser QRTrans 🙏
+Merci d'utiliser SmarticketS 🙏
 
 🔗 Suivre le colis : ${trackingUrl}`;
 

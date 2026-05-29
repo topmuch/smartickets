@@ -52,7 +52,7 @@ export default function Navigation() {
               <QrCode className="w-5 h-5 text-white" />
             </div>
             <span className={`text-xl font-bold tracking-tight transition-colors duration-300 ${isOnHero ? 'text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.3)]' : 'text-[#0A2540]'}`}>
-              QRTrans
+              SmarticketS
             </span>
           </Link>
 

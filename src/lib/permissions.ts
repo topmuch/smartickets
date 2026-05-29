@@ -1,4 +1,4 @@
-// Permissions system for QRTrans
+// Permissions system for SmarticketS
 // Role hierarchy: superadmin > admin > agent > agency
 
 export type Role = 'superadmin' | 'admin' | 'agent' | 'agency';

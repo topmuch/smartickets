@@ -16,7 +16,7 @@ const inter = Inter({
 const jsonLdSoftwareApplication = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "QRTrans",
+  name: "SmarticketS",
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web, iOS, Android",
   description: "Plateforme de traçabilité de colis par QR code pour le transport inter-villes au Sénégal. Notifications WhatsApp automatiques, code PIN de retrait sécurisé, suivi GPS en temps réel, dashboard agence.",
@@ -49,11 +49,11 @@ const jsonLdSoftwareApplication = JSON.stringify({
     { "@type": "Country", name: "Guinée" },
     { "@type": "Country", name: "Côte d'Ivoire" }
   ],
-  url: "https://qrtrans.pro",
-  logo: "https://qrtrans.pro/icons/icon-512x512.png",
+  url: "https://smartickets.com",
+  logo: "https://smartickets.com/icons/icon-512x512.png",
   sameAs: [
-    "https://facebook.com/qrtrans.sn",
-    "https://linkedin.com/company/qrtrans",
+    "https://facebook.com/smartickets.sn",
+    "https://linkedin.com/company/smartickets",
     "https://wa.me/221784858226"
   ]
 });
@@ -61,13 +61,13 @@ const jsonLdSoftwareApplication = JSON.stringify({
 const jsonLdWebSite = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "QRTrans",
-  url: "https://qrtrans.pro",
+  name: "SmarticketS",
+  url: "https://smartickets.com",
   potentialAction: {
     "@type": "SearchAction",
     target: {
       "@type": "EntryPoint",
-      urlTemplate: "https://qrtrans.pro/suivi/{search_term_string}"
+      urlTemplate: "https://smartickets.com/suivi/{search_term_string}"
     },
     "query-input": "required name=search_term_string"
   }
@@ -77,11 +77,11 @@ const jsonLdService = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "Service",
   name: "Traçabilité de Colis par QR Code",
-  description: "Activez, tracez et sécurisez vos colis inter-villes avec QRTrans. Activation QR code, notifications WhatsApp, code PIN de retrait, suivi GPS en temps réel.",
+  description: "Activez, tracez et sécurisez vos colis inter-villes avec SmarticketS. Activation QR code, notifications WhatsApp, code PIN de retrait, suivi GPS en temps réel.",
   provider: {
     "@type": "Organization",
-    name: "QRTrans",
-    url: "https://qrtrans.pro"
+    name: "SmarticketS",
+    url: "https://smartickets.com"
   },
   areaServed: [
     { "@type": "Country", name: "Sénégal" },
@@ -108,22 +108,22 @@ const jsonLdPlace = JSON.stringify({
 
 export const metadata: Metadata = {
   title: {
-    default: "QRTrans — Traçabilité de Colis par QR Code au Sénégal",
-    template: "%s | QRTrans",
+    default: "SmarticketS — Traçabilité de Colis par QR Code au Sénégal",
+    template: "%s | SmarticketS",
   },
   description: "Plateforme de traçabilité de colis par QR code pour le transport inter-villes au Sénégal. Activation en 30s, notifications WhatsApp automatiques, code PIN sécurisé, suivi GPS temps réel, dashboard agence.",
   keywords: [
-    "QRTrans", "QR code colis", "traçabilité colis", "transport inter-villes Sénégal",
+    "SmarticketS", "QR code colis", "traçabilité colis", "transport inter-villes Sénégal",
     "logistique Sénégal", "suivi colis", "notifications WhatsApp", "code PIN livraison",
     "GPS colis", "dashboard agence transport", "chauffeur livreur",
     "colis Dakar Ziguinchor", "colis Dakar Saint-Louis", "colis Touba Thiès",
     "expédition colis Sénégal", "livraison colis Sénégal", "sécurité colis",
     "agence transport Sénégal", "Mali Guinée Côte d'Ivoire"
   ],
-  authors: [{ name: "QRTrans Team" }],
+  authors: [{ name: "SmarticketS Team" }],
   creator: "MMASOLUTION",
-  publisher: "QRTrans",
-  metadataBase: new URL("https://qrtrans.pro"),
+  publisher: "SmarticketS",
+  metadataBase: new URL("https://smartickets.com"),
   category: "business",
 
   // PWA Icons
@@ -143,10 +143,10 @@ export const metadata: Metadata = {
 
   // Open Graph — optimisé pour le partage social
   openGraph: {
-    title: "QRTrans — Traçabilité de Colis par QR Code au Sénégal",
+    title: "SmarticketS — Traçabilité de Colis par QR Code au Sénégal",
     description: "Activez un colis en 30 secondes avec un QR code. Notifications WhatsApp automatiques, code PIN sécurisé, suivi GPS temps réel. Solution complète pour agences de transport.",
-    url: "https://qrtrans.pro",
-    siteName: "QRTrans",
+    url: "https://smartickets.com",
+    siteName: "SmarticketS",
     type: "website",
     locale: "fr_FR",
     alternateLocale: ["en_US", "ar_SA"],
@@ -155,7 +155,7 @@ export const metadata: Metadata = {
         url: "/icons/icon-512x512.png",
         width: 512,
         height: 512,
-        alt: "QRTrans — Traçabilité de Colis par QR Code",
+        alt: "SmarticketS — Traçabilité de Colis par QR Code",
       },
     ],
   },
@@ -163,21 +163,21 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "QRTrans — Traçabilité de Colis par QR Code au Sénégal",
+    title: "SmarticketS — Traçabilité de Colis par QR Code au Sénégal",
     description: "Activez un colis en 30 secondes. Notifications WhatsApp, code PIN sécurisé, suivi GPS. Solution pour agences de transport.",
     images: ["/icons/icon-512x512.png"],
-    creator: "@qrtrans_sn",
-    site: "@qrtrans_sn",
+    creator: "@smartickets_sn",
+    site: "@smartickets_sn",
   },
 
   // PWA
   manifest: "/manifest.json",
 
   // App info
-  applicationName: "QRTrans",
+  applicationName: "SmarticketS",
   appleWebApp: {
     capable: true,
-    title: "QRTrans",
+    title: "SmarticketS",
     statusBarStyle: "black-translucent",
     startupImage: [
       { url: "/icons/icon-512x512.png", media: "(device-width: 320px)" },
@@ -206,11 +206,11 @@ export const metadata: Metadata = {
 
   // Alternates
   alternates: {
-    canonical: "https://qrtrans.pro",
+    canonical: "https://smartickets.com",
     languages: {
-      "fr": "https://qrtrans.pro",
-      "en": "https://qrtrans.pro/?lang=en",
-      "ar": "https://qrtrans.pro/?lang=ar",
+      "fr": "https://smartickets.com",
+      "en": "https://smartickets.com/?lang=en",
+      "ar": "https://smartickets.com/?lang=ar",
     },
   },
 
@@ -261,8 +261,8 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="QRTrans" />
-        <meta name="application-name" content="QRTrans" />
+        <meta name="apple-mobile-web-app-title" content="SmarticketS" />
+        <meta name="application-name" content="SmarticketS" />
         <meta name="msapplication-TileColor" content="#0A2540" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
 
@@ -290,9 +290,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "QRTrans",
-              url: "https://qrtrans.pro",
-              logo: "https://qrtrans.pro/icons/icon-512x512.png",
+              name: "SmarticketS",
+              url: "https://smartickets.com",
+              logo: "https://smartickets.com/icons/icon-512x512.png",
               description: "Plateforme de traçabilité de colis par QR code pour le transport inter-villes au Sénégal. Notifications WhatsApp, code PIN, suivi GPS, dashboard agence.",
               address: {
                 "@type": "PostalAddress",
@@ -306,8 +306,8 @@ export default function RootLayout({
                 availableLanguage: ["fr", "wo", "en"]
               },
               sameAs: [
-                "https://facebook.com/qrtrans.sn",
-                "https://linkedin.com/company/qrtrans",
+                "https://facebook.com/smartickets.sn",
+                "https://linkedin.com/company/smartickets",
                 "https://wa.me/221784858226"
               ],
               foundingDate: "2024"

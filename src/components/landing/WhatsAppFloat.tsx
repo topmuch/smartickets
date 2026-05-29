@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { MessageCircle } from 'lucide-react'
 
 const WA_URL =
-  'https://wa.me/221784858226?text=Bonjour%20QRTrans%2C%20je%20souhaite%20en%20savoir%20plus'
+  'https://wa.me/221784858226?text=Bonjour%20SmarticketS%2C%20je%20souhaite%20en%20savoir%20plus'
 
 export default function WhatsAppFloat() {
   const [visible, setVisible] = useState(false)
@@ -23,7 +23,7 @@ export default function WhatsAppFloat() {
       href={WA_URL}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Contacter QRTrans sur WhatsApp"
+      aria-label="Contacter SmarticketS sur WhatsApp"
       className="fixed bottom-6 right-6 z-50 group"
     >
       {/* Ping animation ring */}

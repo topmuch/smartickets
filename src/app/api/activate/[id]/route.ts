@@ -192,7 +192,7 @@ export async function POST(
     });
 
     // Build tracking URL → page suivi
-    const trackingUrl = `https://qrtrans.pro/suivi/${updated.reference}`;
+    const trackingUrl = `https://smartickets.com/suivi/${updated.reference}`;
 
     // Format date/time for wa.me messages
     const formattedDate = depDateTime.toLocaleDateString('fr-FR', {
@@ -206,7 +206,7 @@ export async function POST(
       : formattedDate;
 
     // ─── 🟢 SENDER MESSAGE (Departure) ───
-    const senderMessage = `🟢 *QRTrans — Colis en Partance*
+    const senderMessage = `🟢 *SmarticketS — Colis en Partance*
 
 Bonjour *${data.sender.name}*,
 
@@ -234,7 +234,7 @@ Merci de votre confiance 🙏
       : '';
 
     // ─── 🔵 RECEIVER MESSAGE (Departure — with PIN) ───
-    const receiverMessage = `🔵 *QRTrans — Colis en Transit*
+    const receiverMessage = `🔵 *SmarticketS — Colis en Transit*
 
 Bonjour *${data.receiver.name}*,
 
@@ -252,7 +252,7 @@ ${driverLine}
 
 Vous serez notifié immédiatement dès l'arrivée du colis.
 
-🤝 Merci d'utiliser QRTrans
+🤝 Merci d'utiliser SmarticketS
 
 🔗 Suivre le colis : ${trackingUrl}`;
 

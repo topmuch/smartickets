@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
       try {
         const token = await getToken({
           req,
-          secret: process.env.NEXTAUTH_SECRET || 'qrtrans-secret-key-change-in-production',
+          secret: process.env.NEXTAUTH_SECRET || 'smartickets-secret-key-change-in-production',
         });
 
         if (token) {

@@ -493,7 +493,7 @@ function SuiviHeader({
             <QrCode className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-lg font-bold tracking-tight block leading-tight">QRTrans</span>
+            <span className="text-lg font-bold tracking-tight block leading-tight">SmarticketS</span>
             {reference && (
               <span className="text-[10px] font-mono text-white/50 leading-tight">{reference}</span>
             )}

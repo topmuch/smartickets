@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://qrtrans.pro";
+  const baseUrl = "https://smartickets.com";
   const now = new Date().toISOString();
 
   // Pages publiques principales

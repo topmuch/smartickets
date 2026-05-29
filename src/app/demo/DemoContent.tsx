@@ -28,7 +28,7 @@ const steps = [
     icon: QrCode,
     color: '#FF6B35',
     description:
-      'Le chauffeur scanne le QR code du colis avec son application QRTrans. Le système identifie instantanément le colis et ses informations.',
+      'Le chauffeur scanne le QR code du colis avec son application SmarticketS. Le système identifie instantanément le colis et ses informations.',
     details: [
       'Scan instantané du QR code',
       'Identification automatique du colis',
@@ -151,7 +151,7 @@ export default function DemoContent() {
           <FadeIn delay={0.1}>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
               Découvrez comment fonctionne{' '}
-              <span className="text-[#FF6B35]">QRTrans</span>
+              <span className="text-[#FF6B35]">SmarticketS</span>
             </h1>
           </FadeIn>
 

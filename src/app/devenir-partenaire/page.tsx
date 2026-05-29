@@ -29,7 +29,7 @@ function Navigation() {
             <div className="w-10 h-10 bg-gradient-to-br from-[#ff2a6d] to-[#d35400] rounded-lg flex items-center justify-center shadow-lg shadow-[#ff2a6d]/20">
               <QrCode className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">QRTrans</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">SmarticketS</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -111,7 +111,7 @@ function HeroSection() {
         </div>
         
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-          Devenez partenaire <span className="bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">QRTrans</span>
+          Devenez partenaire <span className="bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">SmarticketS</span>
         </h1>
         
         <p className="text-[#a0a8b8] max-w-2xl mx-auto mb-8 text-lg">
@@ -163,7 +163,7 @@ function WhyPartnerSection() {
             Pourquoi collaborer avec nous ?
           </h2>
           <p className="text-[#a0a8b8] text-lg">
-            Trois raisons de devenir partenaire QRTrans
+            Trois raisons de devenir partenaire SmarticketS
           </p>
         </div>
 
@@ -225,7 +225,7 @@ function TestimonialsSection() {
     {
       name: "Amadou Diallo",
       role: "Directeur, Pèlerins du Sénégal",
-      text: "QRTrans a réduit de 90% les pertes de colis lors du Hajj 2025. Un service révolutionnaire.",
+      text: "SmarticketS a réduit de 90% les pertes de colis lors du Hajj 2025. Un service révolutionnaire.",
       avatar: "AD"
     },
     {
@@ -383,7 +383,7 @@ function Footer() {
               <div className="w-10 h-10 bg-gradient-to-br from-[#ff2a6d] to-[#d35400] rounded-lg flex items-center justify-center">
                 <QrCode className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">QRTrans</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-[#ff2a6d] to-[#d35400] bg-clip-text text-transparent">SmarticketS</span>
             </div>
             <p className="text-[#a0a8b8] text-sm">
               Protection intelligente des colis pour voyageurs et pèlerins.
@@ -434,25 +434,25 @@ function Footer() {
           </div>
           <div className="flex items-center gap-3 text-[#a0a8b8]">
             <Mail className="w-5 h-5 text-[#ff2a6d]" />
-            <span>contact@qrtrans.com</span>
+            <span>contact@smartickets.com</span>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="border-t border-[#1a2238] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[#a0a8b8] text-sm">
-            © {new Date().getFullYear()} QRTrans by MMASOLUTION. Tous droits réservés.
+            © {new Date().getFullYear()} SmarticketS by MMASOLUTION. Tous droits réservés.
           </p>
 
           {/* Social Icons */}
           <div className="flex items-center gap-4">
-            <a href="https://facebook.com/qrtrans" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Facebook">
+            <a href="https://facebook.com/smartickets" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Facebook">
               <Facebook className="w-5 h-5" aria-hidden="true" />
             </a>
-            <a href="https://instagram.com/qrtrans" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Instagram">
+            <a href="https://instagram.com/smartickets" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Instagram">
               <Instagram className="w-5 h-5" aria-hidden="true" />
             </a>
-            <a href="https://twitter.com/qrtrans" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Twitter">
+            <a href="https://twitter.com/smartickets" target="_blank" rel="noopener noreferrer" className="text-[#a0a8b8] hover:text-[#ff2a6d] transition-colors" aria-label="Twitter">
               <Twitter className="w-5 h-5" aria-hidden="true" />
             </a>
           </div>

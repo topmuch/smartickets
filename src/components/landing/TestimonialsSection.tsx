@@ -16,7 +16,7 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     quote:
-      'Avant, je passais 2h/jour à confirmer les livraisons par téléphone. Avec QRTrans, un scan et WhatsApp fait le travail. Mes clients sont rassurés.',
+      'Avant, je passais 2h/jour à confirmer les livraisons par téléphone. Avec SmarticketS, un scan et WhatsApp fait le travail. Mes clients sont rassurés.',
     name: 'Moussa D.',
     initials: 'MD',
     role: 'Chauffeur indépendant',
@@ -108,7 +108,7 @@ export default function TestimonialsSection() {
           className="text-center mb-12 sm:mb-16"
         >
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0A2540]">
-            Ils font confiance à QRTrans pour leur logistique
+            Ils font confiance à SmarticketS pour leur logistique
           </h2>
         </motion.div>
 

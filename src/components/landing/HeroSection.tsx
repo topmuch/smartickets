@@ -44,7 +44,7 @@ export default function HeroSection() {
       <div className="absolute inset-0">
         <Image
           src="/images/hero-qrcode.png"
-          alt="Chauffeur QRTrans scannant un QR code sur une valise avant remise au destinataire"
+          alt="Chauffeur SmarticketS scannant un QR code sur une valise avant remise au destinataire"
           fill
           priority
           className="object-cover object-center"

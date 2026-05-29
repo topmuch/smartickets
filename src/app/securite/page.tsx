@@ -82,7 +82,7 @@ export default function SecuritePage() {
   return (
     <SecondaryPageLayout
       title="Sécurité & Protection"
-      subtitle="Comment QRTrans protège vos colis à chaque étape du transport inter-villes"
+      subtitle="Comment SmarticketS protège vos colis à chaque étape du transport inter-villes"
     >
       {/* Security Pillars */}
       <motion.section
@@ -157,7 +157,7 @@ export default function SecuritePage() {
             Nos certifications
           </h2>
           <p className="text-[#475569] text-base sm:text-lg max-w-2xl mx-auto">
-            QRTrans respecte les normes les plus strictes en matière de
+            SmarticketS respecte les normes les plus strictes en matière de
             protection des données.
           </p>
         </motion.div>

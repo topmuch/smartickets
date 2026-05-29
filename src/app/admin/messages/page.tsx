@@ -636,7 +636,7 @@ export default function MessagesPage() {
               )}
               {selectedMessage.senderEmail && selectedMessage.type !== 'assistance_agence' && (
                 <a
-                  href={`mailto:${selectedMessage.senderEmail}?subject=Re: Votre message sur QRTrans`}
+                  href={`mailto:${selectedMessage.senderEmail}?subject=Re: Votre message sur SmarticketS`}
                   className="flex items-center gap-2 px-4 py-2 bg-[#ff7f00] text-white rounded-xl hover:bg-[#ff9f00] transition-colors"
                 >
                   <Send className="w-4 h-4" aria-hidden="true" />
@@ -733,7 +733,7 @@ export default function MessagesPage() {
                           recipientAgencyId: selectedMessage.agencyId,
                           subject: `Re: ${selectedMessage.subject || 'Votre demande d\'assistance'}`,
                           content: replyContent,
-                          senderName: 'Support QRTrans',
+                          senderName: 'Support SmarticketS',
                         }),
                       });
                       

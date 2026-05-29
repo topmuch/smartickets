@@ -1,7 +1,7 @@
 {
-  "name": "qrtrans",
+  "name": "smartickets",
   "version": "1.0.0",
-  "description": "QRTrans - Protection intelligente des bagages avec QR codes",
+  "description": "SmarticketS - Protection intelligente des bagages avec QR codes",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",

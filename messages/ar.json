@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "QRTrans",
+    "appName": "SmarticketS",
     "tagline": "لن تفقد أمتعتك أبدًا"
   },
   "landing": {
@@ -50,7 +50,7 @@
       "title": "اتصل بنا",
       "address": "بوسي، فرنسا",
       "phone": "+33 7 45 34 93 39",
-      "email": "contact@qrtrans.com"
+      "email": "contact@smartickets.com"
     }
   },
   "scan": {

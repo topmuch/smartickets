@@ -15,7 +15,7 @@ interface FooterColumn {
 }
 
 const WA_URL =
-  'https://wa.me/221784858226?text=Bonjour%20QRTrans%2C%20je%20souhaite%20en%20savoir%20plus'
+  'https://wa.me/221784858226?text=Bonjour%20SmarticketS%2C%20je%20souhaite%20en%20savoir%20plus'
 
 const columns: FooterColumn[] = [
   {
@@ -101,7 +101,7 @@ export default function Footer() {
                   <rect x="8" y="14" width="8" height="8" rx="1" />
                 </svg>
               </div>
-              <span className="text-xl font-bold">QRTrans</span>
+              <span className="text-xl font-bold">SmarticketS</span>
             </Link>
             <p className="text-white/60 text-sm leading-relaxed mb-6 max-w-xs">
               Plateforme de traçabilité et sécurité logistique pour le transport
@@ -144,7 +144,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-white/40 text-sm">
-            &copy; 2026 QRTrans. Tous droits réservés.
+            &copy; 2026 SmarticketS. Tous droits réservés.
           </p>
           <p className="text-white/40 text-sm">
             Made with <span className="text-red-400">&hearts;</span> au

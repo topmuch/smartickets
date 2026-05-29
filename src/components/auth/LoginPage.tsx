@@ -59,7 +59,7 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
     type: 'agence',
     title: 'Espace Agence',
     subtitle: 'Connectez-vous à votre espace professionnel',
-    demoEmail: 'agence@qrtrans.com',
+    demoEmail: 'agence@smartickets.com',
     demoPassword: 'agence123',
     demoLabel: 'Agence',
     role: 'agency',
@@ -74,7 +74,7 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
     badgeBg: 'bg-orange-500/20',
     badgeBorder: 'border-orange-400/30',
     badgeText: 'text-orange-300',
-    leftTitle: 'QRTrans pour les professionnels du voyage',
+    leftTitle: 'SmarticketS pour les professionnels du voyage',
     leftSubtitle: 'Gérez vos colis, vos clients, vos QR — depuis un seul tableau de bord.',
     leftTagline: 'Conçu pour la performance',
     switchText: 'Vous êtes administrateur ?',
@@ -91,7 +91,7 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
     type: 'superadmin',
     title: 'Espace Administrateur',
     subtitle: 'Accès réservé aux administrateurs système',
-    demoEmail: 'admin@qrtrans.com',
+    demoEmail: 'admin@smartickets.com',
     demoPassword: 'admin123',
     demoLabel: 'SuperAdmin',
     role: 'superadmin',
@@ -106,7 +106,7 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
     badgeBg: 'bg-[#FF1D8D]/20',
     badgeBorder: 'border-[#FF1D8D]/30',
     badgeText: 'text-[#FF1D8D]',
-    leftTitle: 'QRTrans — Contrôle centralisé',
+    leftTitle: 'SmarticketS — Contrôle centralisé',
     leftSubtitle: 'Gérez agences, QR codes, utilisateurs et API — tout depuis un seul panneau.',
     leftTagline: 'Sécurité & Performance',
     switchText: 'Vous êtes une agence ?',
@@ -204,7 +204,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
         {/* Background Image */}
         <Image
           src={config.bgImage}
-          alt="QRTrans"
+          alt="SmarticketS"
           fill
           className="object-cover"
           priority
@@ -236,7 +236,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
                 <QrCode className="w-6 h-6 text-white" />
               </div>
               <div>
-                <span className="text-2xl font-bold text-white tracking-tight">QRTrans</span>
+                <span className="text-2xl font-bold text-white tracking-tight">SmarticketS</span>
                 <span className="block text-[11px] text-white/50 font-medium tracking-wider uppercase">
                   {isAgence ? 'Espace Pro' : 'Administration'}
                 </span>
@@ -311,7 +311,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
               <div className="w-11 h-11 rounded-2xl bg-[#FF1D8D] flex items-center justify-center shadow-lg shadow-[#FF1D8D]/30">
                 <QrCode className="w-6 h-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-slate-800 tracking-tight">QRTrans</span>
+              <span className="text-2xl font-bold text-slate-800 tracking-tight">SmarticketS</span>
             </div>
             <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase ${config.badgeBg} ${config.badgeBorder} ${config.badgeText}`}>
               {isAgence ? <Building2 className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
@@ -377,7 +377,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
                   onFocus={() => setFocusedField('email')}
                   onBlur={() => setFocusedField(null)}
                   className="w-full pl-11 pr-4 py-3.5 bg-transparent text-slate-900 placeholder-slate-400 focus:outline-none text-sm font-medium rounded-2xl"
-                  placeholder={variant === 'agence' ? 'vous@agence.com' : 'admin@qrtrans.com'}
+                  placeholder={variant === 'agence' ? 'vous@agence.com' : 'admin@smartickets.com'}
                   required
                 />
               </div>
@@ -515,7 +515,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
           {/* Footer */}
           <motion.div variants={fadeUp} custom={8} className="mt-10 pt-6 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-400">
-              © {new Date().getFullYear()} QRTrans — Tous droits réservés
+              © {new Date().getFullYear()} SmarticketS — Tous droits réservés
             </p>
           </motion.div>
         </motion.div>

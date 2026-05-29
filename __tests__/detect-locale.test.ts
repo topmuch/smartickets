@@ -19,23 +19,23 @@ function assert(condition: boolean, name: string) {
 
 console.log('=== detect-locale.test.ts ===\n');
 
-// Test 1: Cookie qrtrans_locale=en → should return 'en'
+// Test 1: Cookie smartickets_locale=en → should return 'en'
 console.log('--- Cookie detection ---');
 assert(
-  detectLocaleFromHeaders(new Headers({ cookie: 'qrtrans_locale=en' })) === 'en',
-  'Cookie qrtrans_locale=en → en'
+  detectLocaleFromHeaders(new Headers({ cookie: 'smartickets_locale=en' })) === 'en',
+  'Cookie smartickets_locale=en → en'
 );
 
-// Test 2: Cookie qrtrans_locale=ar → should return 'ar'
+// Test 2: Cookie smartickets_locale=ar → should return 'ar'
 assert(
-  detectLocaleFromHeaders(new Headers({ cookie: 'qrtrans_locale=ar' })) === 'ar',
-  'Cookie qrtrans_locale=ar → ar'
+  detectLocaleFromHeaders(new Headers({ cookie: 'smartickets_locale=ar' })) === 'ar',
+  'Cookie smartickets_locale=ar → ar'
 );
 
-// Test 3: Cookie qrtrans_locale=fr → should return 'fr'
+// Test 3: Cookie smartickets_locale=fr → should return 'fr'
 assert(
-  detectLocaleFromHeaders(new Headers({ cookie: 'qrtrans_locale=fr' })) === 'fr',
-  'Cookie qrtrans_locale=fr → fr'
+  detectLocaleFromHeaders(new Headers({ cookie: 'smartickets_locale=fr' })) === 'fr',
+  'Cookie smartickets_locale=fr → fr'
 );
 
 // Test 4: Accept-Language fr-FR → should return 'fr'
@@ -74,7 +74,7 @@ assert(
 console.log('\n--- Cookie priority ---');
 assert(
   detectLocaleFromHeaders(new Headers({
-    cookie: 'qrtrans_locale=en',
+    cookie: 'smartickets_locale=en',
     'accept-language': 'ar-SA,ar;q=0.9',
   })) === 'en',
   'Cookie en + Accept-Language ar → en (cookie wins)'
@@ -82,7 +82,7 @@ assert(
 
 assert(
   detectLocaleFromHeaders(new Headers({
-    cookie: 'qrtrans_locale=ar',
+    cookie: 'smartickets_locale=ar',
     'accept-language': 'fr-FR,fr;q=0.9',
   })) === 'ar',
   'Cookie ar + Accept-Language fr → ar (cookie wins)'
@@ -92,15 +92,15 @@ assert(
 console.log('\n--- Cookie parsing edge cases ---');
 assert(
   detectLocaleFromHeaders(new Headers({
-    cookie: 'session=abc123; qrtrans_locale=en; theme=dark',
+    cookie: 'session=abc123; smartickets_locale=en; theme=dark',
   })) === 'en',
-  'Cookie qrtrans_locale=en among other cookies → en'
+  'Cookie smartickets_locale=en among other cookies → en'
 );
 
 // Test 11: Invalid cookie value → fallback to Accept-Language
 assert(
   detectLocaleFromHeaders(new Headers({
-    cookie: 'qrtrans_locale=de',
+    cookie: 'smartickets_locale=de',
     'accept-language': 'ar-SA,ar;q=0.9',
   })) === 'ar',
   'Invalid cookie value (de) + Accept-Language ar → ar'

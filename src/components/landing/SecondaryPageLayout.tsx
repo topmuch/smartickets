@@ -22,7 +22,7 @@ export default function SecondaryPageLayout({ children, title, subtitle }: Secon
                 <QrCode className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-[#0A2540] tracking-tight">
-                QRTrans
+                SmarticketS
               </span>
             </Link>
             <Link href="/">
@@ -64,10 +64,10 @@ export default function SecondaryPageLayout({ children, title, subtitle }: Secon
               <div className="w-8 h-8 rounded-lg bg-[#FF6B35] flex items-center justify-center">
                 <QrCode className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold">QRTrans</span>
+              <span className="text-lg font-bold">SmarticketS</span>
             </div>
             <p className="text-white/50 text-sm">
-              &copy; 2026 QRTrans. Tous droits réservés. Made with ❤️ au Sénégal
+              &copy; 2026 SmarticketS. Tous droits réservés. Made with ❤️ au Sénégal
             </p>
             <div className="flex items-center gap-4">
               <Link href="/confidentialite" className="text-white/50 hover:text-white text-sm transition-colors">

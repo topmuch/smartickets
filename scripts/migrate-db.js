@@ -1,5 +1,5 @@
 /**
- * QRTrans - Runtime Database Migration Script
+ * SmarticketS - Runtime Database Migration Script
  * 
  * Adds missing columns to existing SQLite database using raw SQL via Prisma.
  * This runs BEFORE the Next.js server starts, ensuring schema is always in sync.

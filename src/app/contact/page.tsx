@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const WA_URL = 'https://wa.me/221784858226?text=Bonjour%20QRTrans%2C%20je%20souhaite%20en%20savoir%20plus';
+const WA_URL = 'https://wa.me/221784858226?text=Bonjour%20SmarticketS%2C%20je%20souhaite%20en%20savoir%20plus';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -63,7 +63,7 @@ export default function ContactPage() {
                 <QrCode className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-[#0A2540] tracking-tight">
-                QRTrans
+                SmarticketS
               </span>
             </Link>
             <Link href="/">
@@ -124,8 +124,8 @@ export default function ContactPage() {
               {
                 icon: Mail,
                 label: 'Email',
-                value: 'contact@qrtrans.com',
-                href: 'mailto:contact@qrtrans.com',
+                value: 'contact@smartickets.com',
+                href: 'mailto:contact@smartickets.com',
                 color: '#8a2be2',
                 bg: 'bg-violet-50',
                 border: 'border-violet-100',
@@ -319,7 +319,7 @@ export default function ContactPage() {
               {/* Google Map */}
               <div className="rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-sm flex-1 min-h-[300px]">
                 <iframe
-                  title="Localisation QRTrans - Yoff, Sénégal"
+                  title="Localisation SmarticketS - Yoff, Sénégal"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.2!2d-17.445!3d14.745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec172d5e5b0b0b1%3A0x0!2sOuest+Foire%2C+Yoff%2C+Dakar%2C+S%C3%A9n%C3%A9gal!5e0!3m2!1sfr!2ssn!4v1700000000000!5m2!1sfr!2ssn"
                   width="100%"
                   height="100%"
@@ -387,10 +387,10 @@ export default function ContactPage() {
               <div className="w-8 h-8 rounded-lg bg-[#FF6B35] flex items-center justify-center">
                 <QrCode className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold">QRTrans</span>
+              <span className="text-lg font-bold">SmarticketS</span>
             </div>
             <p className="text-white/50 text-sm">
-              &copy; 2026 QRTrans. Tous droits réservés. Made with ❤️ au Sénégal
+              &copy; 2026 SmarticketS. Tous droits réservés. Made with ❤️ au Sénégal
             </p>
             <div className="flex items-center gap-4">
               <Link href="/confidentialite" className="text-white/50 hover:text-white text-sm transition-colors">

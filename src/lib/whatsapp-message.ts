@@ -14,16 +14,16 @@
  *   [EMOJI_CONTEXT + TITRE_CONTEXT]
  *   🧳 [REFERENCE] • [BAG_TYPE]
  *   [TRANSPORT_ICON] [CARRIER] [VEHICLE] • [DESTINATION]
- *   👉 Voir le bagage localisé : qrtrans.pro/activate/[REF]
+ *   👉 Voir le bagage localisé : smartickets.com/activate/[REF]
  *   👤 [FINDER_NAME]
  *   📱 [FINDER_WHATSAPP]
  *   [CALL_TO_ACTION_CONTEXT]
- *   QRTrans – Protégez vos bagages, en toute sérénité.
+ *   SmarticketS – Protégez vos bagages, en toute sérénité.
  *
  * Contraintes:
  *   - Max 400 caractères (limite wa.me pre-filled)
  *   - Formatage WhatsApp (*gras*, `monospace`)
- *   - Lien court qrtrans.pro/activate/[REF]
+ *   - Lien court smartickets.com/activate/[REF]
  *   - i18n FR/EN/AR
  *   - Fallbacks robustes (pas de crash si champ manquant)
  *   - Logging discret
@@ -135,9 +135,9 @@ const CONTEXT_EMOJIS: Record<string, string> = {
 };
 
 const SIGNATURES: Record<WhatsAppLocale, string> = {
-  fr: 'QRTrans – Protégez vos colis, en toute sérénité.',
-  en: 'QRTrans – Protect your luggage with peace of mind.',
-  ar: 'QRTrans – احمِ أمتعتك براحة بال.',
+  fr: 'SmarticketS – Protégez vos colis, en toute sérénité.',
+  en: 'SmarticketS – Protect your luggage with peace of mind.',
+  ar: 'SmarticketS – احمِ أمتعتك براحة بال.',
 };
 
 const SEE_BAGAGE: Record<WhatsAppLocale, string> = {
@@ -262,9 +262,9 @@ function smartTruncate(message: string, maxChars: number, locale: WhatsAppLocale
 
   let truncated = false;
 
-  // Retirer signature (dernière ligne si commence par "QRTrans")
+  // Retirer signature (dernière ligne si commence par "SmarticketS")
   for (let i = lines.length - 1; i >= 0; i--) {
-    if (lines[i].startsWith('QRTrans') || lines[i].startsWith('*QRTrans')) {
+    if (lines[i].startsWith('SmarticketS') || lines[i].startsWith('*SmarticketS')) {
       lines.splice(i, 1);
       truncated = true;
       break;
@@ -275,7 +275,7 @@ function smartTruncate(message: string, maxChars: number, locale: WhatsAppLocale
 
   // Retirer CTA (ligne qui commence par ⏰ ou 👉 et N'EST PAS "Voir le bagage")
   for (let i = lines.length - 1; i >= 0; i--) {
-    if ((lines[i].startsWith('⏰') || (lines[i].startsWith('👉') && !lines[i].includes('qrtrans.pro')))) {
+    if ((lines[i].startsWith('⏰') || (lines[i].startsWith('👉') && !lines[i].includes('smartickets.com')))) {
       lines.splice(i, 1);
       truncated = true;
       break;
@@ -374,7 +374,7 @@ export function generatePreFilledMessage(params: PreFilledMessageParams): string
   // ─── Step 5: Assemble all lines ───
   const appUrl = process.env.NEXT_PUBLIC_APP_URL
     ? process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')
-    : 'https://qrtrans.pro';
+    : 'https://smartickets.com';
   const sanitizedRef = sanitize(baggage.reference);
 
   const lines: string[] = [];

@@ -68,7 +68,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
             <div className="hidden sm:flex items-center gap-3">
               <div className="px-4 py-2 bg-emerald-100 dark:bg-emerald-500/10 rounded-xl">
                 <span className="text-emerald-600 dark:text-emerald-400 font-medium text-sm">
-                  Partenaire QRTrans
+                  Partenaire SmarticketS
                 </span>
               </div>
             </div>
@@ -227,7 +227,7 @@ export default async function PublicAgencyPage({ params }: PageProps) {
         <footer className="mt-8 text-center text-slate-400 dark:text-slate-500 text-sm pb-8">
           <p className="flex items-center justify-center gap-2">
             <QrCode className="w-4 h-4" />
-            Propulsé par <span className="font-semibold text-[#ff7f00]">QRTrans</span>
+            Propulsé par <span className="font-semibold text-[#ff7f00]">SmarticketS</span>
           </p>
           <p className="mt-1 text-xs">
             Protection intelligente des colis

@@ -5,7 +5,16 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import ActivationHeader from '@/components/activation/ActivationHeader';
 import ActivationForm from '@/components/activation/ActivationForm';
+import TicketActivationForm from '@/components/activation/TicketActivationForm';
 import { notificationSound } from '@/lib/notification-sound';
+
+// API pour récupérer les données du QR (existant + category)
+async function fetchBaggageData(qrCode: string) {
+  const res = await fetch(`/api/arrivee/${encodeURIComponent(qrCode)}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data;
+}
 
 function ActivateContent() {
   const params = useParams();
@@ -13,24 +22,22 @@ function ActivateContent() {
   const router = useRouter();
   const qrCode = ((params?.id as string) || '').toUpperCase().trim();
   const [lang, setLang] = useState<'fr' | 'en'>('fr');
+  const [mode, setMode] = useState<'parcel' | 'ticket' | 'hajj'>('parcel');
+  const [baggageData, setBaggageData] = useState<any>(null);
+  const [agencyId, setAgencyId] = useState<string>('');
+  const [checking, setChecking] = useState(true);
+  const [checkError, setCheckError] = useState(false);
 
   // Check if we're returning from /sending (WhatsApp notification flow)
-  // In that case, we must NOT redirect to /retrieve — ActivationForm will
-  // restore from sessionStorage and show the SuccessScreen with the correct
-  // notified state.
   const notifiedParam = searchParams.get('notified');
   const isReturningFromNotify = notifiedParam === 'sender' || notifiedParam === 'receiver';
 
-  // Pre-load audio on page mount (doesn't play, just unlocks context)
+  // Pre-load audio on page mount
   useEffect(() => {
     notificationSound.unlock();
   }, []);
 
   // Status-based routing: check if colis is already in_transit → redirect to retrieve
-  // IMPORTANT: Skip redirect when returning from /sending (isReturningFromNotify)
-  const [checking, setChecking] = useState(true);
-  const [checkError, setCheckError] = useState(false);
-
   useEffect(() => {
     if (!qrCode) {
       setChecking(false);
@@ -38,7 +45,6 @@ function ActivateContent() {
     }
 
     // Skip status check when returning from WhatsApp notification flow
-    // ActivationForm will handle restoration from sessionStorage
     if (isReturningFromNotify) {
       setChecking(false);
       return;
@@ -46,11 +52,18 @@ function ActivateContent() {
 
     const checkStatus = async () => {
       try {
-        const res = await fetch(`/api/arrivee/${encodeURIComponent(qrCode)}`);
-        const data = await res.json();
+        const data = await fetchBaggageData(qrCode);
 
-        if (res.ok && data.success && data.colis) {
+        if (data?.success && data?.colis) {
+          setBaggageData(data);
+          setAgencyId(data.colis.agencyId || '');
           const status = data.colis.status;
+
+          // Auto-détection du mode selon la catégorie du baggage
+          const category = data.colis.category;
+          if (category === 'ticket') setMode('ticket');
+          else if (category === 'hajj') setMode('hajj');
+          else setMode('parcel');
 
           // If already in_transit → redirect to retrieve page
           if (status === 'in_transit') {
@@ -94,7 +107,60 @@ function ActivateContent() {
       <ActivationHeader qrCode={qrCode} onLangChange={setLang} currentLang={lang} />
 
       <main className="max-w-[600px] mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24">
-        <ActivationForm qrCode={qrCode} lang={lang} />
+        {/* Switch de mode Ticket / Colis / Hajj */}
+        {!isReturningFromNotify && (
+          <div className="mb-6">
+            <div className="flex gap-1 p-1 bg-gray-800/60 rounded-xl inline-flex">
+              <button
+                onClick={() => setMode('parcel')}
+                className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                  mode === 'parcel'
+                    ? 'bg-white shadow-lg text-gray-900'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                📦 Colis
+              </button>
+              <button
+                onClick={() => setMode('ticket')}
+                className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                  mode === 'ticket'
+                    ? 'bg-white shadow-lg text-gray-900'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                🎫 Ticket
+              </button>
+              <button
+                onClick={() => setMode('hajj')}
+                className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                  mode === 'hajj'
+                    ? 'bg-white shadow-lg text-gray-900'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                ✈️ Hajj
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Formulaire dynamique selon le mode */}
+        {isReturningFromNotify ? (
+          // Mode retour depuis WhatsApp: afficher le formulaire colis existant
+          // ActivationForm gère la restoration depuis sessionStorage
+          <ActivationForm qrCode={qrCode} lang={lang} />
+        ) : mode === 'ticket' ? (
+          <TicketActivationForm
+            baggageId={baggageData?.colis?.id || qrCode}
+            agencyId={agencyId}
+            reference={qrCode}
+          />
+        ) : mode === 'hajj' ? (
+          <ActivationForm qrCode={qrCode} lang={lang} />
+        ) : (
+          <ActivationForm qrCode={qrCode} lang={lang} />
+        )}
       </main>
     </div>
   );
