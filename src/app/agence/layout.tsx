@@ -24,7 +24,10 @@ import {
   Globe,
   ExternalLink,
   Copy,
-  ShoppingCart
+  ShoppingCart,
+  Clock,
+  Route,
+  Bus,
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -72,6 +75,9 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
   
   const menuItems: MenuItem[] = [
     { label: "Tableau de bord", icon: <Home className="w-5 h-5" />, href: "/agence/tableau-de-bord" },
+    { label: "Horaires", icon: <Clock className="w-5 h-5" />, href: "/agence/horaires" },
+    { label: "Trajets", icon: <Route className="w-5 h-5" />, href: "/agence/trajets" },
+    { label: "Départs", icon: <Bus className="w-5 h-5" />, href: "/agence/departs" },
     { label: "Colis", icon: <Luggage className="w-5 h-5" />, href: "/agence/baggages" },
     { label: "Assistance", icon: <MessageCircle className="w-5 h-5" />, href: "/agence/assistance", badge: unreadMessages },
     { label: "Colis Livrés", icon: <CheckCircle className="w-5 h-5" />, href: "/agence/trouvailles" },
@@ -105,7 +111,7 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
             </div>
             <div>
               <span className="text-white font-bold text-xl tracking-tight">SmarticketS</span>
-              <span className="block text-xs text-white/60 font-medium">Espace Agence</span>
+              <span className="block text-xs text-white/60 font-medium">Espace Transporteur</span>
             </div>
           </Link>
           <button
@@ -346,7 +352,7 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadM
             </div>
             <div className="hidden sm:block">
               <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userName || 'Agence'}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Agence partenaire</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Transporteur partenaire</p>
             </div>
           </div>
         </div>

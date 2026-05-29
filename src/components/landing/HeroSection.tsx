@@ -128,7 +128,7 @@ export default function HeroSection() {
               <Link href="/agence/connexion">
                 <Button className="w-full sm:w-auto bg-white/15 hover:bg-white/25 backdrop-blur-md border-2 border-white/40 text-white px-7 py-3.5 rounded-lg font-semibold text-sm transition-all gap-2">
                   <Building2 className="w-4 h-4" />
-                  Espace Agence
+                  Espace Transporteur
                 </Button>
               </Link>
             </motion.div>

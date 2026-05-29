@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = 'smartickets-v1';
+const CACHE_NAME = 'smartickets-v2';
 const OFFLINE_URL = '/offline';
 
 // Assets to cache on install
@@ -14,7 +14,7 @@ const PRECACHE_ASSETS = [
 ];
 
 // Install event - cache essential assets
-self.addEventListener('install', (event: ExtendableEvent) => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[ServiceWorker] Precaching app shell');
@@ -22,11 +22,11 @@ self.addEventListener('install', (event: ExtendableEvent) => {
     })
   );
   // Force the waiting service worker to become the active service worker
-  (self as unknown as ServiceWorkerGlobalScope).skipWaiting();
+  self.skipWaiting();
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', (event: ExtendableEvent) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -40,38 +40,68 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
     })
   );
   // Take control of all pages immediately
-  (self as unknown as ServiceWorkerGlobalScope).clients.claim();
+  self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event: FetchEvent) => {
+// Fetch event - network-first for navigation, cache-first for assets
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+
   // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
+  if (!request.url.startsWith(self.location.origin)) {
     return;
   }
 
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') {
+  // ─── POST requests: Network-first, queue on failure ──────────────
+  if (request.method === 'POST') {
+    // Only intercept specific API endpoints (validation, sync)
+    const url = new URL(request.url);
+
+    if (url.pathname === '/api/validate-ticket' ||
+        url.pathname.startsWith('/api/sync')) {
+      event.respondWith(
+        fetch(request)
+          .then((response) => {
+            return response;
+          })
+          .catch(() => {
+            // Return a "queued" response so the client knows to store locally
+            return new Response(
+              JSON.stringify({
+                queued: true,
+                message: 'Requête enregistrée pour synchronisation hors ligne',
+              }),
+              {
+                status: 202,
+                headers: { 'Content-Type': 'application/json' },
+              }
+            );
+          })
+      );
+    }
+
+    // Other POST requests: let them fail naturally
     return;
   }
 
+  // ─── GET requests ───────────────────────────────────────────────
   // For navigation requests, try network first, then cache
-  if (event.request.mode === 'navigate') {
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(request)
         .then((response) => {
           // Cache successful responses
           if (response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
+              cache.put(request, responseClone);
             });
           }
           return response;
         })
         .catch(() => {
           // Return cached version or offline page
-          return caches.match(event.request).then((cachedResponse) => {
+          return caches.match(request).then((cachedResponse) => {
             return cachedResponse || caches.match(OFFLINE_URL);
           });
         })
@@ -79,38 +109,53 @@ self.addEventListener('fetch', (event: FetchEvent) => {
     return;
   }
 
-  // For other requests, try cache first, then network
+  // For other GET requests, try cache first, then network (stale-while-revalidate)
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Update cache in background
-        fetch(event.request).then((response) => {
-          if (response.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, response);
-            });
-          }
-        });
-        return cachedResponse;
-      }
-
-      // Not in cache, fetch from network
-      return fetch(event.request).then((response) => {
+    caches.match(request).then((cachedResponse) => {
+      const fetchPromise = fetch(request).then((response) => {
         // Cache successful responses
         if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
+            cache.put(request, responseClone);
           });
         }
         return response;
+      }).catch(() => {
+        // Network failed, return cache (already have cachedResponse or null)
+        return cachedResponse;
       });
+
+      // Return cached immediately, or fetch from network
+      return cachedResponse || fetchPromise;
     })
   );
 });
 
+// Background Sync event (if supported)
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'smartickets-sync') {
+    console.log('[ServiceWorker] Background sync triggered');
+    event.waitUntil(
+      // Notify clients to process their offline queues
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'SYNC_NOW' });
+        });
+      })
+    );
+  }
+});
+
+// Listen for messages from clients
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Push notification support
-self.addEventListener('push', (event: PushEvent) => {
+self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {};
   const title = data.title || 'SmarticketS';
   const options = {
@@ -124,17 +169,17 @@ self.addEventListener('push', (event: PushEvent) => {
   };
 
   event.waitUntil(
-    (self as unknown as ServiceWorkerGlobalScope).registration.showNotification(title, options)
+    self.registration.showNotification(title, options)
   );
 });
 
 // Notification click handler
-self.addEventListener('notificationclick', (event: NotificationEvent) => {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data?.url || '/';
 
   event.waitUntil(
-    (self as unknown as ServiceWorkerGlobalScope).clients.matchAll({ type: 'window' }).then((clientList) => {
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
       // Check if there's already a window open
       for (const client of clientList) {
         if (client.url === url && 'focus' in client) {
@@ -142,39 +187,9 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
         }
       }
       // Open new window if none found
-      if ((self as unknown as ServiceWorkerGlobalScope).clients.openWindow) {
-        return (self as unknown as ServiceWorkerGlobalScope).clients.openWindow(url);
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url);
       }
     })
   );
 });
-
-// Type declarations for service worker
-declare const self: ServiceWorkerGlobalScope;
-
-interface ExtendableEvent extends Event {
-  waitUntil(fn: Promise<unknown>): void;
-}
-
-interface FetchEvent extends Event {
-  request: Request;
-  respondWith(response: Promise<Response | undefined> | Response | undefined): void;
-}
-
-interface PushEvent extends Event {
-  data: {
-    json(): {
-      title?: string;
-      body?: string;
-      url?: string;
-    };
-  } | null;
-}
-
-interface NotificationEvent extends Event {
-  notification: Notification & {
-    data?: {
-      url?: string;
-    };
-  };
-}

@@ -20,6 +20,13 @@ interface Departure {
   companyName: string;
 }
 
+interface TickerMessage {
+  id: string;
+  text: string;
+  priority: 'info' | 'urgent';
+  active: boolean;
+}
+
 interface StationData {
   stationId: string;
   stationName: string;
@@ -30,6 +37,11 @@ interface StationData {
   boardingCount: number;
   delayedCount: number;
   alertThreshold: number;
+  alertSoundEnabled: boolean;
+  tickerMessages: TickerMessage[];
+  logoUrl: string;
+  primaryColor: string;
+  secondaryColor: string;
 }
 
 // Statut config
@@ -52,10 +64,11 @@ export default function SignagePage() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const prevBoardingRef = useRef<Set<string>>(new Set());
   const prevDataRef = useRef<StationData | null>(null);
+  const tickerRef = useRef<HTMLDivElement>(null);
+  const tickerPosRef = useRef<number>(0);
+  const tickerAnimRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
 
-
-
-  // Horloge locale
+  // ─── Horloge locale ──────────────────────────────────────────────────
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
@@ -66,7 +79,7 @@ export default function SignagePage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Alerte sonore embarquement
+  // ─── Alerte sonore embarquement ───────────────────────────────────────
   const playBoardingAlert = useCallback(() => {
     try {
       if (!audioCtxRef.current) {
@@ -84,7 +97,6 @@ export default function SignagePage() {
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.5);
 
-      // Deuxième bip
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
       osc2.connect(gain2);
@@ -100,7 +112,7 @@ export default function SignagePage() {
     }
   }, []);
 
-  // Polling données départs
+  // ─── Polling données départs ──────────────────────────────────────────
   useEffect(() => {
     if (!stationId) return;
 
@@ -112,9 +124,15 @@ export default function SignagePage() {
           setData(json);
           setLastUpdate(new Date().toLocaleTimeString('fr-FR'));
 
-          // Update alert threshold from API response
           if (json.alertThreshold) {
             setAlertThreshold(json.alertThreshold);
+          }
+
+          // Check if sound should be enabled from settings
+          if (json.alertSoundEnabled === false) {
+            setSoundEnabled(false);
+          } else if (json.alertSoundEnabled === true) {
+            setSoundEnabled(true);
           }
 
           // Vérifier nouveaux embarquements pour alerte sonore
@@ -139,11 +157,38 @@ export default function SignagePage() {
     };
 
     fetchDepartures();
-    const interval = setInterval(fetchDepartures, 15000); // Polling toutes les 15s
+    const interval = setInterval(fetchDepartures, 15000);
     return () => clearInterval(interval);
   }, [stationId, soundEnabled, playBoardingAlert]);
 
-  // Format countdown
+  // ─── Ticker animation ────────────────────────────────────────────────
+  useEffect(() => {
+    const tickerEl = tickerRef.current;
+    if (!tickerEl || !data || data.tickerMessages.length === 0) return;
+
+    const activeMessages = data.tickerMessages.filter(m => m.active);
+    if (activeMessages.length === 0) return;
+
+    const animate = () => {
+      tickerPosRef.current -= 0.5;
+      if (tickerPosRef.current < -tickerEl.scrollWidth) {
+        tickerPosRef.current = tickerEl.clientWidth;
+      }
+      tickerEl.style.transform = `translateX(${tickerPosRef.current}px)`;
+      tickerAnimRef.current = requestAnimationFrame(animate);
+    };
+
+    tickerPosRef.current = tickerEl.clientWidth;
+    tickerAnimRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (tickerAnimRef.current) {
+        cancelAnimationFrame(tickerAnimRef.current);
+      }
+    };
+  }, [data]);
+
+  // ─── Format countdown ─────────────────────────────────────────────────
   const formatCountdown = (min: number) => {
     if (min < 0) return 'Parti';
     if (min === 0) return 'Maintenant';
@@ -153,7 +198,7 @@ export default function SignagePage() {
     return `${h}h${m.toString().padStart(2, '0')}`;
   };
 
-  // Couleur countdown
+  // ─── Couleur countdown ────────────────────────────────────────────────
   const getCountdownColor = (min: number, status: string) => {
     if (status === 'DEPARTED') return 'text-gray-400';
     if (status === 'CANCELLED') return 'text-red-400';
@@ -161,6 +206,10 @@ export default function SignagePage() {
     if (min <= 15) return 'text-orange-600 font-bold';
     return 'text-green-700 font-bold';
   };
+
+  // ─── Dynamic colors from settings ─────────────────────────────────────
+  const headerGradientFrom = data?.primaryColor || '#1e3a5f';
+  const headerGradientTo = data?.secondaryColor || '#2563eb';
 
   if (!data) {
     return (
@@ -173,19 +222,34 @@ export default function SignagePage() {
     );
   }
 
+  // Active ticker messages
+  const activeTicker = data.tickerMessages.filter(m => m.active);
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4 shadow-lg">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <header
+        className="px-6 py-4 shadow-lg flex items-center justify-between"
+        style={{
+          background: `linear-gradient(to right, ${headerGradientFrom}, ${headerGradientTo})`,
+        }}
+      >
+        <div className="flex items-center gap-4">
+          {data.logoUrl && (
+            <img
+              src={data.logoUrl}
+              alt="Logo"
+              className="h-10 w-10 rounded-lg object-contain bg-white/10 p-1"
+            />
+          )}
+          <div className="flex items-center gap-3">
             <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
             <h1 className="text-2xl font-bold tracking-wide">{data.stationName}</h1>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="text-sm text-blue-200">{data.currentDate}</div>
-            <div className="text-3xl font-mono font-bold tabular-nums">{currentTime}</div>
-          </div>
+        </div>
+        <div className="flex items-center gap-6">
+          <div className="text-sm text-white/70">{data.currentDate}</div>
+          <div className="text-3xl font-mono font-bold tabular-nums">{currentTime}</div>
         </div>
       </header>
 
@@ -212,7 +276,7 @@ export default function SignagePage() {
       </div>
 
       {/* Tableau des départs */}
-      <main className="max-w-7xl mx-auto p-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6">
         {data.departures.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-500 text-xl">Aucun départ prévu aujourd&apos;hui</p>
@@ -317,8 +381,29 @@ export default function SignagePage() {
         )}
       </main>
 
+      {/* Ticker bar */}
+      {activeTicker.length > 0 && (
+        <div className="bg-gray-900 border-t border-gray-800 overflow-hidden h-10 flex items-center">
+          <div className="flex-shrink-0 bg-red-600 text-white text-xs font-bold px-3 py-1 h-full flex items-center">
+            {activeTicker.some(m => m.priority === 'urgent') ? '🚨' : 'ℹ️'}
+          </div>
+          <div className="flex-1 overflow-hidden relative">
+            <div
+              ref={tickerRef}
+              className="whitespace-nowrap inline-block text-sm text-gray-300"
+            >
+              {activeTicker.map(m => (
+                <span key={m.id} className="inline-block mr-8">
+                  {m.priority === 'urgent' ? '🚨 ' : ''}{m.text}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 px-6 py-2">
+      <footer className="bg-gray-900 border-t border-gray-800 px-6 py-2">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-gray-500">
           <span>SmarticketS — Affichage Gare</span>
           <button

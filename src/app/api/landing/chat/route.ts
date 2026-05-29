@@ -123,7 +123,6 @@ function buildSystemPrompt(locale: Language): string {
 • Activation Hajj : ${appUrl}/hajj/activate
 • Suivi colis : ${appUrl}/activate/[RÉFÉRENCE]
 • Devenir partenaire : ${appUrl}/devenir-partenaire
-• Voyageurs standard : ${appUrl}/voyageurs-standard
 • CGU : ${appUrl}/cgu
 • Confidentialité : ${appUrl}/confidentialité
 • Mentions légales : ${appUrl}/mentions-legales
@@ -191,7 +190,6 @@ RÈGLES :
 • Hajj activation: ${appUrl}/hajj/activate
 • Baggage tracking: ${appUrl}/activate/[REFERENCE]
 • Become a partner: ${appUrl}/devenir-partenaire
-• Standard travelers: ${appUrl}/voyageurs-standard
 • Terms: ${appUrl}/cgu
 • Privacy: ${appUrl}/confidentialite
 • Legal notices: ${appUrl}/mentions-legales
@@ -259,7 +257,6 @@ RULES:
 • تفعيل الحج: ${appUrl}/hajj/activate
 • تتبع الأمتعة: ${appUrl}/activate/[المرجع]
 • كن شريكاً: ${appUrl}/devenir-partenaire
-• المسافرون: ${appUrl}/voyageurs-standard
 • الشروط: ${appUrl}/cgu
 • الخصوصية: ${appUrl}/confidentialite
 • الإشعارات القانونية: ${appUrl}/mentions-legales

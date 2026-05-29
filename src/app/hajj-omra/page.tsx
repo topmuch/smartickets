@@ -415,7 +415,6 @@ function Footer() {
             <h4 className="font-semibold mb-4 text-white">Produit</h4>
             <ul className="space-y-2 text-[#a0a8b8] text-sm">
               <li><Link href="/hajj-omra" className="hover:text-[#1e3a2e] transition-colors">Hajj & Omra</Link></li>
-              <li><Link href="/voyageurs-standard" className="hover:text-[#1e3a2e] transition-colors">Voyageurs Standard</Link></li>
               <li><Link href="/demo" className="hover:text-[#1e3a2e] transition-colors">Démo</Link></li>
             </ul>
           </div>

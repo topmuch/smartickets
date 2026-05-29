@@ -81,6 +81,22 @@ async function main() {
     },
   });
 
+  // Create driver user
+  console.log('Creating driver user...');
+  await prisma.user.upsert({
+    where: { email: 'chauffeur@smartickets.com' },
+    update: {
+      password: await hashPassword('driver123'),
+    },
+    create: {
+      email: 'chauffeur@smartickets.com',
+      name: 'Moussa Diop',
+      password: await hashPassword('driver123'),
+      role: 'driver',
+      agencyId: agency.id,
+    },
+  });
+
   // Create sample Voyageur baggage (activated)
   console.log('Creating sample baggages...');
   await prisma.baggage.upsert({
@@ -358,11 +374,73 @@ async function main() {
     });
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // Create sample in-transit parcels for driver testing
+  // ═══════════════════════════════════════════════════════════
+  console.log('Creating sample in-transit parcels for driver testing...');
+
+  const inTransitParcels = [
+    {
+      reference: 'COLIS-DKR-MBO-01',
+      type: 'voyageur', category: 'parcel', transportMode: 'bus',
+      busCompany: 'Ashraf Voyages', departureCity: 'Dakar', destination: 'Mbour',
+      departureDate: new Date(now.getTime() + 2 * 60 * 60 * 1000), departureTime: '08:30',
+      travelerFirstName: 'Fatou', whatsappOwner: '+221771110001',
+      receiverName: 'Ibrahima Sow', receiverWhatsapp: '+221781110001',
+      status: 'in_transit', retrievalPin: '384726',
+      colisType: 'VALISE', colisWeight: 12.5, colisColor: 'Noir',
+      paymentStatus: 'SENDER_PAID', driverPhone: '+221771110000', shareDriverPhone: true,
+      estimatedArrival: '10:00', pickupAddress: 'Gare routière de Mbour',
+    },
+    {
+      reference: 'COLIS-DKR-THI-02',
+      type: 'voyageur', category: 'parcel', transportMode: 'bus',
+      busCompany: 'Ashraf Voyages', departureCity: 'Dakar', destination: 'Thiès',
+      departureDate: new Date(now.getTime() + 1 * 60 * 60 * 1000), departureTime: '09:00',
+      travelerFirstName: 'Awa', whatsappOwner: '+221772220002',
+      receiverName: 'Omar Ba', receiverWhatsapp: '+221782220002',
+      status: 'in_transit', retrievalPin: '512938',
+      colisType: 'SAC', colisWeight: 5.0, colisColor: 'Bleu',
+      paymentStatus: 'RECEIVER_PAY', driverPhone: '+221771110000', shareDriverPhone: true,
+      estimatedArrival: '10:15', pickupAddress: 'Station de Thiès',
+    },
+    {
+      reference: 'COLIS-DKR-SLS-03',
+      type: 'voyageur', category: 'parcel', transportMode: 'bus',
+      busCompany: 'Ashraf Voyages', departureCity: 'Dakar', destination: 'Saint-Louis',
+      departureDate: new Date(now.getTime() + 3 * 60 * 60 * 1000), departureTime: '07:00',
+      travelerFirstName: 'Cheikh', whatsappOwner: '+221773330003',
+      receiverName: 'Ndeye Fatou Diop', receiverWhatsapp: '+221783330003',
+      status: 'in_transit', retrievalPin: '741852',
+      colisType: 'CARTON', colisWeight: 20.0, colisColor: 'Marron',
+      paymentStatus: 'SENDER_PAID', driverPhone: '+221771110000', shareDriverPhone: true,
+      estimatedArrival: '11:30', pickupAddress: 'Gare de Saint-Louis',
+    },
+  ];
+
+  for (const parcel of inTransitParcels) {
+    const existing = await prisma.baggage.findUnique({ where: { reference: parcel.reference } });
+    if (!existing) {
+      await prisma.baggage.create({
+        data: {
+          ...parcel,
+          agencyId: agency.id,
+          baggageIndex: 1,
+          baggageType: 'soute',
+          pinGeneratedAt: new Date(),
+          expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        },
+      });
+      console.log(`  ✓ Created in-transit parcel: ${parcel.reference}`);
+    }
+  }
+
   console.log('✅ Seed completed successfully!');
   console.log('');
   console.log('📋 Demo credentials:');
   console.log('  SuperAdmin: admin@smartickets.com / admin123');
   console.log('  Agency: agency@smartickets.com / agency123');
+  console.log('  Driver: chauffeur@smartickets.com / driver123');
   console.log('');
   console.log('📱 Test QR codes:');
   console.log('  VOL25-DEMO01 - Active traveler baggage');
@@ -370,6 +448,11 @@ async function main() {
   console.log('  TKT25-PENDING - Pending ticket (for ticket activation)');
   console.log('  TKT-DEMO-001 - Active ticket (Mamadou Diallo, ctrl: 123456)');
   console.log('  TKT-DEMO-002 - Active ticket (Aminata Fall, ctrl: 654321)');
+  console.log('');
+  console.log('🚛 In-transit parcels (driver testing):');
+  console.log('  COLIS-DKR-MBO-01 → Mbour (PIN: 384726)');
+  console.log('  COLIS-DKR-THI-02 → Thiès (PIN: 512938)');
+  console.log('  COLIS-DKR-SLS-03 → Saint-Louis (PIN: 741852)');
 }
 
 main()

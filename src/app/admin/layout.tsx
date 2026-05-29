@@ -26,7 +26,8 @@ import {
   Megaphone,
   TrendingUp,
   Newspaper,
-  Activity
+  Activity,
+  Monitor
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -112,6 +113,9 @@ function Sidebar({
 
     // Marketing & Publicités
     { label: "Marketing & Publicités", icon: <Megaphone className="w-5 h-5" />, href: "/admin/publicites", roles: ['superadmin', 'admin'] },
+
+    // Affichage Gare — Signage configuration
+    { label: "Affichage Gare", icon: <Monitor className="w-5 h-5" />, href: "/admin/signage", permission: PERMISSIONS.VIEW_SETTINGS },
 
     // Reports
     { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/admin/rapports", permission: PERMISSIONS.VIEW_REPORTS },

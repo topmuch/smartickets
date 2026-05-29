@@ -20,14 +20,15 @@ export async function GET() {
       }
     });
 
-    // Ensure demo agency exists
+    // Ensure demo agency exists (same as seed data — so demo user sees seeded routes)
     const demoAgency = await prisma.agency.upsert({
-      where: { slug: 'smartickets-demo' },
+      where: { slug: 'ashraf_voyages' },
       update: {},
       create: {
-        name: 'SmarticketS Demo',
-        slug: 'smartickets-demo',
-        email: 'demo@smartickets.com',
+        id: 'demo-agency-1',
+        name: 'Ashraf Voyages',
+        slug: 'ashraf_voyages',
+        email: 'contact@ashraf-voyages.com',
         phone: '+221 77 123 45 67',
         address: 'Dakar, Sénégal',
         active: true,

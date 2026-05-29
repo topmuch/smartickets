@@ -34,7 +34,34 @@ export async function GET(
       orderBy: { scheduledTime: 'asc' },
     });
 
-    // Calcul dynamique des statuts
+    // ─── Read signage settings ──────────────────────────────────────────
+    const signageSettings = await db.setting.findMany({
+      where: { key: { startsWith: 'signage_' } },
+    });
+
+    const settingsMap: Record<string, string> = {};
+    for (const s of signageSettings) {
+      settingsMap[s.key] = s.value;
+    }
+
+    const stationName = settingsMap['signage_stationName'] || 'Gare Routière';
+    const alertThreshold = parseInt(settingsMap['signage_alertThresholdMinutes'] || '5') || 5;
+    const alertSoundEnabled = settingsMap['signage_alertSoundEnabled'] !== 'false';
+
+    // Ticker messages
+    let tickerMessages: { id: string; text: string; priority: string; active: boolean }[] = [];
+    try {
+      tickerMessages = JSON.parse(settingsMap['signage_tickerMessages'] || '[]');
+    } catch {
+      tickerMessages = [];
+    }
+
+    // Logo and colors
+    const logoUrl = settingsMap['signage_logoUrl'] || '';
+    const primaryColor = settingsMap['signage_primaryColor'] || '';
+    const secondaryColor = settingsMap['signage_secondaryColor'] || '';
+
+    // ─── Calcul dynamique des statuts ────────────────────────────────────
     const processed = departures.map(dep => {
       const scheduled = new Date(dep.scheduledTime);
       const effectiveTime = new Date(scheduled.getTime() + dep.delayMinutes * 60000);
@@ -83,17 +110,9 @@ export async function GET(
       !(dep.status === 'DEPARTED' && dep.countdownMin > 30)
     );
 
-    // Récupérer le seuil d'alerte configurable (default 5 min)
-    const thresholdSetting = await db.setting.findUnique({
-      where: { key: 'boardingAlertThresholdMinutes' },
-    });
-    const alertThreshold = thresholdSetting
-      ? parseInt(thresholdSetting.value) || 5
-      : 5;
-
     return NextResponse.json({
       stationId,
-      stationName: 'Gare Routière',
+      stationName,
       currentTime: now.toTimeString().slice(0, 8),
       currentDate: now.toLocaleDateString('fr-FR', {
         weekday: 'long',
@@ -106,6 +125,11 @@ export async function GET(
       boardingCount: filtered.filter(d => d.status === 'BOARDING').length,
       delayedCount: filtered.filter(d => d.status === 'DELAYED').length,
       alertThreshold,
+      alertSoundEnabled,
+      tickerMessages,
+      logoUrl,
+      primaryColor,
+      secondaryColor,
     });
 
   } catch (error) {

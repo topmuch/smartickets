@@ -123,6 +123,7 @@ model Baggage {
   deliveryLocation  String?   // Lieu de dépôt précis (ex: "Gare routière, Boutique X")
   deliveryNotes     String?   // Notes du chauffeur à l'arrivée
   deliveredAt       DateTime? // Date/heure de livraison confirmée (PIN validé)
+  deliveredBy       String?   // ID du chauffeur ayant effectué la livraison
 
   // LOGISTICS: Itinerary & Payment
   pickupAddress     String?   // Adresse de récupération précise

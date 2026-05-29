@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -11,6 +10,9 @@ const nextConfig: NextConfig = {
     formats: ['image/webp'],
     qualities: [75, 90],
   },
+  allowedDevOrigins: [
+    "preview-chat-85c5b960-1b57-4ff4-a65d-6df0767d05e6.space-z.ai",
+  ],
 };
 
 export default nextConfig;

@@ -57,7 +57,7 @@ interface LoginConfig {
 const CONFIGS: Record<LoginVariant, LoginConfig> = {
   agence: {
     type: 'agence',
-    title: 'Espace Agence',
+    title: 'Espace Transporteur',
     subtitle: 'Connectez-vous pour gérer vos billets et colis',
     demoEmail: 'agence@smartickets.com',
     demoPassword: 'agence123',
@@ -99,8 +99,8 @@ const CONFIGS: Record<LoginVariant, LoginConfig> = {
     leftTitle: 'Contrôle centralisé de tout le réseau',
     leftSubtitle: 'Agences, QR codes, utilisateurs et analytics — pilotés depuis un seul panneau.',
     leftTagline: 'Sécurité & Performance',
-    switchText: 'Vous êtes une agence ?',
-    switchLink: 'Connexion Agence',
+    switchText: 'Vous êtes un transporteur ?',
+    switchLink: 'Connexion Transporteur',
     switchHref: '/agence/connexion',
     features: [
       { icon: Shield, title: 'Sécurité', desc: 'Authentification renforcée' },
@@ -314,7 +314,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
                   : 'from-[#FF1D8D]/20 to-[#7c3aed]/20 border-[#FF1D8D]/20 text-[#FF1D8D]'
               }`}>
                 {isAgence ? <Building2 className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
-                {isAgence ? 'Espace Agence' : 'Espace Admin'}
+                {isAgence ? 'Espace Transporteur' : 'Espace Admin'}
               </span>
             </motion.div>
 
@@ -409,7 +409,7 @@ export default function LoginPage({ variant }: { variant: LoginVariant }) {
               {isAgence ? <Building2 className="w-4 h-4 text-white" /> : <Shield className="w-4 h-4 text-white" />}
             </div>
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              {isAgence ? 'Espace Agence' : 'Espace Admin'}
+              {isAgence ? 'Espace Transporteur' : 'Espace Admin'}
             </span>
           </motion.div>
 
