@@ -30,5 +30,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL=file:/app/data/qrtrans.db
 
-# Start command - sync DB schema and start server
-CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrtrans.db && npx prisma db push --skip-generate 2>/dev/null || true && node scripts/migrate-db.js 2>/dev/null || true && exec node .next/standalone/server.js"
+# Start command - sync DB, seed users, migrate, start server
+CMD sh -c "mkdir -p /app/data && export DATABASE_URL=file:/app/data/qrtrans.db && npx prisma db push --skip-generate 2>/dev/null || true && bun run prisma/seed.ts 2>/dev/null || true && node scripts/migrate-db.js 2>/dev/null || true && exec node .next/standalone/server.js"
