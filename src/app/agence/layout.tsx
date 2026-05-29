@@ -25,8 +25,6 @@ import {
   ExternalLink,
   Copy,
   ShoppingCart,
-  Clock,
-  Route,
   Bus,
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
@@ -75,8 +73,6 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
   
   const menuItems: MenuItem[] = [
     { label: "Tableau de bord", icon: <Home className="w-5 h-5" />, href: "/agence/tableau-de-bord" },
-    { label: "Horaires", icon: <Clock className="w-5 h-5" />, href: "/agence/horaires" },
-    { label: "Trajets", icon: <Route className="w-5 h-5" />, href: "/agence/trajets" },
     { label: "Départs", icon: <Bus className="w-5 h-5" />, href: "/agence/departs" },
     { label: "Colis", icon: <Luggage className="w-5 h-5" />, href: "/agence/baggages" },
     { label: "Assistance", icon: <MessageCircle className="w-5 h-5" />, href: "/agence/assistance", badge: unreadMessages },
@@ -338,9 +334,9 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadM
             className="relative p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
           >
             <Bell className="w-5 h-5 text-slate-600 dark:text-slate-300" />
-            {unreadMessages > 0 && (
+            {(unreadMessages ?? 0) > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                {unreadMessages > 9 ? '9+' : unreadMessages}
+                {(unreadMessages ?? 0) > 9 ? '9+' : unreadMessages}
               </span>
             )}
           </Link>

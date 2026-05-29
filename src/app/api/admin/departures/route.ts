@@ -15,6 +15,11 @@ const createDepartureSchema = z.object({
   availableSeats: z.number().int().min(0).default(45),
   totalSeats: z.number().int().min(1).default(45),
   agencyId: z.string().optional(),
+  // Auto-route creation fields
+  origin: z.string().optional(),
+  price: z.number().optional(),
+  isRoundTrip: z.boolean().optional().default(false),
+  returnDelayHours: z.number().int().min(1).max(48).optional().default(2),
 });
 
 const updateDepartureSchema = z.object({
@@ -215,10 +220,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Auto-fill destination from route if routeId provided and no explicit destination override
+    // ─── Auto-route creation: if origin is provided, find or create route ───
+    let routeId = data.routeId || null;
     let finalDestination = data.destination;
-    let route = null;
-    if (data.routeId) {
+
+    if (data.origin && data.origin.trim() && !data.routeId) {
+      // Find existing route for this origin → destination pair
+      const existingRoute = await db.route.findFirst({
+        where: {
+          agencyId: effectiveAgencyId,
+          origin: data.origin,
+          destination: data.destination,
+        },
+      });
+
+      if (existingRoute) {
+        routeId = existingRoute.id;
+        finalDestination = existingRoute.destination;
+      } else {
+        // Auto-create the route
+        const newRoute = await db.route.create({
+          data: {
+            name: `${data.origin} → ${data.destination}`,
+            origin: data.origin,
+            destination: data.destination,
+            isRoundTrip: data.isRoundTrip,
+            price: data.price || null,
+            agencyId: effectiveAgencyId as string,
+          },
+        });
+        routeId = newRoute.id;
+        finalDestination = newRoute.destination;
+      }
+    } else if (data.routeId) {
+      // Legacy: routeId provided explicitly
       const foundRoute = await db.route.findUnique({
         where: { id: data.routeId },
       });
@@ -228,24 +263,21 @@ export async function POST(request: NextRequest) {
           { status: 404 }
         );
       }
-      // Override destination only if body.destination was the auto-filled value or empty
-      if (!data.destination || data.destination === foundRoute.destination) {
-        finalDestination = foundRoute.destination;
-      }
+      finalDestination = data.destination || foundRoute.destination;
     }
 
-    // Create departure
+    // Create the outbound departure
     const departure = await db.departure.create({
       data: {
-        routeId: data.routeId || null,
-        departureType: data.departureType,
+        routeId,
+        departureType: data.departureType || 'OUTBOUND',
         lineNumber: data.lineNumber,
         destination: finalDestination,
         scheduledTime,
         platform: data.platform || null,
         availableSeats: data.availableSeats,
         totalSeats: data.totalSeats,
-        agencyId: effectiveAgencyId,
+        agencyId: effectiveAgencyId as string,
       },
       include: {
         route: {
@@ -259,7 +291,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ departure }, { status: 201 });
+    // ─── Auto-create return departure if isRoundTrip ───
+    let createdReturn = false;
+    if (data.isRoundTrip && data.origin) {
+      const returnTime = new Date(scheduledTime.getTime() + (data.returnDelayHours || 2) * 3600000);
+      await db.departure.create({
+        data: {
+          routeId,
+          departureType: 'RETURN',
+          lineNumber: data.lineNumber + 'R',
+          destination: data.origin, // Invert: destination becomes origin
+          scheduledTime: returnTime,
+          platform: data.platform || null,
+          availableSeats: data.availableSeats,
+          totalSeats: data.totalSeats,
+          agencyId: effectiveAgencyId as string,
+        },
+      });
+      createdReturn = true;
+    }
+
+    return NextResponse.json({ departure, createdReturn }, { status: 201 });
   } catch (error) {
     console.error('[/api/admin/departures] POST error:', error);
     return NextResponse.json(

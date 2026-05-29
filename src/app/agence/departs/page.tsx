@@ -19,25 +19,19 @@ import {
   CalendarDays,
   Users,
   ChevronDown,
-  AlertCircle,
   Play,
-  Pause,
   Ban,
   Timer,
+  MapPin,
+  ArrowRight,
+  QrCode,
 } from 'lucide-react';
 import { useAgency } from '../layout';
+import { QRCodeSVG } from 'qrcode.react';
 
 /* ══════════════════════════════════════════════
    Types
    ══════════════════════════════════════════════ */
-interface RouteOption {
-  id: string;
-  name: string;
-  origin: string;
-  destination: string;
-  isRoundTrip: boolean;
-}
-
 interface DepartureItem {
   id: string;
   routeId: string | null;
@@ -56,29 +50,42 @@ interface DepartureItem {
   createdAt: string;
 }
 
-interface DepartureFormData {
-  routeId: string;
+interface NewDepartureForm {
+  origin: string;
+  destination: string;
+  date: string;
+  time: string;
+  line: string;
+  platform: string;
+  seats: number;
+  price: number;
+  isRoundTrip: boolean;
+  returnDelayHours: number;
+}
+
+const emptyForm: NewDepartureForm = {
+  origin: '',
+  destination: '',
+  date: new Date().toISOString().split('T')[0],
+  time: '',
+  line: '',
+  platform: '',
+  seats: 45,
+  price: 0,
+  isRoundTrip: false,
+  returnDelayHours: 2,
+};
+
+interface EditDepartureForm {
   departureType: 'OUTBOUND' | 'RETURN';
   lineNumber: string;
   destination: string;
   date: string;
   time: string;
   platform: string;
-  totalSeats: string;
-  availableSeats: string;
+  totalSeats: number;
+  availableSeats: number;
 }
-
-const emptyDepForm: DepartureFormData = {
-  routeId: '',
-  departureType: 'OUTBOUND',
-  lineNumber: '',
-  destination: '',
-  date: '',
-  time: '',
-  platform: '',
-  totalSeats: '45',
-  availableSeats: '45',
-};
 
 const statusConfig: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
   SCHEDULED: { label: 'Programmé', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/30', icon: Clock },
@@ -89,43 +96,340 @@ const statusConfig: Record<string, { label: string; color: string; bg: string; i
 };
 
 /* ══════════════════════════════════════════════
-   Departure Modal
+   KPI Card Component
    ══════════════════════════════════════════════ */
-function DepartureModal({
+function KpiCard({ label, value, icon, colorClass, bgColorClass }: {
+  label: string;
+  value: number;
+  icon: string;
+  colorClass: string;
+  bgColorClass: string;
+}) {
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+          <p className={`text-2xl font-extrabold mt-0.5 ${colorClass}`}>{value}</p>
+        </div>
+        <div className={`w-12 h-12 rounded-xl ${bgColorClass} flex items-center justify-center text-xl`}>
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   New Departure Modal (Simplified Form)
+   ══════════════════════════════════════════════ */
+function NewDepartureModal({
+  isOpen,
+  onClose,
+  onSave,
+  loading,
+  agencyId,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: NewDepartureForm) => void;
+  loading: boolean;
+  agencyId: string;
+}) {
+  const [form, setForm] = useState<NewDepartureForm>(emptyForm);
+  const [existingRoutes, setExistingRoutes] = useState<{ id: string; origin: string; destination: string }[]>([]);
+
+  // Fetch existing routes for auto-suggestions
+  useEffect(() => {
+    if (isOpen && agencyId) {
+      fetch(`/api/admin/routes?agencyId=${agencyId}`)
+        .then(r => r.json())
+        .then(data => setExistingRoutes(data.routes || []))
+        .catch(() => {});
+    }
+  }, [isOpen, agencyId]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.origin.trim() || !form.destination.trim() || !form.time) return;
+    onSave(form);
+  };
+
+  // Filter suggestions based on input
+  const originSuggestions = existingRoutes
+    .map(r => r.origin)
+    .filter((v, i, a) => a.indexOf(v) === i && v.toLowerCase().includes((form.origin || '').toLowerCase()))
+    .slice(0, 5);
+
+  const destSuggestions = existingRoutes
+    .map(r => r.destination)
+    .filter((v, i, a) => a.indexOf(v) === i && v.toLowerCase().includes((form.destination || '').toLowerCase()))
+    .slice(0, 5);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-[#FF1D8D] to-[#7c3aed] px-6 py-4 sticky top-0 z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                    <Bus className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Nouveau départ</h3>
+                    <p className="text-white/70 text-xs">La route sera créée automatiquement si nécessaire</p>
+                  </div>
+                </div>
+                <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/20 transition-colors">
+                  <X className="w-5 h-5 text-white" />
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              {/* Origin / Destination */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  🛣️ Trajet (Origine → Destination)
+                </label>
+                <div className="grid grid-cols-5 gap-2 items-end">
+                  <div className="col-span-2 relative">
+                    <input
+                      type="text"
+                      value={form.origin}
+                      onChange={(e) => setForm({ ...form, origin: e.target.value })}
+                      placeholder="Ex: Dakar"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                      required
+                      list="origin-list"
+                    />
+                    <datalist id="origin-list">
+                      {originSuggestions.map(s => <option key={s} value={s} />)}
+                    </datalist>
+                  </div>
+                  <div className="flex items-center justify-center pb-0.5">
+                    <ArrowRight className="w-5 h-5 text-slate-400" />
+                  </div>
+                  <div className="col-span-2 relative">
+                    <input
+                      type="text"
+                      value={form.destination}
+                      onChange={(e) => setForm({ ...form, destination: e.target.value })}
+                      placeholder="Ex: Saint Louis"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                      required
+                      list="dest-list"
+                    />
+                    <datalist id="dest-list">
+                      {destSuggestions.map(s => <option key={s} value={s} />)}
+                    </datalist>
+                  </div>
+                </div>
+              </div>
+
+              {/* Date / Time */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">📅 Date</label>
+                  <input
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">🕐 Heure</label>
+                  <input
+                    type="time"
+                    value={form.time}
+                    onChange={(e) => setForm({ ...form, time: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Bus Details */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">🚌 Ligne</label>
+                  <input
+                    type="text"
+                    value={form.line}
+                    onChange={(e) => setForm({ ...form, line: e.target.value })}
+                    placeholder="L14"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">🚏 Quai</label>
+                  <input
+                    type="text"
+                    value={form.platform}
+                    onChange={(e) => setForm({ ...form, platform: e.target.value })}
+                    placeholder="A2"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">👥 Sièges</label>
+                  <input
+                    type="number"
+                    value={form.seats}
+                    onChange={(e) => setForm({ ...form, seats: parseInt(e.target.value) || 45 })}
+                    min={1}
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Price */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">💰 Prix du billet (FCFA)</label>
+                <input
+                  type="number"
+                  value={form.price || ''}
+                  onChange={(e) => setForm({ ...form, price: parseInt(e.target.value) || 0 })}
+                  placeholder="10000"
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                />
+              </div>
+
+              {/* Round Trip */}
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.isRoundTrip}
+                    onChange={(e) => setForm({ ...form, isRoundTrip: e.target.checked })}
+                    className="w-5 h-5 rounded border-slate-300 text-[#FF1D8D] focus:ring-[#FF1D8D]/30"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      Créer aussi le trajet retour automatiquement
+                    </span>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Un départ retour sera créé avec +{form.returnDelayHours}h de décalage
+                    </p>
+                  </div>
+                  <ArrowRightLeft className="w-5 h-5 text-purple-500" />
+                </label>
+                {form.isRoundTrip && (
+                  <div className="mt-3 ml-8">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                      Décalage retour (heures)
+                    </label>
+                    <input
+                      type="number"
+                      value={form.returnDelayHours}
+                      onChange={(e) => setForm({ ...form, returnDelayHours: parseInt(e.target.value) || 2 })}
+                      min={1}
+                      max={24}
+                      className="w-32 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Submit */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 bg-[#FF1D8D] hover:bg-[#e0187d] text-white rounded-xl font-semibold text-sm transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      Créer le départ
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ══════════════════════════════════════════════
+   Edit Departure Modal
+   ══════════════════════════════════════════════ */
+function EditDepartureModal({
   isOpen,
   onClose,
   onSave,
   initialData,
-  routes,
-  isEdit,
   loading,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: DepartureFormData) => void;
-  initialData?: DepartureFormData;
-  routes: RouteOption[];
-  isEdit: boolean;
+  onSave: (data: EditDepartureForm) => void;
+  initialData: DepartureItem | null;
   loading: boolean;
 }) {
-  const [form, setForm] = useState<DepartureFormData>(initialData || emptyDepForm);
-
-  // Auto-fill destination when route is selected
-  const handleRouteChange = (routeId: string) => {
-    const route = routes.find((r) => r.id === routeId);
-    setForm({
-      ...form,
-      routeId,
-      destination: route?.destination || '',
-    });
+  const getInitialForm = (): EditDepartureForm => {
+    if (!initialData) {
+      return {
+        departureType: 'OUTBOUND',
+        lineNumber: '',
+        destination: '',
+        date: '',
+        time: '',
+        platform: '',
+        totalSeats: 45,
+        availableSeats: 45,
+      };
+    }
+    const st = new Date(initialData.scheduledTime);
+    return {
+      departureType: initialData.departureType,
+      lineNumber: initialData.lineNumber,
+      destination: initialData.destination,
+      date: st.toISOString().split('T')[0],
+      time: st.toTimeString().slice(0, 5),
+      platform: initialData.platform || '',
+      totalSeats: initialData.totalSeats,
+      availableSeats: initialData.availableSeats,
+    };
   };
+
+  // Use lazy initializer — form is initialized from initialData on mount
+  const [form, setForm] = useState<EditDepartureForm>(getInitialForm);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(form);
   };
-
-  const selectedRoute = routes.find((r) => r.id === form.routeId);
 
   return (
     <AnimatePresence>
@@ -144,20 +448,15 @@ function DepartureModal({
             className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="bg-gradient-to-r from-[#FF1D8D] to-[#7c3aed] px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                    <Bus className="w-5 h-5 text-white" />
+                    <Pencil className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">
-                      {isEdit ? 'Modifier le départ' : 'Nouveau départ'}
-                    </h3>
-                    <p className="text-white/70 text-xs">
-                      {isEdit ? 'Mettez à jour les informations' : 'Planifiez un nouveau départ'}
-                    </p>
+                    <h3 className="text-lg font-bold text-white">Modifier le départ</h3>
+                    <p className="text-white/70 text-xs">Mettez à jour les informations</p>
                   </div>
                 </div>
                 <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/20 transition-colors">
@@ -166,184 +465,128 @@ function DepartureModal({
               </div>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Route */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Route (optionnel)
-                </label>
-                <select
-                  value={form.routeId}
-                  onChange={(e) => handleRouteChange(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all appearance-none"
-                >
-                  <option value="">-- Sans route --</option>
-                  {routes.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name} {r.isRoundTrip ? '(A/R)' : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               {/* Departure Type */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Type de trajet
-                </label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Type</label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() =>
-                      setForm({ ...form, departureType: 'OUTBOUND' })
-                    }
+                    onClick={() => setForm({ ...form, departureType: 'OUTBOUND' })}
                     className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                       form.departureType === 'OUTBOUND'
                         ? 'border-[#FF1D8D] bg-[#FF1D8D]/10 text-[#FF1D8D]'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-500'
                     }`}
                   >
-                    <ArrowRightLeft className="w-4 h-4" />
-                    Aller (OUTBOUND)
+                    ALLER
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      setForm({ ...form, departureType: 'RETURN' })
-                    }
+                    onClick={() => setForm({ ...form, departureType: 'RETURN' })}
                     className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                       form.departureType === 'RETURN'
-                        ? 'border-purple-500 bg-purple-500/10 text-purple-600 dark:text-purple-400'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300'
+                        ? 'border-purple-500 bg-purple-500/10 text-purple-600'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-500'
                     }`}
                   >
-                    <ArrowRightLeft className="w-4 h-4 rotate-180" />
-                    Retour (RETURN)
+                    RETOUR
                   </button>
                 </div>
               </div>
 
-              {/* Line / Destination */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    N° de ligne
-                  </label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ligne</label>
                   <input
                     type="text"
                     value={form.lineNumber}
                     onChange={(e) => setForm({ ...form, lineNumber: e.target.value })}
-                    placeholder="Ex: L45"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Destination
-                  </label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Destination</label>
                   <input
                     type="text"
                     value={form.destination}
                     onChange={(e) => setForm({ ...form, destination: e.target.value })}
-                    placeholder="Ex: Mbour"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30"
                     required
                   />
                 </div>
               </div>
 
-              {/* Date / Time */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Date
-                  </label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Date</label>
                   <input
                     type="date"
                     value={form.date}
                     onChange={(e) => setForm({ ...form, date: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Heure
-                  </label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Heure</label>
                   <input
                     type="time"
                     value={form.time}
                     onChange={(e) => setForm({ ...form, time: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30"
                     required
                   />
                 </div>
               </div>
 
-              {/* Platform / Seats */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Quai
-                  </label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Quai</label>
                   <input
                     type="text"
                     value={form.platform}
                     onChange={(e) => setForm({ ...form, platform: e.target.value })}
-                    placeholder="Ex: A3"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Places totales
-                  </label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Total</label>
                   <input
                     type="number"
                     value={form.totalSeats}
-                    onChange={(e) => setForm({ ...form, totalSeats: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    onChange={(e) => setForm({ ...form, totalSeats: parseInt(e.target.value) || 45 })}
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Places dispo.
-                  </label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Dispo.</label>
                   <input
                     type="number"
                     value={form.availableSeats}
-                    onChange={(e) => setForm({ ...form, availableSeats: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30 focus:border-[#FF1D8D] transition-all"
+                    onChange={(e) => setForm({ ...form, availableSeats: parseInt(e.target.value) || 45 })}
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF1D8D]/30"
                     required
                   />
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-sm hover:bg-slate-200"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#FF1D8D] to-[#7c3aed] text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-[#FF1D8D]/20 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[#FF1D8D] to-[#7c3aed] text-white rounded-xl font-semibold text-sm transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                 >
-                  {loading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <CheckCircle className="w-4 h-4" />
-                      {isEdit ? 'Mettre à jour' : 'Créer le départ'}
-                    </>
-                  )}
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-4 h-4" />Enregistrer</>}
                 </button>
               </div>
             </form>
@@ -355,12 +598,11 @@ function DepartureModal({
 }
 
 /* ══════════════════════════════════════════════
-   Main Page
+   Main Page — Départs Unifiée
    ══════════════════════════════════════════════ */
 export default function DepartsPage() {
   const { agencyId } = useAgency();
   const [departures, setDepartures] = useState<DepartureItem[]>([]);
-  const [routes, setRoutes] = useState<RouteOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -391,33 +633,19 @@ export default function DepartsPage() {
     }
   }, [agencyId, selectedDate, statusFilter]);
 
-  // Fetch routes for dropdown
-  const fetchRoutes = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/admin/routes?agencyId=${agencyId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setRoutes(data.routes || []);
-      }
-    } catch (error) {
-      console.error('Error fetching routes:', error);
-    }
-  }, [agencyId]);
-
   useEffect(() => {
     if (agencyId) {
       fetchDepartures();
-      fetchRoutes();
     }
-  }, [agencyId, fetchDepartures, fetchRoutes]);
+  }, [agencyId, fetchDepartures]);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Create departure
-  const handleCreate = async (data: DepartureFormData) => {
+  // Create departure (unified: auto-route creation + optional round-trip)
+  const handleCreate = async (data: NewDepartureForm) => {
     setSaveLoading(true);
     try {
       const scheduledTime = `${data.date}T${data.time}:00`;
@@ -425,19 +653,24 @@ export default function DepartsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          routeId: data.routeId || undefined,
-          departureType: data.departureType,
-          lineNumber: data.lineNumber,
+          origin: data.origin,
           destination: data.destination,
           scheduledTime,
+          lineNumber: data.line,
           platform: data.platform || undefined,
-          totalSeats: parseInt(data.totalSeats) || 45,
-          availableSeats: parseInt(data.availableSeats) || 45,
+          totalSeats: data.seats,
+          availableSeats: data.seats,
+          price: data.price || undefined,
+          departureType: 'OUTBOUND',
+          isRoundTrip: data.isRoundTrip,
+          returnDelayHours: data.returnDelayHours,
         }),
       });
       if (res.ok) {
+        const result = await res.json();
+        const count = result.createdReturn ? 2 : 1;
         setShowCreateModal(false);
-        showToast('Départ créé avec succès', 'success');
+        showToast(`✅ ${count} départ(s) créé(s) avec succès`, 'success');
         fetchDepartures();
       } else {
         const err = await res.json();
@@ -471,7 +704,7 @@ export default function DepartsPage() {
   };
 
   // Edit departure
-  const handleEdit = async (data: DepartureFormData) => {
+  const handleEdit = async (data: EditDepartureForm) => {
     if (!editingDeparture) return;
     setSaveLoading(true);
     try {
@@ -486,8 +719,8 @@ export default function DepartsPage() {
           destination: data.destination,
           scheduledTime,
           platform: data.platform || null,
-          totalSeats: parseInt(data.totalSeats) || 45,
-          availableSeats: parseInt(data.availableSeats) || 45,
+          totalSeats: data.totalSeats,
+          availableSeats: data.availableSeats,
         }),
       });
       if (res.ok) {
@@ -531,10 +764,7 @@ export default function DepartsPage() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('/api/admin/departures', {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch('/api/admin/departures', { method: 'POST', body: formData });
       const data = await res.json();
       if (res.ok) {
         setCsvResult({ created: data.createdCount, errors: data.errors || [] });
@@ -551,7 +781,7 @@ export default function DepartsPage() {
     }
   };
 
-  // Filter departures by type and search
+  // Filter
   const filteredDepartures = departures.filter((d) => {
     if (typeFilter !== 'ALL' && d.departureType !== typeFilter) return false;
     if (searchQuery) {
@@ -565,13 +795,12 @@ export default function DepartsPage() {
     return true;
   });
 
-  // Stats
+  // KPIs
   const scheduledCount = departures.filter((d) => d.status === 'SCHEDULED').length;
   const departedCount = departures.filter((d) => d.status === 'DEPARTED').length;
   const totalSeats = departures.reduce((sum, d) => sum + d.totalSeats, 0);
   const totalAvailable = departures.reduce((sum, d) => sum + d.availableSeats, 0);
 
-  // Status action options
   const getNextStatus = (current: string): { status: string; icon: typeof Play; label: string } | null => {
     switch (current) {
       case 'SCHEDULED': return { status: 'BOARDING', icon: Play, label: 'Embarquement' };
@@ -580,6 +809,9 @@ export default function DepartsPage() {
       default: return null;
     }
   };
+
+  // Signage URL
+  const signageUrl = agencyId ? `/signage/${agencyId}` : '';
 
   return (
     <div className="space-y-6">
@@ -610,26 +842,32 @@ export default function DepartsPage() {
             Départs
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Planifiez et gérez les départs de vos bus
+            Gérez vos départs — les routes sont créées automatiquement
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* Signage Link */}
+          {signageUrl && (
+            <a
+              href={signageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:border-[#FF1D8D] hover:text-[#FF1D8D] transition-all"
+            >
+              <QrCode className="w-4 h-4" />
+              Affichage Gare
+            </a>
+          )}
           {/* CSV Import */}
           <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:border-[#FF1D8D] hover:text-[#FF1D8D] transition-all cursor-pointer">
             <Upload className="w-4 h-4" />
             Import CSV
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleCsvImport}
-              className="hidden"
-              disabled={csvLoading}
-            />
+            <input type="file" accept=".csv" onChange={handleCsvImport} className="hidden" disabled={csvLoading} />
             {csvLoading && <Loader2 className="w-3 h-3 animate-spin" />}
           </label>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#FF1D8D] to-[#7c3aed] text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-[#FF1D8D]/20 transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF1D8D] hover:bg-[#e0187d] text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#FF1D8D]/20"
           >
             <Plus className="w-4 h-4" />
             Nouveau départ
@@ -654,64 +892,23 @@ export default function DepartsPage() {
           {csvResult.errors.length > 0 && (
             <div className="mt-2 max-h-24 overflow-y-auto">
               {csvResult.errors.map((err, i) => (
-                <p key={i} className="text-xs text-amber-600 dark:text-amber-400">⚠️ {err}</p>
+                <p key={i} className="text-xs text-amber-600">⚠️ {err}</p>
               ))}
             </div>
           )}
         </motion.div>
       )}
 
-      {/* Stats Cards */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Programmés</p>
-              <p className="text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-0.5">{scheduledCount}</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-blue-500" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Partis</p>
-              <p className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">{departedCount}</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-emerald-500" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Total places</p>
-              <p className="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">{totalSeats}</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-              <Users className="w-5 h-5 text-slate-500" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Disponibles</p>
-              <p className="text-xl font-extrabold text-[#FF1D8D] mt-0.5">{totalAvailable}</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-[#FF1D8D]/10 flex items-center justify-center">
-              <Bus className="w-5 h-5 text-[#FF1D8D]" />
-            </div>
-          </div>
-        </div>
+        <KpiCard label="Programmés" value={scheduledCount} icon="🕐" colorClass="text-blue-600 dark:text-blue-400" bgColorClass="bg-blue-100 dark:bg-blue-900/30" />
+        <KpiCard label="Partis" value={departedCount} icon="✅" colorClass="text-emerald-600 dark:text-emerald-400" bgColorClass="bg-emerald-100 dark:bg-emerald-900/30" />
+        <KpiCard label="Total places" value={totalSeats} icon="👥" colorClass="text-slate-900 dark:text-white" bgColorClass="bg-slate-100 dark:bg-slate-800" />
+        <KpiCard label="Disponibles" value={totalAvailable} icon="🚌" colorClass="text-[#FF1D8D]" bgColorClass="bg-[#FF1D8D]/10" />
       </div>
 
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row gap-3">
-        {/* Date Picker */}
         <div className="flex items-center gap-2 bg-white dark:bg-slate-900 rounded-xl px-4 py-2.5 border border-slate-200 dark:border-slate-800">
           <CalendarDays className="w-4 h-4 text-[#FF1D8D]" />
           <input
@@ -722,7 +919,6 @@ export default function DepartsPage() {
           />
         </div>
 
-        {/* Type Filter */}
         <div className="flex items-center gap-1 bg-white dark:bg-slate-900 rounded-xl px-1 py-1 border border-slate-200 dark:border-slate-800">
           {[
             { value: 'ALL', label: 'Tous' },
@@ -743,7 +939,6 @@ export default function DepartsPage() {
           ))}
         </div>
 
-        {/* Status Filter */}
         <div className="flex items-center gap-1 bg-white dark:bg-slate-900 rounded-xl px-1 py-1 border border-slate-200 dark:border-slate-800 overflow-x-auto">
           <select
             value={statusFilter}
@@ -759,7 +954,6 @@ export default function DepartsPage() {
           </select>
         </div>
 
-        {/* Search */}
         <div className="flex items-center gap-2 bg-white dark:bg-slate-900 rounded-xl px-4 py-2.5 border border-slate-200 dark:border-slate-800 flex-1">
           <Search className="w-4 h-4 text-slate-400" />
           <input
@@ -797,6 +991,12 @@ export default function DepartsPage() {
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
             Créez un nouveau départ ou changez la date
           </p>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-5 py-2.5 bg-[#FF1D8D] text-white rounded-xl font-semibold text-sm hover:bg-[#e0187d] transition-all"
+          >
+            + Créer un départ
+          </button>
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
@@ -805,30 +1005,14 @@ export default function DepartsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800">
-                  <th className="text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3">
-                    Type
-                  </th>
-                  <th className="text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3">
-                    Ligne
-                  </th>
-                  <th className="text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3">
-                    Destination
-                  </th>
-                  <th className="text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3">
-                    Heure
-                  </th>
-                  <th className="text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3">
-                    Quai
-                  </th>
-                  <th className="text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3">
-                    Places
-                  </th>
-                  <th className="text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3">
-                    Statut
-                  </th>
-                  <th className="text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-5 py-3">
-                    Actions
-                  </th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Type</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Ligne</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Destination</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Heure</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Quai</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Places</th>
+                  <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Statut</th>
+                  <th className="text-right text-xs font-bold text-slate-500 uppercase tracking-wider px-5 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -846,7 +1030,6 @@ export default function DepartsPage() {
                       transition={{ delay: index * 0.03 }}
                       className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                     >
-                      {/* Type */}
                       <td className="px-5 py-3.5">
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold ${
                           dep.departureType === 'RETURN'
@@ -856,18 +1039,13 @@ export default function DepartsPage() {
                           {dep.departureType === 'RETURN' ? 'RETOUR' : 'ALLER'}
                         </span>
                       </td>
-                      {/* Line */}
                       <td className="px-5 py-3.5">
                         <span className="text-sm font-semibold text-slate-900 dark:text-white">{dep.lineNumber}</span>
-                        {dep.route && (
-                          <p className="text-xs text-slate-400 mt-0.5">{dep.route.name}</p>
-                        )}
+                        {dep.route && <p className="text-xs text-slate-400 mt-0.5">{dep.route.origin} → {dep.route.destination}</p>}
                       </td>
-                      {/* Destination */}
                       <td className="px-5 py-3.5">
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{dep.destination}</span>
                       </td>
-                      {/* Time */}
                       <td className="px-5 py-3.5">
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                           {new Date(dep.scheduledTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
@@ -876,11 +1054,9 @@ export default function DepartsPage() {
                           <span className="ml-1.5 text-[11px] font-bold text-orange-500">+{dep.delayMinutes}min</span>
                         )}
                       </td>
-                      {/* Platform */}
                       <td className="px-5 py-3.5">
                         <span className="text-sm text-slate-500 dark:text-slate-400">{dep.platform || '—'}</span>
                       </td>
-                      {/* Seats with bar */}
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <div className="w-16 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -896,14 +1072,12 @@ export default function DepartsPage() {
                           </span>
                         </div>
                       </td>
-                      {/* Status */}
                       <td className="px-5 py-3.5">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${status.bg} ${status.color}`}>
                           <StatusIcon className="w-3 h-3" />
                           {status.label}
                         </span>
                       </td>
-                      {/* Actions */}
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1">
                           {nextAction && (
@@ -954,53 +1128,71 @@ export default function DepartsPage() {
             {filteredDepartures.map((dep) => {
               const status = statusConfig[dep.status] || statusConfig.SCHEDULED;
               const StatusIcon = status.icon;
+              const nextAction = getNextStatus(dep.status);
               const fillPercent = dep.totalSeats > 0 ? Math.round((dep.soldSeats / dep.totalSeats) * 100) : 0;
 
               return (
                 <div key={dep.id} className="p-4 space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold ${
+                      <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${
                         dep.departureType === 'RETURN'
-                          ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                          ? 'bg-purple-100 text-purple-600'
                           : 'bg-[#FF1D8D]/10 text-[#FF1D8D]'
                       }`}>
                         {dep.departureType === 'RETURN' ? 'RETOUR' : 'ALLER'}
                       </span>
                       <span className="text-sm font-bold text-slate-900 dark:text-white">{dep.lineNumber}</span>
                     </div>
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${status.bg} ${status.color}`}>
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${status.bg} ${status.color}`}>
                       <StatusIcon className="w-3 h-3" />
                       {status.label}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{dep.destination}</p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        <MapPin className="w-3 h-3 inline mr-1 text-slate-400" />
+                        {dep.destination}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
                         {new Date(dep.scheduledTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                        {dep.platform ? ` · Quai ${dep.platform}` : ''}
+                        {dep.platform && <> · Quai {dep.platform}</>}
+                        {dep.delayMinutes > 0 && <span className="text-orange-500 ml-1">+{dep.delayMinutes}min</span>}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-12 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full ${fillPercent > 90 ? 'bg-red-500' : fillPercent > 70 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${Math.min(fillPercent, 100)}%` }} />
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 mb-1">
+                        <div className="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${fillPercent > 90 ? 'bg-red-500' : fillPercent > 70 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                            style={{ width: `${Math.min(fillPercent, 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-slate-500">{dep.availableSeats}/{dep.totalSeats}</span>
                       </div>
-                      <span className="text-xs text-slate-500">{dep.availableSeats}/{dep.totalSeats}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 pt-1">
+                    {nextAction && (
+                      <button
+                        onClick={() => handleUpdateStatus(dep.id, nextAction.status)}
+                        className="flex-1 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                      >
+                        {nextAction.label}
+                      </button>
+                    )}
                     <button
                       onClick={() => setEditingDeparture(dep)}
-                      className="flex-1 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      className="py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs text-slate-500"
                     >
-                      Modifier
+                      <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(dep.id)}
-                      className="px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                      className="py-2 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs text-red-400"
                     >
-                      Supprimer
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -1010,46 +1202,64 @@ export default function DepartsPage() {
         </div>
       )}
 
-      {/* Create Modal */}
-      {showCreateModal && (
-        <DepartureModal
-          key="create"
-          isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSave={handleCreate}
-          routes={routes}
-          isEdit={false}
-          loading={saveLoading}
-        />
+      {/* Signage QR Section */}
+      {signageUrl && (
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <QrCode className="w-5 h-5" />
+                Affichage Gare en Temps Réel
+              </h3>
+              <p className="text-slate-400 text-sm mb-3">
+                Scannez ce QR code pour afficher les horaires sur écran TV en gare.
+                Mise à jour automatique toutes les 15 secondes.
+              </p>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="bg-slate-700 px-3 py-1 rounded-full">✅ Horloge Live</span>
+                <span className="bg-slate-700 px-3 py-1 rounded-full">⚠️ Alertes Retards</span>
+                <span className="bg-slate-700 px-3 py-1 rounded-full">🚌 Embarquement</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center gap-3">
+              <div className="bg-white p-4 rounded-xl shadow-lg">
+                <QRCodeSVG
+                  value={`${typeof window !== 'undefined' ? window.location.origin : ''}${signageUrl}`}
+                  size={130}
+                  fgColor="#1e3a8a"
+                  bgColor="#ffffff"
+                  level="H"
+                />
+              </div>
+              <a
+                href={signageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-white underline text-sm font-medium"
+              >
+                Voir l&apos;affichage →
+              </a>
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Edit Modal */}
-      {editingDeparture && (
-        <DepartureModal
-          key={editingDeparture.id}
-          isOpen={!!editingDeparture}
-          onClose={() => setEditingDeparture(null)}
-          onSave={handleEdit}
-          routes={routes}
-          initialData={
-          editingDeparture
-            ? {
-                routeId: editingDeparture.routeId || '',
-                departureType: editingDeparture.departureType,
-                lineNumber: editingDeparture.lineNumber,
-                destination: editingDeparture.destination,
-                date: new Date(editingDeparture.scheduledTime).toISOString().split('T')[0],
-                time: new Date(editingDeparture.scheduledTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-                platform: editingDeparture.platform || '',
-                totalSeats: editingDeparture.totalSeats.toString(),
-                availableSeats: editingDeparture.availableSeats.toString(),
-              }
-            : undefined
-        }
-        isEdit={true}
+      {/* Modals */}
+      <NewDepartureModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSave={handleCreate}
+        loading={saveLoading}
+        agencyId={agencyId}
+      />
+      <EditDepartureModal
+        key={editingDeparture?.id || 'none'}
+        isOpen={!!editingDeparture}
+        onClose={() => setEditingDeparture(null)}
+        onSave={handleEdit}
+        initialData={editingDeparture}
         loading={saveLoading}
       />
-      )}
     </div>
   );
 }

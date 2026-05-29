@@ -17,9 +17,11 @@ import {
   Armchair,
   AlertTriangle,
   Loader2,
+  Monitor,
 } from 'lucide-react';
 import SecondaryPageLayout from '@/components/landing/SecondaryPageLayout';
 import Link from 'next/link';
+import { QRCodeSVG } from 'qrcode.react';
 
 // ─── Types ────────────────────────────────────────────────────────────
 
@@ -636,6 +638,53 @@ export default function HorairesPage() {
               </motion.div>
             )}
           </div>
+        )}
+
+        {/* ─── QR Code Affichage Gare Section ─────────────────────── */}
+        {data && data.filters.agencies.length > 0 && (
+          <motion.div
+            variants={itemVariants}
+            className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 sm:p-8 shadow-xl"
+          >
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-left">
+                <h3 className="text-xl sm:text-2xl font-bold mb-2 flex items-center gap-2">
+                  <Monitor className="w-6 h-6 text-[#FF6B35]" />
+                  Affichage Gare en Temps Réel
+                </h3>
+                <p className="text-slate-300 mb-4 max-w-md">
+                  Scannez ce QR code pour afficher les horaires sur écran TV en gare.
+                  Mise à jour automatique toutes les 15 secondes.
+                </p>
+                <div className="flex items-center gap-3 text-sm flex-wrap">
+                  <span className="bg-slate-700 px-3 py-1 rounded-full">✅ Horloge Live</span>
+                  <span className="bg-slate-700 px-3 py-1 rounded-full">⚠️ Alertes Retards</span>
+                  <span className="bg-slate-700 px-3 py-1 rounded-full">🚌 Embarquement</span>
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-3">
+                <div className="bg-white p-4 rounded-xl shadow-lg">
+                  <QRCodeSVG
+                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/signage/${data.filters.agencies[0]?.id || 'demo'}`}
+                    size={140}
+                    fgColor="#1e3a8a"
+                    bgColor="#ffffff"
+                    level="H"
+                  />
+                </div>
+                {data.filters.agencies.length > 0 && (
+                  <a
+                    href={`/signage/${data.filters.agencies[0].id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-400 hover:text-white underline text-sm font-medium"
+                  >
+                    Voir l&apos;affichage →
+                  </a>
+                )}
+              </div>
+            </div>
+          </motion.div>
         )}
 
         {/* ─── Info Banner ──────────────────────────────────────── */}
