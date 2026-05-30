@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import { QRCodeSVG } from 'qrcode.react';
 
 /* ══════════════════════════════════════════════
    Types
@@ -539,40 +540,15 @@ export default function SignageKioskPage() {
           </div>
           <div className="qr-box">
             <div className="qr-img">
-              {/* Dynamic QR pointing to tracking */}
-              <svg width="80%" height="80%" viewBox="0 0 100 100">
-                <rect x="5" y="5" width="25" height="25" rx="3" fill="#0f172a" />
-                <rect x="8" y="8" width="19" height="19" rx="2" fill="white" />
-                <rect x="11" y="11" width="13" height="13" rx="1" fill="#0f172a" />
-                <rect x="70" y="5" width="25" height="25" rx="3" fill="#0f172a" />
-                <rect x="73" y="8" width="19" height="19" rx="2" fill="white" />
-                <rect x="76" y="11" width="13" height="13" rx="1" fill="#0f172a" />
-                <rect x="5" y="70" width="25" height="25" rx="3" fill="#0f172a" />
-                <rect x="8" y="73" width="19" height="19" rx="2" fill="white" />
-                <rect x="11" y="76" width="13" height="13" rx="1" fill="#0f172a" />
-                <rect x="35" y="5" width="5" height="5" fill="#0f172a" />
-                <rect x="35" y="15" width="5" height="5" fill="#0f172a" />
-                <rect x="35" y="35" width="5" height="5" fill="#0f172a" />
-                <rect x="45" y="35" width="5" height="5" fill="#0f172a" />
-                <rect x="55" y="35" width="5" height="5" fill="#0f172a" />
-                <rect x="35" y="45" width="5" height="5" fill="#0f172a" />
-                <rect x="55" y="45" width="5" height="5" fill="#0f172a" />
-                <rect x="35" y="55" width="5" height="5" fill="#0f172a" />
-                <rect x="45" y="55" width="5" height="5" fill="#0f172a" />
-                <rect x="55" y="55" width="5" height="5" fill="#0f172a" />
-                <rect x="35" y="70" width="5" height="5" fill="#0f172a" />
-                <rect x="45" y="70" width="5" height="5" fill="#0f172a" />
-                <rect x="55" y="70" width="5" height="5" fill="#0f172a" />
-                <rect x="45" y="80" width="5" height="5" fill="#0f172a" />
-                <rect x="70" y="35" width="5" height="5" fill="#0f172a" />
-                <rect x="80" y="35" width="5" height="5" fill="#0f172a" />
-                <rect x="70" y="45" width="5" height="5" fill="#0f172a" />
-                <rect x="80" y="55" width="5" height="5" fill="#0f172a" />
-                <rect x="90" y="55" width="5" height="5" fill="#0f172a" />
-                <rect x="70" y="70" width="5" height="5" fill="#0f172a" />
-                <rect x="80" y="80" width="5" height="5" fill="#0f172a" />
-                <rect x="90" y="90" width="5" height="5" fill="#0f172a" />
-              </svg>
+              {/* Real QR code pointing to the signage page itself */}
+              <QRCodeSVG
+                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/signage/${stationId}`}
+                size={80}
+                fgColor="#0f172a"
+                bgColor="#ffffff"
+                level="M"
+                includeMargin={false}
+              />
             </div>
             <div className="qr-label">TRACKING</div>
           </div>
