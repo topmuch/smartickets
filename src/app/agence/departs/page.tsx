@@ -811,7 +811,7 @@ export default function DepartsPage() {
   };
 
   // Signage URL
-  const signageUrl = agencyId ? `/signage/${agencyId}` : '';
+  const signageUrl = agencyId ? `/signage/${agencyId}?kiosk=1` : '';
 
   return (
     <div className="space-y-6">

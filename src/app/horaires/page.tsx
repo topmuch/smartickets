@@ -671,7 +671,7 @@ export default function HorairesPage() {
               <div className="flex flex-col items-center gap-3">
                 <div className="bg-white p-4 rounded-xl shadow-lg">
                   <QRCodeSVG
-                    value={`${originUrl}/signage/${data.filters.agencies[0]?.id || 'demo'}`}
+                    value={`${originUrl}/signage/${data.filters.agencies[0]?.id || 'demo'}?kiosk=1`}
                     size={140}
                     fgColor="#1e3a8a"
                     bgColor="#ffffff"
@@ -683,7 +683,7 @@ export default function HorairesPage() {
                   {originUrl}/signage/{data.filters.agencies[0]?.id || 'demo'}
                 </p>
                 <a
-                  href={`/signage/${data.filters.agencies[0].id}`}
+                  href={`/signage/${data.filters.agencies[0].id}?kiosk=1`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#FF6B35] hover:text-[#FFB347] underline text-sm font-semibold transition-colors"
