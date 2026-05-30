@@ -1,14 +1,10 @@
 /**
- * RBAC — Role-Based Access Control middleware & utilities
+ * RBAC — Role-Based Access Control middleware & utilities (Server-side)
  *
  * Provides granular permission checking for the Staff module.
  * Used in API routes to enforce access control before processing requests.
  *
- * Permissions per role (defaults):
- *   ADMIN      → ALL permissions
- *   OPERATOR   → ACTIVATE_TICKETS, ACTIVATE_PARCELS, VIEW_ANALYTICS
- *   CONTROLLER → VALIDATE_TICKETS
- *   DRIVER     → MANAGE_DELIVERIES
+ * Client-side components (Can, PermissionProvider) are in rbac-client.tsx
  */
 
 import type { StaffRole, StaffPermission } from '@prisma/client';
@@ -40,7 +36,7 @@ const ALL_PERMISSION_VALUES: string[] = Object.values(PERMISSIONS);
 
 // ─── Default Permissions per Role ─────────────────────────────────────
 
-export const DEFAULT_PERMISSIONS: Record<string, string[]> = {
+export const ROLE_PERMISSIONS: Record<string, string[]> = {
   [ROLES.ADMIN]: [
     PERMISSIONS.VIEW_REPORTS,
     PERMISSIONS.MANAGE_STAFF,
@@ -63,10 +59,13 @@ export const DEFAULT_PERMISSIONS: Record<string, string[]> = {
   ],
 };
 
+/** Backward-compatible alias */
+export const DEFAULT_PERMISSIONS = ROLE_PERMISSIONS;
+
 // ─── JWT Configuration ──────────────────────────────────────────────
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'smartickets-staff-jwt-secret';
-const JWT_REFRESH_SECRET = process.env.NEXTAUTH_REFRESH_SECRET || 'smartickets-staff-refresh-secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'smartickets-field-secret-2024';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'smartickets-staff-refresh-secret';
 
 export interface StaffJwtPayload {
   staffId: string;
@@ -77,23 +76,14 @@ export interface StaffJwtPayload {
 
 // ─── JWT Utilities ──────────────────────────────────────────────────
 
-/**
- * Generate an access token (short-lived: 15 minutes)
- */
 export function generateStaffAccessToken(payload: StaffJwtPayload): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
 }
 
-/**
- * Generate a refresh token (long-lived: 30 days)
- */
 export function generateStaffRefreshToken(staffId: string): string {
   return jwt.sign({ staffId }, JWT_REFRESH_SECRET, { expiresIn: '30d' });
 }
 
-/**
- * Verify and decode a staff access token
- */
 export function verifyStaffAccessToken(token: string): StaffJwtPayload | null {
   try {
     return jwt.verify(token, JWT_SECRET) as StaffJwtPayload;
@@ -102,9 +92,6 @@ export function verifyStaffAccessToken(token: string): StaffJwtPayload | null {
   }
 }
 
-/**
- * Verify and decode a staff refresh token
- */
 export function verifyStaffRefreshToken(token: string): { staffId: string } | null {
   try {
     return jwt.verify(token, JWT_REFRESH_SECRET) as { staffId: string };
@@ -115,23 +102,26 @@ export function verifyStaffRefreshToken(token: string): { staffId: string } | nu
 
 // ─── Permission Helpers ──────────────────────────────────────────────
 
-/**
- * Check if a given permission list includes a specific permission
- */
-export function hasPermission(
-  permissions: string[],
-  required: string
-): boolean {
-  // ADMIN role always has all permissions
-  if (permissions.includes(PERMISSIONS.MANAGE_STAFF)) {
-    return true;
-  }
-  return permissions.includes(required);
+export function getPermissionsForRole(role: StaffRole): StaffPermission[] {
+  return (ROLE_PERMISSIONS[role] ?? []) as StaffPermission[];
 }
 
-/**
- * Check multiple permissions (all must be present)
- */
+export function hasPermission(
+  userPermissions: string[],
+  requiredPermission: StaffPermission | string
+): boolean {
+  // ADMIN has all permissions
+  if (
+    userPermissions.includes(PERMISSIONS.MANAGE_STAFF) &&
+    userPermissions.includes(PERMISSIONS.VIEW_REPORTS) &&
+    userPermissions.includes(PERMISSIONS.VALIDATE_TICKETS) &&
+    userPermissions.includes(PERMISSIONS.MANAGE_DELIVERIES)
+  ) {
+    return true;
+  }
+  return userPermissions.includes(requiredPermission);
+}
+
 export function hasAllPermissions(
   permissions: string[],
   required: string[]
@@ -139,9 +129,6 @@ export function hasAllPermissions(
   return required.every((p) => hasPermission(permissions, p));
 }
 
-/**
- * Check if any of the given permissions are present
- */
 export function hasAnyPermission(
   permissions: string[],
   required: string[]
@@ -151,20 +138,6 @@ export function hasAnyPermission(
 
 // ─── API Route Middleware ────────────────────────────────────────────
 
-export interface RbacCheckResult {
-  allowed: boolean;
-  error?: string;
-  status?: number;
-}
-
-/**
- * Verify a staff Bearer token from a NextRequest and check a specific permission.
- * Call this at the top of any protected API route.
- *
- * @param req - The incoming NextRequest
- * @param requiredPermission - Optional specific permission to check
- * @returns Object with payload if valid, or error info if denied
- */
 export function verifyStaffRequest(
   req: NextRequest,
   requiredPermission?: string
@@ -187,7 +160,6 @@ export function verifyStaffRequest(
     return { valid: false, error: 'Token invalide ou expiré', status: 401 };
   }
 
-  // Check specific permission if required
   if (requiredPermission && !hasPermission(payload.permissions, requiredPermission)) {
     return { valid: false, error: 'Accès refusé — permission insuffisante', status: 403 };
   }
@@ -195,11 +167,38 @@ export function verifyStaffRequest(
   return { valid: true, payload };
 }
 
+export function requirePermission(permission: StaffPermission) {
+  return (req: NextRequest): Response | null => {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.substring(7);
+    const payload = verifyStaffAccessToken(token);
+    if (!payload) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!hasPermission(payload.permissions, permission)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Permission denied' }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    return null;
+  };
+}
+
 // ─── Parse Permissions (JSON ↔ Array) ──────────────────────────────
 
-/**
- * Parse a JSON string of permissions into a typed array
- */
 export function parsePermissions(json: string): string[] {
   try {
     const arr = JSON.parse(json);
@@ -212,9 +211,6 @@ export function parsePermissions(json: string): string[] {
   }
 }
 
-/**
- * Serialize a permissions array to JSON string for DB storage
- */
 export function serializePermissions(perms: string[]): string {
   return JSON.stringify(perms);
 }

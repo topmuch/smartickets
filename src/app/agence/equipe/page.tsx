@@ -1,733 +1,332 @@
-/**
- * Dashboard Équipe — /agence/equipe
- *
- * Complete team management interface:
- * - Staff table with status, role, last login
- * - Add member modal (name, phone, role, permissions)
- * - Reset code action + WhatsApp onboarding
- * - Deactivate/Delete actions
- */
-
 'use client';
-
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAgency } from '@/app/agence/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import {
-  Plus,
-  Users,
-  Phone,
-  Shield,
-  Clock,
-  KeyRound,
-  Trash2,
-  Power,
-  PowerOff,
-  Search,
-  ChevronDown,
-  CheckCircle2,
-  AlertTriangle,
-  Loader2,
-} from 'lucide-react';
-import WhatsAppOnboarding from '@/components/staff/WhatsAppOnboarding';
-import {
-  ROLES,
-  PERMISSIONS,
-  ROLE_LABELS,
-  PERMISSION_LABELS,
-  DEFAULT_PERMISSIONS,
-} from '@/lib/rbac';
-import { maskPhone } from '@/lib/whatsapp';
+import { maskPhone, buildOnboardingWaLink } from '@/lib/whatsapp';
+import { Users, UserPlus, Phone, MessageCircle, Edit, Trash2, Shield, Check, Loader2, Clock, X, Power, Search, Copy } from 'lucide-react';
 
-// ─── Types ──────────────────────────────────────────────────────────
+const ROLES = { ADMIN: 'ADMIN', OPERATOR: 'OPERATOR', CONTROLLER: 'CONTROLLER', DRIVER: 'DRIVER' };
+const ROLE_LABELS: Record<string, string> = { ADMIN: 'Administrateur', OPERATOR: 'Opérateur', CONTROLLER: 'Contrôleur', DRIVER: 'Chauffeur' };
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+  ADMIN: ['VIEW_REPORTS', 'MANAGE_STAFF', 'ACTIVATE_TICKETS', 'ACTIVATE_PARCELS', 'VALIDATE_TICKETS', 'MANAGE_DELIVERIES', 'VIEW_ANALYTICS'],
+  OPERATOR: ['ACTIVATE_TICKETS', 'ACTIVATE_PARCELS', 'VIEW_ANALYTICS'],
+  CONTROLLER: ['VALIDATE_TICKETS'], DRIVER: ['MANAGE_DELIVERIES'],
+};
+const ROLE_COLORS: Record<string, string> = {
+  ADMIN: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border-rose-200 dark:border-rose-800',
+  OPERATOR: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400 border-sky-200 dark:border-sky-800',
+  CONTROLLER: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800',
+  DRIVER: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+};
 
-interface StaffMember {
-  id: string;
-  name: string;
-  phone: string;
-  role: string;
-  permissions: string[];
-  isActive: boolean;
-  hasActivated: boolean;
-  lastLogin: string | null;
-  codeExpiresAt: string | null;
-  hasValidCode: boolean;
-  createdAt: string;
-  updatedAt: string;
+interface StaffMember { id: string; name: string; phone: string; role: string; permissions: string[]; isActive: boolean; hasActivated: boolean; lastLogin: string | null; createdAt: string; }
+const emptyForm = { name: '', phone: '', role: ROLES.OPERATOR, permissions: [...ROLE_PERMISSIONS[ROLES.OPERATOR]] };
+type DType = 'add' | 'edit' | 'delete' | 'code' | null;
+
+const STAT_ITEMS = [
+  { key: 'total', label: 'Total membres', color: 'text-slate-900 dark:text-slate-100', hasSub: true },
+  { key: 'admin', label: 'Administrateurs', color: 'text-rose-600 dark:text-rose-400' },
+  { key: 'operator', label: 'Opérateurs', color: 'text-sky-600 dark:text-sky-400' },
+  { key: 'controller', label: 'Contrôleurs', color: 'text-amber-600 dark:text-amber-400' },
+  { key: 'driver', label: 'Chauffeurs', color: 'text-emerald-600 dark:text-emerald-400' },
+] as const;
+
+function RoleSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-full h-11"><SelectValue placeholder="Sélectionner un rôle" /></SelectTrigger>
+      <SelectContent>
+        {Object.entries(ROLE_LABELS).map(([r, l]) => (
+          <SelectItem key={r} value={r}><Shield className="w-3.5 h-3.5 mr-1.5 inline" />{l}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 }
 
-// ─── Component ──────────────────────────────────────────────────────
-
 export default function EquipePage() {
-  const { agencyId } = useAgency();
+  const { agencyId, agencyName } = useAgency();
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('ALL');
-
-  // Modal states
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showCodeModal, setShowCodeModal] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
-
-  // New member form
-  const [newMember, setNewMember] = useState({
-    name: '',
-    phone: '',
-    role: ROLES.OPERATOR,
-    permissions: [...DEFAULT_PERMISSIONS[ROLES.OPERATOR]],
-  });
-  const [creating, setCreating] = useState(false);
-
-  // Code display (after creation or reset)
-  const [codeDisplay, setCodeDisplay] = useState<{
-    staff: StaffMember;
-    code: string;
-  } | null>(null);
-
-  // ─── Fetch Staff ─────────────────────────────────────────────────
+  const [dialog, setDialog] = useState<DType>(null);
+  const [selected, setSelected] = useState<StaffMember | null>(null);
+  const [form, setForm] = useState({ ...emptyForm });
+  const [submitting, setSubmitting] = useState(false);
+  const [createdCode, setCreatedCode] = useState<{ staffName: string; phone: string; role: string; code: string } | null>(null);
+  const [codeRevealed, setCodeRevealed] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const pwaUrl = typeof window !== 'undefined' ? `${window.location.origin}/driver/login` : '';
 
   const fetchStaff = useCallback(async () => {
     if (!agencyId) return;
     try {
       setLoading(true);
       const res = await fetch(`/api/agence/staff?agencyId=${agencyId}`);
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) throw new Error();
       const data = await res.json();
       setStaff(data.staff || []);
-    } catch (error) {
-      console.error('Error fetching staff:', error);
-      toast.error('Erreur lors du chargement de l\'équipe');
-    } finally {
-      setLoading(false);
-    }
+    } catch { toast.error("Erreur lors du chargement de l'équipe"); }
+    finally { setLoading(false); }
   }, [agencyId]);
+  useEffect(() => { fetchStaff(); }, [fetchStaff]);
 
-  useEffect(() => {
-    fetchStaff();
-  }, [fetchStaff]);
-
-  // ─── Create Staff ──────────────────────────────────────────────────
-
-  const handleCreate = async () => {
-    if (!newMember.name.trim() || !newMember.phone.trim()) {
-      toast.error('Veuillez remplir tous les champs obligatoires');
-      return;
-    }
-
-    try {
-      setCreating(true);
-      const res = await fetch('/api/agence/staff', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newMember.name.trim(),
-          phone: newMember.phone.trim(),
-          role: newMember.role,
-          permissions: newMember.permissions,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error || 'Erreur lors de la création');
-        return;
-      }
-
-      toast.success('Membre ajouté avec succès !');
-      setShowAddModal(false);
-      setShowCodeModal(true);
-      setCodeDisplay({
-        staff: data.staff,
-        code: data.staff.code,
-      });
-
-      // Reset form
-      setNewMember({
-        name: '',
-        phone: '',
-        role: ROLES.OPERATOR,
-        permissions: [...DEFAULT_PERMISSIONS[ROLES.OPERATOR]],
-      });
-
-      fetchStaff();
-    } catch (error) {
-      console.error('Create error:', error);
-      toast.error('Erreur serveur');
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  // ─── Reset Code ──────────────────────────────────────────────────
-
-  const handleResetCode = async (staffMember: StaffMember) => {
-    try {
-      const res = await fetch(`/api/agence/staff/${staffMember.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reset-code' }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error || 'Erreur lors de la réinitialisation');
-        return;
-      }
-
-      toast.success('Code réinitialisé');
-      setShowCodeModal(true);
-      setCodeDisplay({
-        staff: { ...staffMember, hasValidCode: true },
-        code: data.code,
-      });
-      fetchStaff();
-    } catch (error) {
-      console.error('Reset code error:', error);
-      toast.error('Erreur serveur');
-    }
-  };
-
-  // ─── Toggle Active ───────────────────────────────────────────────
-
-  const handleToggleActive = async (staffMember: StaffMember) => {
-    try {
-      const res = await fetch(`/api/agence/staff/${staffMember.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !staffMember.isActive }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error || 'Erreur');
-        return;
-      }
-
-      toast.success(staffMember.isActive ? 'Membre désactivé' : 'Membre réactivé');
-      fetchStaff();
-    } catch (error) {
-      console.error('Toggle error:', error);
-      toast.error('Erreur serveur');
-    }
-  };
-
-  // ─── Delete Staff ──────────────────────────────────────────────────
-
-  const handleDelete = async () => {
-    if (!selectedStaff) return;
-    try {
-      const res = await fetch(`/api/agence/staff/${selectedStaff.id}`, {
-        method: 'DELETE',
-      });
-
-      if (!res.ok) {
-        toast.error('Erreur lors de la suppression');
-        return;
-      }
-
-      toast.success('Membre supprimé');
-      setShowDeleteModal(false);
-      setSelectedStaff(null);
-      fetchStaff();
-    } catch (error) {
-      console.error('Delete error:', error);
-      toast.error('Erreur serveur');
-    }
-  };
-
-  // ─── Permission Toggle ────────────────────────────────────────────
-
-  const togglePermission = (perm: string) => {
-    setNewMember((prev) => ({
-      ...prev,
-      permissions: prev.permissions.includes(perm)
-        ? prev.permissions.filter((p) => p !== perm)
-        : [...prev.permissions, perm],
-    }));
-  };
-
-  // ─── Filtered Staff ──────────────────────────────────────────────
-
-  const filteredStaff = staff.filter((s) => {
-    const matchesSearch =
-      !searchQuery ||
-      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.phone.includes(searchQuery);
-    const matchesRole = roleFilter === 'ALL' || s.role === roleFilter;
-    return matchesSearch && matchesRole;
+  const filtered = staff.filter((s) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return s.name.toLowerCase().includes(q) || s.phone.includes(q);
   });
 
-  // ─── Role Badge Color ─────────────────────────────────────────────
+  const byRole = (r: string) => staff.filter((s) => s.role === r).length;
+  const activeCount = staff.filter((s) => s.isActive).length;
 
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case ROLES.ADMIN:
-        return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
-      case ROLES.OPERATOR:
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-      case ROLES.CONTROLLER:
-        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-      case ROLES.DRIVER:
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-      default:
-        return '';
-    }
+  const close = () => { setDialog(null); setSelected(null); };
+  const openAdd = () => { setForm({ ...emptyForm }); setDialog('add'); };
+  const openEdit = (m: StaffMember) => { setSelected(m); setForm({ name: m.name, phone: m.phone, role: m.role, permissions: [...m.permissions] }); setDialog('edit'); };
+  const openDelete = (m: StaffMember) => { setSelected(m); setDialog('delete'); };
+  const initials = (n: string) => n.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
+
+  const handleCreate = async () => {
+    if (!agencyId || !form.name.trim() || !form.phone.trim()) { toast.error('Remplissez tous les champs'); return; }
+    try {
+      setSubmitting(true);
+      const res = await fetch('/api/agence/staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agencyId, name: form.name.trim(), phone: form.phone.trim(), role: form.role, permissions: form.permissions }) });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error || 'Erreur création'); return; }
+      toast.success('Membre ajouté !');
+      setDialog('code');
+      setCreatedCode({ staffName: data.staff.name, phone: data.staff.phone, role: data.staff.role, code: data.plainCode });
+      setForm({ ...emptyForm }); fetchStaff();
+    } catch { toast.error('Erreur serveur'); } finally { setSubmitting(false); }
   };
 
-  // ─── PWA URL ──────────────────────────────────────────────────────
-
-  const pwaUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/driver/login`
-    : '';
-
-  // ─── Stats ────────────────────────────────────────────────────────
-
-  const totalStaff = staff.length;
-  const activeStaff = staff.filter((s) => s.isActive).length;
-  const byRole = {
-    admin: staff.filter((s) => s.role === ROLES.ADMIN).length,
-    operator: staff.filter((s) => s.role === ROLES.OPERATOR).length,
-    controller: staff.filter((s) => s.role === ROLES.CONTROLLER).length,
-    driver: staff.filter((s) => s.role === ROLES.DRIVER).length,
+  const handleEdit = async () => {
+    if (!selected) return;
+    try {
+      setSubmitting(true);
+      const res = await fetch('/api/agence/staff', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: selected.id, name: form.name.trim(), role: form.role, permissions: form.permissions }) });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error || 'Erreur modification'); return; }
+      toast.success('Membre modifié'); close(); fetchStaff();
+    } catch { toast.error('Erreur serveur'); } finally { setSubmitting(false); }
   };
 
-  // ─── Render ──────────────────────────────────────────────────────
+  const handleToggle = async (m: StaffMember) => {
+    try {
+      const res = await fetch('/api/agence/staff', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: m.id, isActive: !m.isActive }) });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error || 'Erreur'); return; }
+      toast.success(m.isActive ? 'Membre désactivé' : 'Membre réactivé'); fetchStaff();
+    } catch { toast.error('Erreur serveur'); }
+  };
+
+  const handleDelete = async () => {
+    if (!selected) return;
+    try {
+      const res = await fetch('/api/agence/staff', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: selected.id }) });
+      if (!res.ok) { toast.error((await res.json()).error || 'Erreur'); return; }
+      toast.success('Membre supprimé'); close(); fetchStaff();
+    } catch { toast.error('Erreur serveur'); }
+  };
+
+  const sendWhatsApp = (m: StaffMember) => {
+    window.open(buildOnboardingWaLink(m.phone, { name: m.name, code: '****', role: ROLE_LABELS[m.role] || m.role, pwaUrl, agencyName }), '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCopyCode = async () => {
+    if (!createdCode) return;
+    try { await navigator.clipboard.writeText(createdCode.code); setCopied(true); toast.success('Code copié'); setTimeout(() => setCopied(false), 2000); }
+    catch { toast.error('Impossible de copier'); }
+  };
+
+  const sendCodeWhatsApp = () => {
+    if (!createdCode) return;
+    window.open(buildOnboardingWaLink(createdCode.phone, { name: createdCode.staffName, code: createdCode.code, role: ROLE_LABELS[createdCode.role] || createdCode.role, pwaUrl, agencyName }), '_blank', 'noopener,noreferrer');
+  };
+
+  const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : 'Jamais';
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
+    <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Users className="w-7 h-7 text-[#FF1D8D]" />
-            Gestion d'Équipe
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#FF1D8D]/10 flex items-center justify-center"><Users className="w-5 h-5 text-[#FF1D8D]" /></div>
+            Gestion d&apos;Équipe
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Gérez les membres, les rôles et les permissions de votre équipe terrain
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 ml-[52px]">Gérez les membres et les rôles de votre équipe terrain</p>
         </div>
-        <Button
-          onClick={() => setShowAddModal(true)}
-          className="bg-[#FF1D8D] hover:bg-[#FF1D8D]/90 text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Ajouter un membre
-        </Button>
+        <Button onClick={openAdd} className="bg-[#FF1D8D] hover:bg-[#FF1D8D]/90 text-white shrink-0"><UserPlus className="w-4 h-4 mr-2" />Ajouter un membre</Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total</p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{totalStaff}</p>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-1">{activeStaff} actifs</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Admins</p>
-          <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">{byRole.admin}</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Opérateurs</p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{byRole.operator}</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Contrôleurs</p>
-          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{byRole.controller}</p>
-        </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Chauffeurs</p>
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400">{byRole.driver}</p>
-        </div>
+        {STAT_ITEMS.map((s) => (
+          <Card key={s.key} className="p-4 hover:shadow-md transition-shadow">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{s.label}</p>
+            <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.key === 'total' ? staff.length : byRole(ROLES[s.key.toUpperCase() as keyof typeof ROLES])}</p>
+            {s.hasSub && <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{activeCount} actifs</p>}
+          </Card>
+        ))}
       </div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Rechercher par nom ou téléphone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <div className="relative">
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 pr-8 text-sm appearance-none cursor-pointer"
-          >
-            <option value="ALL">Tous les rôles</option>
-            <option value={ROLES.ADMIN}>Admins</option>
-            <option value={ROLES.OPERATOR}>Opérateurs</option>
-            <option value={ROLES.CONTROLLER}>Contrôleurs</option>
-            <option value={ROLES.DRIVER}>Chauffeurs</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-        </div>
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Input placeholder="Rechercher par nom ou téléphone..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 h-11" />
       </div>
 
-      {/* Staff Table */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
-            <span className="ml-3 text-slate-500">Chargement de l'équipe...</span>
-          </div>
-        ) : filteredStaff.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Users className="w-12 h-12 text-slate-300 dark:text-slate-600 mb-3" />
-            <p className="text-slate-500 dark:text-slate-400 font-medium">
-              {staff.length === 0
-                ? 'Aucun membre dans votre équipe'
-                : 'Aucun résultat trouvé'}
-            </p>
-            {staff.length === 0 && (
-              <Button
-                variant="outline"
-                onClick={() => setShowAddModal(true)}
-                className="mt-3"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter votre premier membre
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            {/* Desktop Table */}
-            <table className="w-full hidden md:table">
-              <thead className="bg-slate-50 dark:bg-slate-900/50">
-                <tr>
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Membre</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Téléphone</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Rôle</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Statut</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Dernière connexion</th>
-                  <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {filteredStaff.map((member) => (
-                  <tr key={member.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#FF1D8D]/20 to-[#FF1D8D]/5 flex items-center justify-center">
-                          <span className="text-sm font-semibold text-[#FF1D8D]">
-                            {member.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{member.name}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {member.hasActivated ? (
-                              <span className="text-green-600 dark:text-green-400">✓ Activé</span>
-                            ) : (
-                              <span className="text-amber-600 dark:text-amber-400">En attente</span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-                        <Phone className="w-3.5 h-3.5" />
-                        {maskPhone(member.phone)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge className={`text-xs font-medium border-0 ${getRoleBadgeVariant(member.role)}`}>
-                        {ROLE_LABELS[member.role]}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <div className={`w-2 h-2 rounded-full ${member.isActive ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                        <span className="text-sm text-slate-600 dark:text-slate-300">
-                          {member.isActive ? 'Actif' : 'Inactif'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" />
-                        {member.lastLogin
-                          ? new Date(member.lastLogin).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
-                          : 'Jamais'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => handleResetCode(member)} title="Réinitialiser le code">
-                          <KeyRound className="w-4 h-4 text-amber-500" />
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => handleToggleActive(member)} title={member.isActive ? 'Désactiver' : 'Réactiver'}>
-                          {member.isActive ? <PowerOff className="w-4 h-4 text-slate-400" /> : <Power className="w-4 h-4 text-green-500" />}
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => { setSelectedStaff(member); setShowDeleteModal(true); }} title="Supprimer">
-                          <Trash2 className="w-4 h-4 text-rose-500" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Loading */}
+      {loading && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">{Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i} className="p-4"><div className="h-3 w-16 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-2" /><div className="h-8 w-12 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" /></Card>
+          ))}</div>
+          <Card className="p-4 space-y-3">{Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4"><div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" /><div className="flex-1 space-y-2"><div className="h-4 w-40 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" /><div className="h-3 w-28 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" /></div></div>
+          ))}</Card>
+        </div>
+      )}
 
-            {/* Mobile Cards */}
-            <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-700">
-              {filteredStaff.map((member) => (
-                <div key={member.id} className="p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF1D8D]/20 to-[#FF1D8D]/5 flex items-center justify-center">
-                        <span className="text-sm font-semibold text-[#FF1D8D]">
-                          {member.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{member.name}</p>
-                        <p className="text-xs text-slate-500 flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          {maskPhone(member.phone)}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge className={`text-xs font-medium border-0 ${getRoleBadgeVariant(member.role)}`}>
-                      {ROLE_LABELS[member.role]}
-                    </Badge>
+      {/* Empty */}
+      {!loading && filtered.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4"><Users className="w-10 h-10 text-slate-300 dark:text-slate-600" /></div>
+          <p className="text-lg font-semibold text-slate-500 dark:text-slate-400">{staff.length === 0 ? 'Aucun membre' : 'Aucun résultat'}</p>
+          <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">{staff.length === 0 ? 'Commencez par ajouter votre premier membre' : 'Essayez un autre terme'}</p>
+          {staff.length === 0 && <Button variant="outline" onClick={openAdd} className="mt-4"><UserPlus className="w-4 h-4 mr-2" />Ajouter un membre</Button>}
+        </div>
+      )}
+
+      {/* Staff Cards */}
+      {!loading && filtered.length > 0 && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((m) => (
+            <Card key={m.id} className="p-4 hover:shadow-md transition-all">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF1D8D]/20 to-[#FF1D8D]/5 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-semibold text-[#FF1D8D]">{initials(m.name)}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <div className={`w-2 h-2 rounded-full ${member.isActive ? 'bg-green-500' : 'bg-slate-300'}`} />
-                    {member.isActive ? 'Actif' : 'Inactif'}
-                    <span className="mx-1">•</span>
-                    <Clock className="w-3 h-3" />
-                    {member.lastLogin
-                      ? new Date(member.lastLogin).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
-                      : 'Jamais connecté'}
-                  </div>
-                  <div className="flex gap-2 pt-1">
-                    <Button size="sm" variant="outline" onClick={() => handleResetCode(member)} className="flex-1 text-xs">
-                      <KeyRound className="w-3 h-3 mr-1" /> Code
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleToggleActive(member)} className="flex-1 text-xs">
-                      {member.isActive ? <><PowerOff className="w-3 h-3 mr-1" /> Désactiver</> : <><Power className="w-3 h-3 mr-1" /> Réactiver</>}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => { setSelectedStaff(member); setShowDeleteModal(true); }}>
-                      <Trash2 className="w-3 h-3 text-rose-500" />
-                    </Button>
-                  </div>
+                  <div><p className="text-sm font-medium text-slate-900 dark:text-slate-100">{m.name}</p><p className="text-xs text-slate-500 flex items-center gap-1"><Phone className="w-3 h-3" />{maskPhone(m.phone)}</p></div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+                <Badge className={`text-xs font-medium border shrink-0 ${ROLE_COLORS[m.role] || ''}`}><Shield className="w-3 h-3 mr-1" />{ROLE_LABELS[m.role] || m.role}</Badge>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                <div className={`w-2 h-2 rounded-full ${m.isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                <span>{m.isActive ? 'Actif' : 'Inactif'}</span>
+                <span className={m.hasActivated ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}>• {m.hasActivated ? 'Activé' : 'En attente'}</span>
+                <span className="ml-auto flex items-center gap-1"><Clock className="w-3 h-3" />{fmtDate(m.lastLogin)}</span>
+              </div>
+              <Separator className="mb-3" />
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => openEdit(m)} className="flex-1 text-xs h-8"><Edit className="w-3 h-3 mr-1" />Modifier</Button>
+                <Button size="sm" variant="outline" onClick={() => sendWhatsApp(m)} className="flex-1 text-xs h-8"><MessageCircle className="w-3 h-3 mr-1" />WhatsApp</Button>
+                <Button size="sm" variant="ghost" onClick={() => handleToggle(m)} className="h-8 w-8 p-0" title={m.isActive ? 'Désactiver' : 'Activer'}><Power className={`w-3.5 h-3.5 ${m.isActive ? 'text-slate-400' : 'text-emerald-500'}`} /></Button>
+                <Button size="sm" variant="ghost" onClick={() => openDelete(m)} className="h-8 w-8 p-0 text-rose-500 hover:text-rose-600" title="Supprimer"><Trash2 className="w-3.5 h-3.5" /></Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
-      {/* ─── Add Member Modal ──────────────────────────────────────── */}
-      <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      {/* Add Dialog */}
+      <Dialog open={dialog === 'add'} onOpenChange={(o) => { if (!o) close(); }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Plus className="w-5 h-5 text-[#FF1D8D]" />
-              Ajouter un membre
-            </DialogTitle>
-            <DialogDescription>
-              Créez un nouveau membre d'équipe. Un code d'accès sera généré automatiquement.
-            </DialogDescription>
+            <DialogTitle className="flex items-center gap-2"><UserPlus className="w-5 h-5 text-[#FF1D8D]" />Ajouter un membre</DialogTitle>
+            <DialogDescription>Créez un nouveau membre. Un code sera généré automatiquement.</DialogDescription>
           </DialogHeader>
-
           <div className="space-y-4 py-2">
-            {/* Name */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Nom complet <span className="text-rose-500">*</span>
-              </label>
-              <Input
-                placeholder="Ex: Mamadou Diallo"
-                value={newMember.name}
-                onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-              />
-            </div>
-
-            {/* Phone */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Téléphone <span className="text-rose-500">*</span>
-              </label>
-              <Input
-                placeholder="Ex: +221 77 123 45 67"
-                value={newMember.phone}
-                onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
-                type="tel"
-              />
-              <p className="text-xs text-slate-500">Format E.164 (ex: +221771234567)</p>
-            </div>
-
-            {/* Role Selector */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Rôle</label>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(ROLE_LABELS).map(([role, label]) => (
-                  <button
-                    key={role}
-                    onClick={() => {
-                      const r = role;
-                      setNewMember({
-                        ...newMember,
-                        role: r,
-                        permissions: [...DEFAULT_PERMISSIONS[r]],
-                      });
-                    }}
-                    className={`
-                      flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all
-                      ${newMember.role === role
-                        ? 'border-[#FF1D8D] bg-[#FF1D8D]/5 text-[#FF1D8D]'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'}
-                    `}
-                  >
-                    <Shield className="w-4 h-4" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Permissions */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Permissions</label>
-              <p className="text-xs text-slate-500">Modifiées automatiquement selon le rôle sélectionné.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {Object.entries(PERMISSION_LABELS).map(([perm, label]) => (
-                  <label
-                    key={perm}
-                    className={`
-                      flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all text-sm
-                      ${newMember.permissions.includes(perm)
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'}
-                    `}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={newMember.permissions.includes(perm)}
-                      onChange={() => togglePermission(perm)}
-                      className="sr-only"
-                    />
-                    <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
-                      newMember.permissions.includes(perm)
-                        ? 'bg-green-500 border-green-500'
-                        : 'border-slate-300 dark:border-slate-600'
-                    }`}>
-                      {newMember.permissions.includes(perm) && (
-                        <CheckCircle2 className="w-3 h-3 text-white" />
-                      )}
-                    </div>
-                    {label}
-                  </label>
-                ))}
-              </div>
-            </div>
+            <div className="space-y-2"><Label>Nom complet <span className="text-rose-500">*</span></Label><Input placeholder="Ex: Mamadou Diallo" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Téléphone <span className="text-rose-500">*</span></Label><div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">+</span><Input placeholder="221 77 123 45 67" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} type="tel" className="pl-7" /></div></div>
+            <div className="space-y-2"><Label>Rôle</Label><RoleSelect value={form.role} onChange={(v) => setForm({ ...form, role: v, permissions: [...ROLE_PERMISSIONS[v]] })} /></div>
           </div>
-
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowAddModal(false)}>Annuler</Button>
-            <Button
-              onClick={handleCreate}
-              disabled={creating || !newMember.name.trim() || !newMember.phone.trim()}
-              className="bg-[#FF1D8D] hover:bg-[#FF1D8D]/90 text-white"
-            >
-              {creating ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Création...</>
-              ) : (
-                <><Plus className="w-4 h-4 mr-2" /> Créer le membre</>
-              )}
+            <Button variant="outline" onClick={close}><X className="w-4 h-4 mr-2" />Annuler</Button>
+            <Button onClick={handleCreate} disabled={submitting || !form.name.trim() || !form.phone.trim()} className="bg-[#FF1D8D] hover:bg-[#FF1D8D]/90 text-white">
+              {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Création...</> : <><Check className="w-4 h-4 mr-2" />Créer le membre</>}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ─── Code Display Modal ───────────────────────────────────── */}
-      <Dialog open={showCodeModal && !!codeDisplay} onOpenChange={(open) => {
-        setShowCodeModal(open);
-        if (!open) setCodeDisplay(null);
-      }}>
-        <DialogContent className="sm:max-w-md">
+      {/* Edit Dialog */}
+      <Dialog open={dialog === 'edit'} onOpenChange={(o) => { if (!o) close(); }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <KeyRound className="w-5 h-5 text-amber-500" />
-              Code d'accès généré
-            </DialogTitle>
-            <DialogDescription>
-              Ce code ne sera affiché qu'une seule fois. Envoyez-le au membre via WhatsApp.
-            </DialogDescription>
+            <DialogTitle className="flex items-center gap-2"><Edit className="w-5 h-5 text-[#FF1D8D]" />Modifier le membre</DialogTitle>
+            <DialogDescription>Modifiez les informations de <span className="font-medium">{selected?.name}</span></DialogDescription>
           </DialogHeader>
-
-          {codeDisplay && (
-            <WhatsAppOnboarding
-              name={codeDisplay.staff.name}
-              phone={codeDisplay.staff.phone}
-              role={codeDisplay.staff.role}
-              code={codeDisplay.code}
-              pwaUrl={pwaUrl}
-            />
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCodeModal(false)}>Fermer</Button>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2"><Label>Nom complet</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+            <div className="space-y-2"><Label>Téléphone</Label><div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><Phone className="w-4 h-4 text-slate-400" /><span className="text-sm text-slate-600 dark:text-slate-300">{maskPhone(form.phone)}</span><span className="text-xs text-slate-400 ml-auto">Non modifiable</span></div></div>
+            <div className="space-y-2"><Label>Rôle</Label><RoleSelect value={form.role} onChange={(v) => setForm({ ...form, role: v, permissions: [...ROLE_PERMISSIONS[v]] })} /></div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={close}><X className="w-4 h-4 mr-2" />Annuler</Button>
+            <Button onClick={handleEdit} disabled={submitting || !form.name.trim()} className="bg-[#FF1D8D] hover:bg-[#FF1D8D]/90 text-white">
+              {submitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Enregistrement...</> : <><Check className="w-4 h-4 mr-2" />Enregistrer</>}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ─── Delete Confirmation Modal ─────────────────────────────── */}
-      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+      {/* Code Dialog */}
+      <Dialog open={dialog === 'code'} onOpenChange={(o) => { if (!o) { close(); setCreatedCode(null); setCodeRevealed(false); } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-rose-600">
-              <AlertTriangle className="w-5 h-5" />
-              Supprimer le membre
-            </DialogTitle>
-            <DialogDescription>
-              Cette action est irréversible. Le membre sera désactivé et ses accès supprimés.
-            </DialogDescription>
+            <DialogTitle className="flex items-center gap-2">🔑 Code d&apos;accès généré</DialogTitle>
+            <DialogDescription>Ce code ne sera affiché qu&apos;une seule fois.</DialogDescription>
           </DialogHeader>
+          {createdCode && (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center"><MessageCircle className="w-4 h-4 text-emerald-600" /></div><div><p className="text-sm font-semibold">{createdCode.staffName}</p><p className="text-xs text-slate-500">{maskPhone(createdCode.phone)}</p></div></div>
+                <Badge variant="outline" className="text-xs">{ROLE_LABELS[createdCode.role]}</Badge>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
+                <span className="text-xs text-slate-500 font-medium">Code :</span>
+                <span className="font-mono text-xl font-bold tracking-[0.3em] text-slate-900 dark:text-slate-100">{codeRevealed ? createdCode.code : '****'}</span>
+              </div>
+              <div className="flex gap-2">
+                <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-10" onClick={sendCodeWhatsApp}><MessageCircle className="w-4 h-4 mr-2" />Envoyer par WhatsApp</Button>
+                <Button variant="outline" className="flex-1 h-10" onClick={handleCopyCode}>{copied ? <><Check className="w-4 h-4 mr-2 text-emerald-500" />Copié !</> : <><Copy className="w-4 h-4 mr-2" />Copier</>}</Button>
+              </div>
+              <button onClick={() => setCodeRevealed(!codeRevealed)} className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{codeRevealed ? 'Masquer le code' : 'Afficher le code'}</button>
+            </div>
+          )}
+          <DialogFooter><Button variant="outline" onClick={() => { close(); setCreatedCode(null); setCodeRevealed(false); }}>Fermer</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-          {selectedStaff && (
+      {/* Delete Dialog */}
+      <Dialog open={dialog === 'delete'} onOpenChange={(o) => { if (!o) close(); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-rose-600"><Trash2 className="w-5 h-5" />Supprimer le membre</DialogTitle>
+            <DialogDescription>Cette action est irréversible.</DialogDescription>
+          </DialogHeader>
+          {selected && (
             <div className="rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-                  <span className="text-sm font-semibold text-rose-600">
-                    {selectedStaff.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
-                  </span>
-                </div>
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-slate-100">{selectedStaff.name}</p>
-                  <p className="text-sm text-slate-500">{ROLE_LABELS[selectedStaff.role]} • {maskPhone(selectedStaff.phone)}</p>
-                </div>
+                <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center"><span className="text-sm font-semibold text-rose-600">{initials(selected.name)}</span></div>
+                <div><p className="font-medium text-slate-900 dark:text-slate-100">{selected.name}</p><p className="text-sm text-slate-500">{ROLE_LABELS[selected.role]} • {maskPhone(selected.phone)}</p></div>
               </div>
             </div>
           )}
-
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>Annuler</Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" /> Supprimer définitivement
-            </Button>
+            <Button variant="outline" onClick={close}>Annuler</Button>
+            <Button variant="destructive" onClick={handleDelete}><Trash2 className="w-4 h-4 mr-2" />Supprimer définitivement</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

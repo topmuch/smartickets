@@ -3,28 +3,24 @@
  *
  * POST → Authenticate a staff member with phone + login code.
  *       Returns short-lived access token (15m) + long-lived refresh token (30d).
- *
- * Rate-limited: max 5 attempts per phone per 15 minutes.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { verifyCode } from '@/lib/secure-code';
 import {
   generateStaffAccessToken,
   generateStaffRefreshToken,
   parsePermissions,
 } from '@/lib/rbac';
-import { normalizePhone } from '@/lib/whatsapp';
-import { AuditAction } from '@prisma/client';
+import { cleanPhone } from '@/lib/wame';
 import { z } from 'zod';
-import { headers } from 'next/headers';
+import bcrypt from 'bcryptjs';
 
 // ─── Rate Limiting (in-memory) ──────────────────────────────────────
 
 const loginAttempts = new Map<string, { count: number; firstAttempt: number }>();
 const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const WINDOW_MS = 15 * 60 * 1000;
 
 function checkRateLimit(phone: string): { allowed: boolean; remaining: number } {
   const now = Date.now();
@@ -47,101 +43,100 @@ function checkRateLimit(phone: string): { allowed: boolean; remaining: number } 
 
 const loginSchema = z.object({
   phone: z.string().min(1, 'Le téléphone est requis'),
-  code: z.string().length(4, 'Le code doit contenir 4 chiffres'),
+  code: z.string().regex(/^\d{4,6}$/, 'Le code doit contenir entre 4 et 6 chiffres'),
 });
 
 // ─── POST: Field Login ──────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
-    // Parse and validate
     const body = await req.json();
     const parsed = loginSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Données invalides', details: parsed.error.flatten() },
+        { success: false, error: 'Données invalides', details: parsed.error.flatten() },
         { status: 400 }
       );
     }
 
     const { phone: rawPhone, code } = parsed.data;
-
-    // Normalize phone
-    const phone = normalizePhone(rawPhone);
-    if (!phone) {
-      return NextResponse.json({ error: 'Numéro de téléphone invalide' }, { status: 400 });
-    }
+    const phone = cleanPhone(rawPhone);
 
     // Rate limit check
     const rateCheck = checkRateLimit(phone);
     if (!rateCheck.allowed) {
       return NextResponse.json(
-        { error: 'Trop de tentatives. Réessayez dans 15 minutes.' },
+        { success: false, error: 'Trop de tentatives. Réessayez dans 15 minutes.' },
         { status: 429 }
       );
     }
 
-    // Find staff by phone
+    // Find staff by phone (must be active)
     const staff = await db.staff.findUnique({
       where: { phone },
       include: { agency: { select: { id: true, name: true, slug: true } } },
     });
 
     if (!staff || !staff.isActive) {
-      // Log failed attempt
-      await db.staffAuditLog.create({
-        data: {
-          action: AuditAction.STAFF_LOGIN_FAILURE,
-          staffId: staff?.id || 'unknown',
-          details: JSON.stringify({ phone, reason: staff ? 'inactive' : 'not_found' }),
-        },
-      });
-
+      if (staff) {
+        await db.staffAuditLog.create({
+          data: {
+            action: 'STAFF_LOGIN_FAILURE',
+            staffId: staff.id,
+            details: JSON.stringify({ phone, reason: 'inactive' }),
+          },
+        });
+      }
       return NextResponse.json(
-        { error: 'Compte inexistant ou désactivé', remaining: rateCheck.remaining },
+        { success: false, error: 'Compte inexistant ou désactivé' },
         { status: 401 }
       );
     }
 
     // Check code expiration
     if (staff.codeExpiresAt && new Date(staff.codeExpiresAt) < new Date()) {
+      await db.staffAuditLog.create({
+        data: {
+          action: 'STAFF_LOGIN_FAILURE',
+          staffId: staff.id,
+          details: JSON.stringify({ phone, reason: 'code_expired' }),
+        },
+      });
       return NextResponse.json(
-        { error: 'Code expiré. Demandez un nouveau code à votre administrateur.' },
+        { success: false, error: 'Code expiré. Demandez un nouveau code.' },
         { status: 401 }
       );
     }
 
-    // Verify code hash
-    if (!staff.loginCodeHash || !verifyCode(code, staff.loginCodeHash)) {
-      // Log failed attempt
+    // Verify code with bcrypt.compare
+    if (!staff.loginCodeHash || !(await bcrypt.compare(code, staff.loginCodeHash))) {
       await db.staffAuditLog.create({
         data: {
-          action: AuditAction.STAFF_LOGIN_FAILURE,
+          action: 'STAFF_LOGIN_FAILURE',
           staffId: staff.id,
           details: JSON.stringify({ phone, reason: 'invalid_code' }),
         },
       });
-
       return NextResponse.json(
-        { error: 'Code incorrect', remaining: rateCheck.remaining },
+        { success: false, error: 'Code incorrect' },
         { status: 401 }
       );
     }
 
     // ─── Login Successful ───
-
-    // Generate tokens
     const permissions = parsePermissions(staff.permissions);
+
     const accessToken = generateStaffAccessToken({
       staffId: staff.id,
       role: staff.role,
       agencyId: staff.agencyId,
       permissions,
     });
+
     const refreshToken = generateStaffRefreshToken(staff.id);
 
-    // Update staff: set hasActivated, update lastLogin
+    // Update staff
     await db.staff.update({
       where: { id: staff.id },
       data: {
@@ -153,30 +148,28 @@ export async function POST(req: NextRequest) {
     // Audit log
     await db.staffAuditLog.create({
       data: {
-        action: AuditAction.STAFF_LOGIN_SUCCESS,
+        action: 'STAFF_LOGIN_SUCCESS',
         staffId: staff.id,
         details: JSON.stringify({ phone, role: staff.role }),
       },
     });
 
-    // Return tokens + staff info
     return NextResponse.json({
+      success: true,
       accessToken,
       refreshToken,
       staff: {
         id: staff.id,
         name: staff.name,
         role: staff.role,
-        permissions,
-        agency: {
-          id: staff.agency.id,
-          name: staff.agency.name,
-          slug: staff.agency.slug,
-        },
+        agencyId: staff.agencyId,
       },
     });
   } catch (error) {
     console.error('[Field Login POST] Error:', error);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Erreur serveur' },
+      { status: 500 }
+    );
   }
 }

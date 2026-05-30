@@ -1,18 +1,18 @@
 /**
  * Staff CRUD API — /api/agence/staff
  *
- * GET    → List all staff for the authenticated agency
- * POST   → Create a new staff member (generates login code)
+ * GET    → List all staff for an agency (with filters: role, active)
+ * POST   → Create a new staff member (generates 4-digit login code)
+ * PATCH  → Update staff member (name, role, permissions, isActive)
+ * DELETE → Soft-delete (deactivate) staff member
  *
- * Requires agency session authentication.
+ * All routes require agencyId parameter.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { getSession } from '@/lib/session';
-import { generateSecureCode } from '@/lib/secure-code';
 import {
-  DEFAULT_PERMISSIONS,
+  ROLE_PERMISSIONS,
   parsePermissions,
   serializePermissions,
   ROLES,
@@ -20,10 +20,13 @@ import {
 } from '@/lib/rbac';
 import { normalizePhone, isValidPhoneFormat } from '@/lib/whatsapp';
 import { z } from 'zod';
+import { randomInt } from 'crypto';
+import bcrypt from 'bcryptjs';
 
 // ─── Validation Schemas ──────────────────────────────────────────────
 
 const createStaffSchema = z.object({
+  agencyId: z.string().min(1, 'agencyId est requis'),
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').max(100),
   phone: z.string().refine(isValidPhoneFormat, 'Format téléphone invalide (ex: +221771234567)'),
   role: z.enum([ROLES.ADMIN, ROLES.OPERATOR, ROLES.CONTROLLER, ROLES.DRIVER]).default(ROLES.OPERATOR),
@@ -36,29 +39,59 @@ const createStaffSchema = z.object({
     PERMISSIONS.MANAGE_DELIVERIES,
     PERMISSIONS.VIEW_ANALYTICS,
   ])).optional(),
-  isActive: z.boolean().default(true),
+});
+
+const updateStaffSchema = z.object({
+  id: z.string().min(1, 'id est requis'),
+  name: z.string().min(2).max(100).optional(),
+  role: z.enum([ROLES.ADMIN, ROLES.OPERATOR, ROLES.CONTROLLER, ROLES.DRIVER]).optional(),
+  permissions: z.array(z.enum([
+    PERMISSIONS.VIEW_REPORTS,
+    PERMISSIONS.MANAGE_STAFF,
+    PERMISSIONS.ACTIVATE_TICKETS,
+    PERMISSIONS.ACTIVATE_PARCELS,
+    PERMISSIONS.VALIDATE_TICKETS,
+    PERMISSIONS.MANAGE_DELIVERIES,
+    PERMISSIONS.VIEW_ANALYTICS,
+  ])).optional(),
+  isActive: z.boolean().optional(),
+});
+
+const deleteStaffSchema = z.object({
+  id: z.string().min(1, 'id est requis'),
 });
 
 // ─── GET: List Staff ────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
   try {
-    // Verify agency session
-    const user = await getSession();
-    if (!user || !user.agencyId) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    const { searchParams } = new URL(req.url);
+    const agencyId = searchParams.get('agencyId');
+
+    if (!agencyId) {
+      return NextResponse.json(
+        { success: false, error: 'agencyId est requis' },
+        { status: 400 }
+      );
     }
 
-    const { searchParams } = new URL(req.url);
-    const agencyId = searchParams.get('agencyId') || user.agencyId;
+    // Build filters
+    const where: Record<string, unknown> = { agencyId };
 
-    // Security: can only view staff from own agency
-    if (agencyId !== user.agencyId && user.role !== 'superadmin') {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+    // Filter by role
+    const role = searchParams.get('role');
+    if (role && Object.values(ROLES).includes(role as typeof ROLES[keyof typeof ROLES])) {
+      where.role = role;
+    }
+
+    // Filter by active status
+    const active = searchParams.get('active');
+    if (active !== null && active !== undefined) {
+      where.isActive = active === 'true';
     }
 
     const staff = await db.staff.findMany({
-      where: { agencyId },
+      where,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -72,21 +105,36 @@ export async function GET(req: NextRequest) {
         codeExpiresAt: true,
         createdAt: true,
         updatedAt: true,
+        _count: {
+          select: { auditLogs: true },
+        },
         // NEVER expose loginCodeHash
       },
     });
 
     // Parse permissions from JSON for each staff member
     const staffWithParsedPerms = staff.map((s) => ({
-      ...s,
+      id: s.id,
+      name: s.name,
+      phone: s.phone,
+      role: s.role,
       permissions: parsePermissions(s.permissions),
-      hasValidCode: s.codeExpiresAt ? new Date(s.codeExpiresAt) > new Date() : false,
+      isActive: s.isActive,
+      hasActivated: s.hasActivated,
+      lastLogin: s.lastLogin,
+      codeExpiresAt: s.codeExpiresAt,
+      createdAt: s.createdAt,
+      updatedAt: s.updatedAt,
+      auditLogsCount: s._count.auditLogs,
     }));
 
-    return NextResponse.json({ staff: staffWithParsedPerms });
+    return NextResponse.json({ success: true, staff: staffWithParsedPerms });
   } catch (error) {
     console.error('[Staff GET] Error:', error);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Erreur serveur' },
+      { status: 500 }
+    );
   }
 }
 
@@ -94,48 +142,55 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Verify agency session
-    const user = await getSession();
-    if (!user || !user.agencyId) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
-
     // Parse and validate body
     const body = await req.json();
     const parsed = createStaffSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Données invalides', details: parsed.error.flatten() },
+        { success: false, error: 'Données invalides', details: parsed.error.flatten() },
         { status: 400 }
       );
     }
 
-    const { name, phone: rawPhone, role, permissions: customPerms, isActive } = parsed.data;
+    const { agencyId, name, phone: rawPhone, role, permissions: customPerms } = parsed.data;
+
+    // Verify agency exists
+    const agency = await db.agency.findUnique({ where: { id: agencyId } });
+    if (!agency) {
+      return NextResponse.json(
+        { success: false, error: 'Agence non trouvée' },
+        { status: 404 }
+      );
+    }
 
     // Normalize phone to E.164
     const phone = normalizePhone(rawPhone);
     if (!phone) {
-      return NextResponse.json({ error: 'Numéro de téléphone invalide' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Numéro de téléphone invalide' },
+        { status: 400 }
+      );
     }
 
-    // Check for duplicate phone within the same agency
+    // Check for duplicate phone
     const existing = await db.staff.findUnique({ where: { phone } });
     if (existing) {
       return NextResponse.json(
-        { error: 'Ce numéro de téléphone est déjà enregistré' },
+        { success: false, error: 'Ce numéro de téléphone est déjà enregistré' },
         { status: 409 }
       );
     }
 
-    // Generate secure login code
-    const { plain: code, hash: codeHash } = generateSecureCode();
+    // Generate 4-digit code with crypto.randomInt
+    const plainCode = randomInt(1000, 9999).toString();
+    const codeHash = await bcrypt.hash(plainCode, 10);
     const codeExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
     // Determine permissions: use custom if provided, else defaults for the role
     const permissions = customPerms && customPerms.length > 0
       ? customPerms
-      : DEFAULT_PERMISSIONS[role];
+      : ROLE_PERMISSIONS[role];
 
     // Create staff member
     const staff = await db.staff.create({
@@ -146,8 +201,7 @@ export async function POST(req: NextRequest) {
         permissions: serializePermissions(permissions),
         loginCodeHash: codeHash,
         codeExpiresAt,
-        isActive,
-        agencyId: user.agencyId,
+        agencyId,
       },
     });
 
@@ -156,13 +210,13 @@ export async function POST(req: NextRequest) {
       data: {
         action: 'STAFF_CREATED' as const,
         staffId: staff.id,
-        actorId: user.id,
         details: JSON.stringify({ name, phone, role, permissions }),
       },
     });
 
     // Return staff data + the plain code (ONE TIME ONLY)
     return NextResponse.json({
+      success: true,
       staff: {
         id: staff.id,
         name: staff.name,
@@ -170,14 +224,157 @@ export async function POST(req: NextRequest) {
         role: staff.role,
         permissions: parsePermissions(staff.permissions),
         isActive: staff.isActive,
-        code,
+        hasActivated: staff.hasActivated,
         codeExpiresAt: staff.codeExpiresAt,
         createdAt: staff.createdAt,
+        updatedAt: staff.updatedAt,
       },
-      message: `Membre créé avec succès. Code d'accès : ${code}`,
+      plainCode,
     }, { status: 201 });
   } catch (error) {
     console.error('[Staff POST] Error:', error);
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Erreur serveur' },
+      { status: 500 }
+    );
+  }
+}
+
+// ─── PATCH: Update Staff ────────────────────────────────────────────
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const parsed = updateStaffSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: 'Données invalides', details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const { id, name, role, permissions: customPerms, isActive } = parsed.data;
+
+    // Check staff exists
+    const existing = await db.staff.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json(
+        { success: false, error: 'Membre non trouvé' },
+        { status: 404 }
+      );
+    }
+
+    // Build update data
+    const updateData: Record<string, unknown> = {};
+    if (name !== undefined) updateData.name = name;
+
+    // If role changes, update permissions to new role defaults
+    if (role !== undefined) {
+      updateData.role = role;
+      if (!customPerms) {
+        updateData.permissions = serializePermissions(ROLE_PERMISSIONS[role]);
+      }
+    }
+
+    if (customPerms) {
+      updateData.permissions = serializePermissions(customPerms);
+    }
+
+    if (isActive !== undefined) {
+      updateData.isActive = isActive;
+    }
+
+    // Update staff
+    const updated = await db.staff.update({
+      where: { id },
+      data: updateData,
+    });
+
+    // Create audit log
+    await db.staffAuditLog.create({
+      data: {
+        action: 'STAFF_UPDATED' as const,
+        staffId: id,
+        details: JSON.stringify({ name, role, permissions: customPerms, isActive }),
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      staff: {
+        id: updated.id,
+        name: updated.name,
+        phone: updated.phone,
+        role: updated.role,
+        permissions: parsePermissions(updated.permissions),
+        isActive: updated.isActive,
+        hasActivated: updated.hasActivated,
+        lastLogin: updated.lastLogin,
+        createdAt: updated.createdAt,
+        updatedAt: updated.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error('[Staff PATCH] Error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Erreur serveur' },
+      { status: 500 }
+    );
+  }
+}
+
+// ─── DELETE: Deactivate Staff (Soft Delete) ───────────────────────
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const parsed = deleteStaffSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: 'Données invalides', details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const { id } = parsed.data;
+
+    // Check staff exists
+    const existing = await db.staff.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json(
+        { success: false, error: 'Membre non trouvé' },
+        { status: 404 }
+      );
+    }
+
+    // Soft delete: deactivate
+    await db.staff.update({
+      where: { id },
+      data: {
+        isActive: false,
+      },
+    });
+
+    // Create audit log
+    await db.staffAuditLog.create({
+      data: {
+        action: 'STAFF_DEACTIVATED' as const,
+        staffId: id,
+        details: JSON.stringify({ name: existing.name, phone: existing.phone }),
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Membre désactivé avec succès',
+    });
+  } catch (error) {
+    console.error('[Staff DELETE] Error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Erreur serveur' },
+      { status: 500 }
+    );
   }
 }

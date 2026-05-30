@@ -5,10 +5,14 @@
  * builds dynamic WhatsApp message templates, and generates wa.me deep links.
  */
 
+import { cleanPhone } from '@/lib/wame';
+
 // ─── Phone Normalization ────────────────────────────────────────────
 
 /**
  * Normalize a phone number to E.164 format.
+ * Regex validation: ^\+?[0-9]{9,15}$
+ *
  * Handles common formats: +221 77 123 45 67, 221771234567, 0771234567
  *
  * @param phone - Raw phone input
@@ -18,28 +22,27 @@ export function normalizePhone(phone: string): string | null {
   // Strip all non-digit characters (except leading +)
   let cleaned = phone.replace(/[^\d+]/g, '');
 
-  // If starts with +, keep as is (already E.164)
+  // If starts with +, validate as E.164
   if (cleaned.startsWith('+')) {
-    // Validate: + followed by 10-15 digits
     const digits = cleaned.substring(1);
-    if (/^\d{10,15}$/.test(digits)) return cleaned;
+    if (/^[0-9]{9,15}$/.test(digits)) return cleaned;
     return null;
   }
 
   // If starts with 00, replace with +
   if (cleaned.startsWith('00')) {
     cleaned = '+' + cleaned.substring(2);
-    if (/^\+\d{10,15}$/.test(cleaned)) return cleaned;
+    if (/^\+[0-9]{9,15}$/.test(cleaned)) return cleaned;
     return null;
   }
 
-  // If no country code, assume Senegal (+221)
-  if (/^\d{9}$/.test(cleaned)) {
+  // If no country code (9 digits), assume Senegal (+221)
+  if (/^[0-9]{9}$/.test(cleaned)) {
     return '+221' + cleaned;
   }
 
   // If 10+ digits without +, add +
-  if (/^\d{10,15}$/.test(cleaned)) {
+  if (/^[0-9]{9,15}$/.test(cleaned)) {
     return '+' + cleaned;
   }
 
@@ -77,20 +80,22 @@ export function maskPhone(phone: string): string {
 
 /**
  * Build the onboarding WhatsApp message for a new staff member.
+ * Uses emoji, staff name, role, code, agency name, PWA login URL.
  */
-export function buildWhatsappMessage(params: {
+export function buildOnboardingMessage(staff: {
   name: string;
-  code: string;
   role: string;
+  code: string;
+  agencyName: string;
   pwaUrl: string;
 }): string {
-  const { name, code, role, pwaUrl } = params;
+  const { name, role, code, agencyName, pwaUrl } = staff;
 
   return [
-    `🎫 *SmartTicketS — Accès Terrain*`,
+    `🎫 *SmarticketS — Accès Terrain*`,
     ``,
-    `Bonjour ${name},`,
-    `Votre compte *${role}* a été créé.`,
+    `Bonjour *${name}*,`,
+    `Votre compte *${role}* a été créé chez *${agencyName}*.`,
     ``,
     `🔑 *Code d'accès : ${code}*`,
     `📲 Lien d'installation : ${pwaUrl}`,
@@ -98,36 +103,64 @@ export function buildWhatsappMessage(params: {
     `⚠️ Ne partagez jamais ce code.`,
     `Connectez-vous via l'application PWA installée.`,
     ``,
-    `Équipe SmartTicketS`,
+    `Équipe SmarticketS 🚀`,
   ].join('\n');
+}
+
+/**
+ * Build a simple WhatsApp message (backward-compatible signature).
+ */
+export function buildWhatsappMessage(params: {
+  name: string;
+  code: string;
+  role: string;
+  pwaUrl: string;
+}): string {
+  return buildOnboardingMessage({
+    ...params,
+    agencyName: 'SmarticketS',
+  });
 }
 
 // ─── wa.me Link Generator ───────────────────────────────────────────
 
 /**
  * Generate a wa.me deep link with a pre-filled message.
+ * Uses `cleanPhone` from `@/lib/wame` for phone cleaning.
  *
  * @param phone - E.164 formatted phone (ex: +221771234567)
  * @param message - The pre-filled message text
  * @returns Full wa.me URL
  */
+export function buildWhatsappLink(phone: string, message: string): string {
+  const cleaned = cleanPhone(phone).replace(/^\+/, ''); // Remove + for wa.me URL
+  return `https://wa.me/${cleaned}?text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * Build a wa.me link (backward-compatible alias).
+ */
 export function buildWaLink(phone: string, message: string): string {
-  // Strip the + for wa.me (it expects just digits with country code)
-  const digits = phone.replace(/[^\d]/g, '');
-  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+  return buildWhatsappLink(phone, message);
 }
 
 /**
  * Generate a WhatsApp link for onboarding a staff member.
  *
  * @param phone - E.164 formatted phone
- * @param params - { name, code, role, pwaUrl }
+ * @param params - { name, code, role, agencyName, pwaUrl }
  * @returns Full wa.me URL with pre-filled onboarding message
  */
 export function buildOnboardingWaLink(
   phone: string,
-  params: { name: string; code: string; role: string; pwaUrl: string }
+  params: { name: string; code: string; role: string; pwaUrl: string; agencyName?: string }
 ): string {
-  const message = buildWhatsappMessage(params);
-  return buildWaLink(phone, message);
+  const message = buildOnboardingMessage({
+    name: params.name,
+    code: params.code,
+    role: params.role,
+    agencyName: params.agencyName || 'SmarticketS',
+    pwaUrl: params.pwaUrl,
+  });
+  return buildWhatsappLink(phone, message);
 }
