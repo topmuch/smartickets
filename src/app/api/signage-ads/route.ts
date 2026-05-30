@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
         mediaUrl: body.mediaUrl || '',
         videoUrl: body.videoUrl || null,
         imageUrl: body.imageUrl || null,
+        mobileImageUrl: body.mobileImageUrl || null,
         duration: body.duration || 10,
         interval: body.interval || 30,
         startDate: new Date(body.startDate),

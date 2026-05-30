@@ -41,6 +41,7 @@ import {
   CheckCircle2,
   Link,
   Globe,
+  Smartphone,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -54,6 +55,7 @@ interface SignageAd {
   mediaUrl: string;
   videoUrl: string | null;
   imageUrl: string | null;
+  mobileImageUrl: string | null;
   duration: number; // seconds
   interval: number; // minutes
   startDate: string;
@@ -113,6 +115,7 @@ export default function SignageAdsPage() {
   const [formMediaFilename, setFormMediaFilename] = useState('');
   const [formVideoUrl, setFormVideoUrl] = useState('');
   const [formImageUrl, setFormImageUrl] = useState('');
+  const [formMobileImageUrl, setFormMobileImageUrl] = useState('');
   const [formDuration, setFormDuration] = useState(10);
   const [formInterval, setFormInterval] = useState(30);
   const [formStartDate, setFormStartDate] = useState('');
@@ -172,6 +175,7 @@ export default function SignageAdsPage() {
     setFormMediaFilename('');
     setFormVideoUrl('');
     setFormImageUrl('');
+    setFormMobileImageUrl('');
     setFormDuration(10);
     setFormInterval(30);
     setFormStartDate(toDatetimeLocal(new Date().toISOString()));
@@ -252,6 +256,7 @@ export default function SignageAdsPage() {
           mediaUrl: resolvedMediaUrl,
           videoUrl: formVideoUrl.trim() || null,
           imageUrl: formImageUrl.trim() || null,
+          mobileImageUrl: formMobileImageUrl.trim() || null,
           duration: formDuration,
           interval: formInterval,
           startDate: formStartDate,
@@ -595,6 +600,11 @@ export default function SignageAdsPage() {
                             <ImageIcon className="w-3 h-3" /> Image
                           </span>
                         )}
+                        {ad.mobileImageUrl && (
+                          <span className="inline-flex items-center gap-0.5 text-emerald-500">
+                            <Smartphone className="w-3 h-3" /> Mobile
+                          </span>
+                        )}
                         {' '}&middot; source URL
                       </span>
                     </div>
@@ -905,6 +915,46 @@ export default function SignageAdsPage() {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Mobile Image URL (9:16) */}
+                  <div>
+                    <Label className="text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center gap-1.5">
+                      <Smartphone className="w-3.5 h-3.5 text-emerald-500" />
+                      URL image mobile (9:16)
+                      <span className="text-slate-400 dark:text-slate-500 font-normal">(optionnel)</span>
+                    </Label>
+                    <div className="relative mt-1.5">
+                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+                      <Input
+                        type="url"
+                        value={formMobileImageUrl}
+                        onChange={(e) => {
+                          setFormMobileImageUrl(e.target.value);
+                        }}
+                        placeholder="https://example.com/banner-mobile-9x16.jpg"
+                        className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl"
+                      />
+                    </div>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                      Format vertical 9:16 pour mobile &middot; Remplace l&apos;image principale sur téléphone
+                    </p>
+                    {/* Mobile image preview */}
+                    {formMobileImageUrl && (
+                      <div className="mt-2 flex items-center gap-3">
+                        <div className="rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 w-[63px] h-[112px] border-2 border-emerald-400">
+                          <img
+                            src={formMobileImageUrl}
+                            alt="Mobile Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                        <span className="text-xs text-slate-500">Aperçu 9:16</span>
                       </div>
                     )}
                   </div>

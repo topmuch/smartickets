@@ -45,6 +45,7 @@ interface SignageAd {
   mediaUrl: string;
   videoUrl: string | null;
   imageUrl: string | null;
+  mobileImageUrl: string | null;
   duration: number;
   interval: number;
   isActive: boolean;
@@ -443,6 +444,21 @@ export default function SignageKioskPage() {
   const cursorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [cursorHidden, setCursorHidden] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const isPortraitRef = useRef(false);
+
+  // ─── Detect portrait orientation (for mobile ad adaptation) ─────────
+  useEffect(() => {
+    const checkOrientation = () => {
+      isPortraitRef.current = window.innerHeight > window.innerWidth;
+    };
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    return () => {
+      window.removeEventListener('resize', checkOrientation);
+      window.removeEventListener('orientationchange', checkOrientation);
+    };
+  }, []);
 
   // ─── Auto-enter fullscreen + init audio + load voices on first interaction ─────────
   useEffect(() => {
@@ -1107,7 +1123,12 @@ export default function SignageKioskPage() {
         const effectiveVideoUrl = activeAd.videoUrl || (activeAd.mediaType === 'VIDEO' ? activeAd.mediaUrl : null);
         const effectiveImageUrl = activeAd.imageUrl || (activeAd.mediaType !== 'VIDEO' ? activeAd.mediaUrl : null);
         const isVideo = !!effectiveVideoUrl;
-        const displayUrl = isVideo ? effectiveVideoUrl : effectiveImageUrl || activeAd.mediaUrl;
+        const isPortrait = isPortraitRef.current;
+
+        // For images: use mobileImageUrl on portrait screens if available
+        let displayUrl = isVideo
+          ? effectiveVideoUrl
+          : (isPortrait && activeAd.mobileImageUrl ? activeAd.mobileImageUrl : effectiveImageUrl || activeAd.mediaUrl);
 
         // Check if it's a YouTube URL
         const ytEmbedUrl = displayUrl ? getYouTubeEmbedUrl(displayUrl) : null;

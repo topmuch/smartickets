@@ -602,22 +602,23 @@ model PassengerTicket {
 
 // SignageAd model - publicités diffusées sur l'affichage gare (kiosk)
 model SignageAd {
-  id          String    @id @default(cuid())
-  title       String
-  mediaType   String    // "IMAGE" | "VIDEO"
-  mediaUrl    String    @default("") // URL du fichier (uploadé) — compatibilité
-  videoUrl    String?   // URL externe de la vidéo (optionnel)
-  imageUrl    String?   // URL externe de l'image (optionnel)
-  duration    Int       @default(10)  // Durée affichage en secondes
-  interval    Int       @default(30)  // Fréquence en minutes (15, 30, 60)
-  startDate   DateTime  // Début diffusion
-  endDate     DateTime? // Fin optionnelle
-  isActive    Boolean   @default(true)
-  priority    Int       @default(0)
-  views       Int       @default(0)
-  createdBy   String    // userId superadmin
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  title           String
+  mediaType       String    // "IMAGE" | "VIDEO"
+  mediaUrl        String    @default("") // URL du fichier (uploadé) — compatibilité
+  videoUrl        String?   // URL externe de la vidéo (optionnel)
+  imageUrl        String?   // URL externe de l'image desktop/TV 16:9 (optionnel)
+  mobileImageUrl  String?   // URL externe de l'image mobile 9:16 (optionnel)
+  duration        Int       @default(10)  // Durée affichage en secondes
+  interval        Int       @default(30)  // Fréquence en minutes (15, 30, 60)
+  startDate       DateTime  // Début diffusion
+  endDate         DateTime? // Fin optionnelle
+  isActive        Boolean   @default(true)
+  priority        Int       @default(0)
+  views           Int       @default(0)
+  createdBy       String    // userId superadmin
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([isActive, startDate])
 }
