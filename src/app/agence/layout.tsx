@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -28,6 +28,10 @@ import {
   Bus,
   Monitor,
   Building2,
+  Package,
+  Ticket,
+  ScanSearch,
+  ThumbsUp,
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -62,29 +66,54 @@ export const AgencyContext = createContext<AgencyContextType>({
 
 export const useAgency = () => useContext(AgencyContext);
 
+// Stats data shape from /api/agency/baggages/stats
+interface StatsData {
+  pending: number;
+  active: number;
+  inTransit: { parcel: number; ticket: number; hajj: number; total: number };
+  delivered: number;
+  lost: number;
+  found: number;
+  blocked: number;
+  total: number;
+}
+
 interface MenuItem {
   label: string;
   icon: React.ReactNode;
   href: string;
   badge?: number;
   external?: boolean;
+  section?: string; // optional group label
 }
 
 // Modern Sidebar Component - Orange Theme with Black Buttons
-function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agencySlug, agencyId }: { isOpen: boolean; setIsOpen: (open: boolean) => void; unreadMessages?: number; onLogout: () => void; userName: string; agencySlug: string; agencyId: string }) {
+function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agencySlug, agencyId, stats }: { isOpen: boolean; setIsOpen: (open: boolean) => void; unreadMessages?: number; onLogout: () => void; userName: string; agencySlug: string; agencyId: string; stats: StatsData | null }) {
   const pathname = usePathname();
   
   const menuItems: MenuItem[] = [
-    { label: "Tableau de bord", icon: <Home className="w-5 h-5" />, href: "/agence/tableau-de-bord" },
-    { label: "Départs", icon: <Bus className="w-5 h-5" />, href: "/agence/departs" },
+    // ─── ACCUEIL ───
+    { label: "Tableau de bord", icon: <Home className="w-5 h-5" />, href: "/agence/tableau-de-bord", section: "ACCUEIL" },
+    
+    // ─── TRANSPORT ───
+    { label: "Départs", icon: <Bus className="w-5 h-5" />, href: "/agence/departs", section: "TRANSPORT" },
     { label: "Gares", icon: <Building2 className="w-5 h-5" />, href: "/agence/gares" },
-    { label: "Colis", icon: <Luggage className="w-5 h-5" />, href: "/agence/baggages" },
-    { label: "Assistance", icon: <MessageCircle className="w-5 h-5" />, href: "/agence/assistance", badge: unreadMessages },
-    { label: "Colis Livrés", icon: <CheckCircle className="w-5 h-5" />, href: "/agence/trouvailles" },
-    { label: "Perdus", icon: <AlertTriangle className="w-5 h-5" />, href: "/agence/perdus" },
-    { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/agence/rapports" },
     { label: "Affichage Gare", icon: <Monitor className="w-5 h-5" />, href: "/agence/affichage-gare" },
-    { label: "Profil", icon: <User className="w-5 h-5" />, href: "/agence/profil" },
+    
+    // ─── QR & COLIS ───
+    { label: "QR Non Activés", icon: <QrCode className="w-5 h-5" />, href: "/agence/qr-non-actifs", badge: stats?.pending || 0, section: "QR & COLIS" },
+    { label: "Colis Actifs", icon: <Package className="w-5 h-5" />, href: "/agence/colis-actifs", badge: stats?.inTransit?.parcel || 0 },
+    { label: "Tickets", icon: <Ticket className="w-5 h-5" />, href: "/agence/tickets-encours", badge: stats?.inTransit?.ticket || 0 },
+    { label: "Terminés", icon: <CheckCircle className="w-5 h-5" />, href: "/agence/termines", badge: (stats?.delivered || 0) + (stats?.found || 0) },
+    { label: "Suivi", icon: <ScanSearch className="w-5 h-5" />, href: "/agence/suivi" },
+    { label: "Perdus", icon: <AlertTriangle className="w-5 h-5" />, href: "/agence/perdus", badge: stats?.lost || 0 },
+    { label: "Trouvés", icon: <ThumbsUp className="w-5 h-5" />, href: "/agence/trouvailles", badge: stats?.found || 0 },
+    
+    // ─── COMMUNICATION ───
+    { label: "Assistance", icon: <MessageCircle className="w-5 h-5" />, href: "/agence/assistance", badge: unreadMessages, section: "COMMUNICATION" },
+    
+    // ─── ADMIN ───
+    { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/agence/rapports", section: "ADMIN" },
   ];
 
   return (
@@ -146,34 +175,52 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
               );
               
               return (
-                <li key={index}>
-                  <Link
-                    href={item.href}
-                    {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    className={`
-                      relative flex items-center gap-3 px-4 py-2.5 rounded-xl
-                      transition-all duration-200 group
-                      ${isActive 
-                        ? 'bg-black text-white shadow-lg' 
-                        : 'bg-black text-white hover:bg-black/80'
-                      }
-                    `}
-                    onClick={() => !item.external && setIsOpen(false)}
-                  >
-                    <span className="shrink-0 text-white">
-                      {item.icon}
-                    </span>
-                    <span className="font-medium text-sm flex-1">{item.label}</span>
-                    {item.badge && item.badge > 0 && (
-                      <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
-                        {item.badge}
+                <React.Fragment key={index}>
+                  {/* Section Header */}
+                  {item.section && index > 0 && (
+                    <li className="mt-4 mb-1">
+                      <span className="px-4 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                        {item.section}
                       </span>
-                    )}
-                    {item.external && (
-                      <ExternalLink className="h-3.5 w-3.5 text-white/60 shrink-0" />
-                    )}
-                  </Link>
-                </li>
+                    </li>
+                  )}
+                  {/* First section without top margin */}
+                  {item.section && index === 0 && (
+                    <li className="mb-1">
+                      <span className="px-4 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                        {item.section}
+                      </span>
+                    </li>
+                  )}
+                  <li>
+                    <Link
+                      href={item.href}
+                      {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      className={`
+                        relative flex items-center gap-3 px-4 py-2.5 rounded-xl
+                        transition-all duration-200 group
+                        ${isActive 
+                          ? 'bg-black text-white shadow-lg' 
+                          : 'bg-black text-white hover:bg-black/80'
+                        }
+                      `}
+                      onClick={() => !item.external && setIsOpen(false)}
+                    >
+                      <span className="shrink-0 text-white">
+                        {item.icon}
+                      </span>
+                      <span className="font-medium text-sm flex-1">{item.label}</span>
+                      {item.badge && item.badge > 0 && (
+                        <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold min-w-[20px] text-center">
+                          {item.badge > 99 ? '99+' : item.badge}
+                        </span>
+                      )}
+                      {item.external && (
+                        <ExternalLink className="h-3.5 w-3.5 text-white/60 shrink-0" />
+                      )}
+                    </Link>
+                  </li>
+                </React.Fragment>
               );
             })}
             
@@ -281,7 +328,6 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadM
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                // Trigger command modal - will be handled by parent
                 window.dispatchEvent(new CustomEvent('openCommandModal'));
               }}
               className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
@@ -290,18 +336,25 @@ function Header({ unreadMessages, onMenuClick, userName, agencySlug }: { unreadM
               <span className="hidden xl:inline">Commander des QR</span>
             </Link>
             <Link
+              href="/agence/qr-non-actifs"
+              className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl text-sm font-medium transition-colors border border-amber-200 dark:border-amber-800"
+            >
+              <QrCode className="w-4 h-4" />
+              <span className="hidden xl:inline">QR</span>
+            </Link>
+            <Link
+              href="/agence/colis-actifs"
+              className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 rounded-xl text-sm font-medium transition-colors border border-orange-200 dark:border-orange-800"
+            >
+              <Package className="w-4 h-4" />
+              <span className="hidden xl:inline">Colis</span>
+            </Link>
+            <Link
               href="/agence/perdus"
               className="flex items-center gap-2 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-sm font-medium transition-colors border border-rose-200 dark:border-rose-800"
             >
               <AlertTriangle className="w-4 h-4" />
               <span className="hidden xl:inline">Perdus</span>
-            </Link>
-            <Link
-              href="/agence/trouvailles"
-              className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-sm font-medium transition-colors border border-emerald-200 dark:border-emerald-800"
-            >
-              <CheckCircle className="w-4 h-4" />
-              <span className="hidden xl:inline">Colis Livrés</span>
             </Link>
           </div>
           
@@ -375,6 +428,7 @@ export default function AgencyRootLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [stats, setStats] = useState<StatsData | null>(null);
   const { user, loading, logout, isAgency } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -397,26 +451,35 @@ export default function AgencyRootLayout({
     }
   }, [user, loading, isAgency, router, pathname]);
 
-  // Fetch unread messages count
+  // Fetch unread messages count + sidebar stats
   useEffect(() => {
     if (!user || !isAgency || pathname === '/agence/connexion') return;
     
-    const fetchUnreadCount = async () => {
+    const currentAgencyId = user?.agencyId || user?.agency?.id;
+    
+    const fetchData = async () => {
       try {
-        const currentAgencyId = user?.agencyId || user?.agency?.id;
+        // Unread messages
         const res = await fetch(`/api/agency/messages?agencyId=${currentAgencyId}&count=true`);
         const data = await res.json();
         if (data.unreadCount !== undefined) {
           setUnreadMessages(data.unreadCount);
         }
+        
+        // Sidebar stats
+        const statsRes = await fetch(`/api/agency/baggages/stats?agencyId=${currentAgencyId}`);
+        const statsData = await statsRes.json();
+        if (statsData.pending !== undefined) {
+          setStats(statsData);
+        }
       } catch (error) {
-        console.error('Error fetching unread messages:', error);
+        console.error('Error fetching agency data:', error);
       }
     };
 
-    fetchUnreadCount();
-    // Poll every 30 seconds for new messages
-    const interval = setInterval(fetchUnreadCount, 30000);
+    fetchData();
+    // Poll every 30 seconds
+    const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, [user, isAgency, pathname]);
 
@@ -468,7 +531,7 @@ export default function AgencyRootLayout({
       userEmail: user.email
     }}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors duration-300">
-        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} unreadMessages={unreadMessages} onLogout={handleLogout} userName={user.name || 'Agence'} agencySlug={agencySlug} agencyId={agencyId} />
+        <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} unreadMessages={unreadMessages} onLogout={handleLogout} userName={user.name || 'Agence'} agencySlug={agencySlug} agencyId={agencyId} stats={stats} />
 
         <div className="flex-1 flex flex-col min-w-0">
           <Header unreadMessages={unreadMessages} onMenuClick={() => setSidebarOpen(true)} userName={user.name || 'Agence'} agencySlug={agencySlug} />

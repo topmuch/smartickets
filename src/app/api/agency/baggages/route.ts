@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const agencyId = searchParams.get('agencyId');
     const status = searchParams.get('status');
+    const category = searchParams.get('category');
     const search = searchParams.get('search');
 
     if (!agencyId) {
@@ -23,6 +24,11 @@ export async function GET(request: NextRequest) {
     // If a specific status filter is requested, match BOTH French and English variants
     if (status && status !== 'all') {
       where.status = statusFilterIn(status as 'pending_activation' | 'active' | 'scanned' | 'lost' | 'found' | 'blocked');
+    }
+
+    // Category filter: parcel | ticket | hajj
+    if (category && category !== 'all') {
+      where.category = category;
     }
 
     if (search) {
@@ -44,7 +50,7 @@ export async function GET(request: NextRequest) {
       status: normalizeStatus(b.status),
     }));
 
-    // Calculate stats using normalized statuses
+    // Calculate stats using normalized statuses + category breakdown
     const stats = {
       total: normalizedBaggages.length,
       pending: normalizedBaggages.filter(b => isPending(b.status)).length,
@@ -54,6 +60,11 @@ export async function GET(request: NextRequest) {
       found: normalizedBaggages.filter(b => b.status === 'found').length,
       delivered: normalizedBaggages.filter(b => b.status === 'delivered').length,
       inTransit: normalizedBaggages.filter(b => b.status === 'in_transit').length,
+      byCategory: {
+        parcel: normalizedBaggages.filter(b => b.category === 'parcel').length,
+        ticket: normalizedBaggages.filter(b => b.category === 'ticket').length,
+        hajj: normalizedBaggages.filter(b => b.category === 'hajj').length,
+      },
     };
 
     return NextResponse.json({

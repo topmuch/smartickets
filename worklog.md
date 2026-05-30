@@ -1019,3 +1019,36 @@ Stage Summary:
 - New page: /agence/affichage-gare displays all stations with live preview, QR codes, and kiosk launch
 - Sidebar updated: "Affichage Gare" now links to internal page instead of broken external link
 - All stations from /agence/gares are automatically listed
+---
+Task ID: 1
+Agent: Main Agent
+Task: AUDIT & RESTRUCTURATION MENU TRANSPORTEUR — Implémentation complète
+
+Work Log:
+- Analysé le Prisma schema: champ `category` déjà existant dans le modèle Baggage (line 83), pas de migration nécessaire
+- Créé l'API stats `/api/agency/baggages/stats` avec groupBy par status+category, requête unique optimisée
+- Mis à jour `/api/agency/baggages` pour supporter le filtre `category` (parcel|ticket|hajj) et ajouté breakdown byCategory dans les stats retournées
+- Restructuré le Sidebar dans `layout.tsx`:
+  - Nouveaux imports: Package, Ticket, ScanSearch, ThumbsUp
+  - Interface StatsData pour les badges du sidebar
+  - Fetch stats + unread messages dans un seul useEffect (polling 30s)
+  - Nouvelle navigation organisée en sections: ACCUEIL, TRANSPORT, QR & COLIS, COMMUNICATION, ADMIN
+  - 13 items de menu avec badges dynamiques (pending, inTransit.parcel, inTransit.ticket, delivered+found, lost, found)
+  - Section headers en majuscules semi-transparentes
+  - Header quick actions mis à jour: QR, Colis, Perdus
+- Créé 5 nouvelles pages via subagents:
+  - `/agence/qr-non-actifs` — QR pending activation avec copie lien + delete
+  - `/agence/colis-actifs` — Colis en transit/delivered (category=parcel)
+  - `/agence/tickets-encours` — Tickets actifs (category=ticket)
+  - `/agence/termines` — Livrés + Trouvés avec filtres et catégories
+  - `/agence/suivi` — Recherche universelle par référence avec recent searches
+- Vérifié: lint propre (seul error pré-existant dans scripts/migrate-db.js)
+- Vérifié: dev server répond 200 sur toutes les routes
+
+Stage Summary:
+- Architecture intacte, aucun breaking change
+- Champ `category` était déjà en DB (défaut "parcel")
+- Sidebar restructuré avec badges temps réel (30s polling)
+- 5 nouvelles pages fonctionnelles créées
+- API stats opérationnelle pour badges sidebar
+- Filtre category ajouté à l'API baggages existante
