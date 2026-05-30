@@ -878,7 +878,7 @@ export default function DepartsPage() {
           platform: data.platform || undefined,
           totalSeats: data.seats,
           availableSeats: data.seats,
-          price: data.price || undefined,
+          price: data.price != null ? data.price : undefined,
           departureType: data.departureType || 'OUTBOUND',
           isRoundTrip: data.isRoundTrip,
           returnDelayHours: data.returnDelayHours,
@@ -895,7 +895,8 @@ export default function DepartsPage() {
         fetchDepartures();
       } else {
         const err = await res.json();
-        showToast(err.error || 'Erreur lors de la création', 'error');
+        const details = err.details ? ` — ${err.details.map((d: { message: string }) => d.message).join(', ')}` : '';
+        showToast(err.error || 'Erreur lors de la création' + details, 'error');
       }
     } catch {
       showToast('Erreur réseau', 'error');
