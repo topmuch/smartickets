@@ -897,9 +897,14 @@ export default function SignageKioskPage() {
           display: flex; align-items: center; justify-content: center;
           animation: sig2-ad-fadein 0.6s ease; cursor: none;
         }
-        .sig2-ad-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .sig2-ad-overlay video { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .sig2-ad-overlay iframe { max-width: 100%; max-height: 100%; }
+        /* TV/Desktop: contenu remplit l'écran en respectant les proportions */
+        .sig2-ad-overlay img,
+        .sig2-ad-overlay video,
+        .sig2-ad-overlay iframe {
+          width: 100%; height: 100%;
+        }
+        .sig2-ad-overlay img { object-fit: cover; }
+        .sig2-ad-overlay video { object-fit: contain; }
         .sig2-ad-progress {
           position: absolute; bottom: 0; left: 0; height: 4px;
           background: #f97316;
