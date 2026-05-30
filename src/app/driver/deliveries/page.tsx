@@ -16,6 +16,7 @@ import {
   Loader2,
   Inbox,
 } from 'lucide-react';
+import { validatePwaToken, type PwaTokenPayload } from '@/lib/pwa-guard';
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,15 @@ interface DeliveryItem {
 
 type FetchState = 'loading' | 'loaded' | 'error' | 'unauthorized';
 
+// ─── PWA Token state ─────────────────────────────────────────────────
+
+interface PwaGuardState {
+  verified: boolean;
+  agencyName?: string;
+  error?: string;
+  expired?: boolean;
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────
 
 function getColisTypeLabel(colisType: string | null, colisTypeOther: string | null): string {
@@ -64,6 +74,32 @@ export default function DriverDeliveriesPage() {
   const [fetchState, setFetchState] = useState<FetchState>('loading');
   const [errorMsg, setErrorMsg] = useState('');
   const [loggingOut, setLoggingOut] = useState(false);
+
+  // ─── PWA Guard state ─────────────────────────────────────────────
+  const [pwaGuard, setPwaGuard] = useState<PwaGuardState>({ verified: false });
+
+  // ─── PWA Token validation on mount ─────────────────────────────────
+  // Validates JWT token from URL query param. If valid, shows a verified
+  // badge. If invalid/expired, the page still works but with a warning.
+
+  useEffect(() => {
+    const validateTokenFromUrl = async () => {
+      if (typeof window === 'undefined') return;
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      if (!token) return;
+
+      const result = await validatePwaToken(token, 'driver');
+      if (result.valid && result.payload) {
+        setPwaGuard({ verified: true, agencyName: result.payload.agencyName });
+        window.history.replaceState({}, '', '/driver/deliveries');
+      } else {
+        setPwaGuard({ verified: false, error: result.error, expired: result.error?.includes('expiré') });
+        window.history.replaceState({}, '', '/driver/deliveries');
+      }
+    };
+    validateTokenFromUrl();
+  }, []);
 
   // ─── Fetch deliveries ────────────────────────────────────────────────
 
@@ -159,6 +195,29 @@ export default function DriverDeliveriesPage() {
               <p className="text-[11px] text-gray-400 -mt-0.5">Chauffeur</p>
             </div>
           </div>
+
+          {/* PWA Verified Badge */}
+          {pwaGuard.verified && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20" title={"Agence vérifiée: " + pwaGuard.agencyName}>
+              <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span className="text-[10px] font-semibold text-emerald-400 hidden sm:inline truncate max-w-[80px]">
+                {pwaGuard.agencyName}
+              </span>
+            </div>
+          )}
+
+          {/* PWA Token Expired Warning */}
+          {pwaGuard.expired && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20" title={pwaGuard.error}>
+              <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span className="text-[10px] font-semibold text-amber-400 hidden sm:inline">Token expiré</span>
+            </div>
+          )}
+
           <button
             onClick={handleLogout}
             disabled={loggingOut}

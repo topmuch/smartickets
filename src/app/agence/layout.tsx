@@ -33,6 +33,7 @@ import {
   ScanSearch,
   ThumbsUp,
   Activity,
+  Smartphone,
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -117,8 +118,11 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
     { label: "Rapports", icon: <BarChart3 className="w-5 h-5" />, href: "/agence/rapports", section: "ADMIN" },
     { label: "Analytics", icon: <Activity className="w-5 h-5" />, href: "/agence/analytics" },
     
+    // ─── PWA & TERRAIN ───
+    { label: "PWA & Terrain", icon: <Smartphone className="w-5 h-5" />, href: "/agence/pwa", section: "PWA & TERRAIN" },
+    
     // ─── CONTROLEUR ───
-    { label: "Controleur", icon: <ScanSearch className="w-5 h-5" />, href: "/controller/validate", section: "CONTROLEUR", external: true },
+    { label: "Controleur", icon: <ScanSearch className="w-5 h-5" />, href: "/controller/validate", external: true },
   ]
 
   return (

@@ -1099,3 +1099,44 @@ Stage Summary:
 - All APIs tested and working: /api/agency/analytics returns correct JSON with all metrics
 - All pages compile and render: /agence/analytics 200, /controller/validate 200
 - ESLint: 0 new errors (only pre-existing scripts/migrate-db.js)
+---
+Task ID: PWA-Terrain-Module
+Agent: Main Agent
+Task: Implement PWA & Terrain module — QR code generation for PWA Controller/Driver with agency-scoped security
+
+Work Log:
+- Created src/lib/pwa-guard.ts (204 lines): JWT token generation/validation using HMAC-SHA256, no external deps
+  - generatePwaToken(): server-side token creation with agencyId, agencyName, role, 24h expiry
+  - validatePwaToken(): client/server token validation with signature check, expiry, role restriction
+  - buildSecurePwaUrl() and extractPwaTokenFromUrl() helpers
+- Created src/app/api/pwa/generate-token/route.ts (97 lines): POST API endpoint
+  - Requires valid agency session (getSession)
+  - Generates role-specific JWT tokens
+  - Returns token, URL, agencyId, agencyName, role, expiresAt
+  - Validates role parameter (controller | driver)
+- Created src/app/agence/pwa/page.tsx (544 lines): Main PWA & Terrain page
+  - Two QR code cards (Controller + Driver) using QRCodeSVG
+  - Auto-generates tokens on mount via /api/pwa/generate-token
+  - Copy to clipboard with toast feedback
+  - Regenerate token button
+  - Collapsible installation guide (iOS/Android auto-detected)
+  - Security notice banner showing linked agency name
+  - Info cards: token duration, offline support, multi-device
+- Updated src/app/agence/layout.tsx: Added PWA & Terrain sidebar entry with Smartphone icon
+- Updated src/app/controller/validate/page.tsx: Added PWA token validation
+  - Validates JWT token from URL ?token= param on mount
+  - Auto-selects agency from token payload
+  - Shows green shield verified badge in header
+  - Shows amber warning for expired tokens
+  - Cleans URL after validation (history.replaceState)
+- Updated src/app/driver/deliveries/page.tsx: Added PWA token validation
+  - Same token validation pattern as controller
+  - Shows verified badge and expired warning in header
+
+Stage Summary:
+- PWA & Terrain module complete with 6 files created/modified
+- JWT token security: HMAC-SHA256 signed, 24h expiry, agency-scoped, role-restricted
+- API correctly returns 401 for unauthenticated requests
+- All pages compile and render: /agence/pwa 200, /controller/validate 200, /driver/deliveries 200
+- ESLint: 0 new errors
+- No compilation errors in dev server
