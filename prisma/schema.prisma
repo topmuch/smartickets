@@ -237,6 +237,12 @@ model Baggage {
   founderName       String?   // Name of the finder
   founderPhone      String?   // WhatsApp number of the finder
   founderAt         DateTime? // Timestamp when founder info was submitted
+  // 🆕 MULTI-GARES: Station assignment
+  stationId             String?
+  station               Station?     @relation("StationBaggage", fields: [stationId], references: [id], onDelete: SetNull)
+  activatedAtStationId  String?       // Gare où l'activation a eu lieu
+  activatedAt           DateTime?
+
   agency            Agency?       @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   passengerTicket  PassengerTicket?
   scanLogs          ScanLog[]
@@ -707,6 +713,7 @@ model Station {
   agencyId      String
   agency        Agency     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   isActive      Boolean    @default(true)
+  baggages          Baggage[] @relation("StationBaggage")
   departuresAsOrigin  Departure[] @relation("OriginStation")
   departuresAsDest    Departure[] @relation("DestinationStation")
   createdAt     DateTime   @default(now())

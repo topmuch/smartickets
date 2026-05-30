@@ -35,6 +35,11 @@ import {
   Activity,
   Smartphone,
   Users,
+  MapPin,
+  Warehouse,
+  TrendingUp,
+  ChevronRight,
+  Layers,
 } from "lucide-react";
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -98,9 +103,12 @@ function Sidebar({ isOpen, setIsOpen, unreadMessages, onLogout, userName, agency
     // ─── ACCUEIL ───
     { label: "Tableau de bord", icon: <Home className="w-5 h-5" />, href: "/agence/tableau-de-bord", section: "ACCUEIL" },
     
+    // ─── GARES ⭐ MULTI-GARES ───
+    { label: "Toutes les Gares", icon: <MapPin className="w-5 h-5" />, href: "/agence/gares", section: "GARES" },
+    { label: "Stock Global", icon: <Warehouse className="w-5 h-5" />, href: "/agence/stock/global" },
+    
     // ─── TRANSPORT ───
     { label: "Départs", icon: <Bus className="w-5 h-5" />, href: "/agence/departs", section: "TRANSPORT" },
-    { label: "Gares", icon: <Building2 className="w-5 h-5" />, href: "/agence/gares" },
     { label: "Affichage Gare", icon: <Monitor className="w-5 h-5" />, href: "/agence/affichage-gare" },
     
     // ─── QR & COLIS ───

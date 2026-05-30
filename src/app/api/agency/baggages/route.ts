@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
+    const stationId = searchParams.get('stationId');
 
     if (!agencyId) {
       return NextResponse.json(
@@ -20,6 +21,13 @@ export async function GET(request: NextRequest) {
 
     // Build where clause — NO status filter by default (show ALL baggages)
     const where: Record<string, unknown> = { agencyId };
+
+    // Station filter: specific station or "null" for unassigned baggages
+    if (stationId === 'null') {
+      where.stationId = null;
+    } else if (stationId) {
+      where.stationId = stationId;
+    }
 
     // If a specific status filter is requested, match BOTH French and English variants
     if (status && status !== 'all') {

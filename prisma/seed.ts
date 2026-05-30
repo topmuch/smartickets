@@ -50,6 +50,52 @@ async function main() {
     },
   });
 
+  // ═══════════════════════════════════════════════════════════
+  // Create sample Stations (multi-gares)
+  // ═══════════════════════════════════════════════════════════
+  console.log('Creating sample stations...');
+
+  const stationPeters = await prisma.station.upsert({
+    where: { slug: 'dakar-peters' },
+    update: {},
+    create: {
+      id: 'station-dakar-peters',
+      name: 'Gare Routière Peters',
+      slug: 'dakar-peters',
+      city: 'Dakar',
+      address: 'Avenue Blaise Diagne, Peters',
+      agencyId: agency.id,
+    },
+  });
+
+  const stationGuediawaye = await prisma.station.upsert({
+    where: { slug: 'guediawaye' },
+    update: {},
+    create: {
+      id: 'station-guediawaye',
+      name: 'Gare de Guédiawaye',
+      slug: 'guediawaye',
+      city: 'Dakar',
+      address: 'Carrefour Guédiawaye',
+      agencyId: agency.id,
+    },
+  });
+
+  const stationDiamniadio = await prisma.station.upsert({
+    where: { slug: 'diamniadio' },
+    update: {},
+    create: {
+      id: 'station-diamniadio',
+      name: 'Gare de Diamniadio',
+      slug: 'diamniadio',
+      city: 'Diamniadio',
+      address: 'Axe Diamniadio',
+      agencyId: agency.id,
+    },
+  });
+
+  console.log(`  ✓ Created ${stationPeters.name}, ${stationGuediawaye.name}, ${stationDiamniadio.name}`);
+
   // Create superadmin user
   console.log('Creating superadmin user...');
   await prisma.user.upsert({
@@ -121,12 +167,13 @@ async function main() {
   // Create sample parcel baggage (pending activation — for testing colis flow)
   await prisma.baggage.upsert({
     where: { reference: 'COLIS25-DEMO01' },
-    update: {},
+    update: { stationId: stationGuediawaye.id },
     create: {
       reference: 'COLIS25-DEMO01',
       type: 'voyageur',
       category: 'parcel',
       agencyId: agency.id,
+      stationId: stationGuediawaye.id,
       baggageIndex: 1,
       baggageType: 'soute',
       status: 'pending_activation',
@@ -136,12 +183,13 @@ async function main() {
   // Create sample ticket baggage (pending activation — for testing ticket flow)
   await prisma.baggage.upsert({
     where: { reference: 'TKT25-PENDING' },
-    update: {},
+    update: { stationId: stationPeters.id },
     create: {
       reference: 'TKT25-PENDING',
       type: 'voyageur',
       category: 'ticket',
       agencyId: agency.id,
+      stationId: stationPeters.id,
       baggageIndex: 1,
       baggageType: 'soute',
       status: 'pending_activation',
@@ -442,10 +490,15 @@ async function main() {
   console.log('  Agency: agency@smartickets.com / agence123');
   console.log('  Driver: chauffeur@smartickets.com / driver123');
   console.log('');
+  console.log('📍 Demo stations:');
+  console.log('  station-dakar-peters - Gare Routière Peters (Dakar)');
+  console.log('  station-guediawaye - Gare de Guédiawaye (Dakar)');
+  console.log('  station-diamniadio - Gare de Diamniadio (Diamniadio)');
+  console.log('');
   console.log('📱 Test QR codes:');
-  console.log('  VOL25-DEMO01 - Active traveler baggage');
-  console.log('  COLIS25-DEMO01 - Pending parcel (for colis activation)');
-  console.log('  TKT25-PENDING - Pending ticket (for ticket activation)');
+  console.log('  VOL25-DEMO01 - Active traveler baggage (no station — global stock)');
+  console.log('  COLIS25-DEMO01 - Pending parcel (station: Guédiawaye)');
+  console.log('  TKT25-PENDING - Pending ticket (station: Peters)');
   console.log('  TKT-DEMO-001 - Active ticket (Mamadou Diallo, ctrl: 123456)');
   console.log('  TKT-DEMO-002 - Active ticket (Aminata Fall, ctrl: 654321)');
   console.log('');

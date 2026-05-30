@@ -1318,3 +1318,27 @@ Stage Summary:
 - RBAC with 4 roles and 7 granular permissions
 - WhatsApp onboarding with wa.me links
 - PWA login pages for Driver (amber) and Controller (emerald)
+---
+Task ID: 1
+Agent: Main Architect
+Task: GESTION MULTI-GARES & RAPPORTS PAR STATION
+
+Work Log:
+- Explored V.4 codebase: Prisma schema, agency layout, API routes, components
+- Updated Prisma schema: Added stationId + station relation to Baggage model, baggages relation to Station
+- Pushed schema to DB (db:push) successfully
+- Created 4 API routes: station stats, all-stats, assign-station, unassign-station
+- Created 4 reusable components: StationCard, KPICard, BaggageTable, SelectStationDialog
+- Created/updated 5 pages: gares list, gares/[slug] detail, stock/global, rapports multi-gares
+- Updated sidebar navigation with GARES section (Toutes les Gares + Stock Global)
+- Updated seed.ts with 3 demo stations + baggage station assignments
+
+Stage Summary:
+- 3095 lines of new/modified code across 16+ files
+- Prisma: Baggage.stationId (nullable), Station.baggages relation
+- API: /api/agency/stations/[id]/stats, /api/agency/stations/all-stats, /api/agency/baggages/assign-station, unassign-station
+- Pages: /agence/gares, /agence/gares/[slug], /agence/stock/global, /agence/rapports
+- Components: src/components/agency/station-card.tsx, kpi-card.tsx, baggage-table.tsx, select-station-dialog.tsx
+- 3 seed stations: Dakar-Peters, Guédiawaye, Diamniadio
+- Sidebar: New GARES section with MapPin + Warehouse icons
+- Lint clean (only pre-existing scripts/migrate-db.js error)

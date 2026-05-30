@@ -1,28 +1,29 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Plus,
-  Pencil,
-  Trash2,
-  MapPin,
-  QrCode,
-  ExternalLink,
-  Copy,
-  CheckCircle,
+  Search,
   Building2,
-  RefreshCw,
+  MapPin,
   Loader2,
+  RefreshCw,
   AlertTriangle,
+  Luggage,
+  ChevronRight,
 } from 'lucide-react';
-import { useAgency } from '../layout';
-import { QRCodeSVG } from 'qrcode.react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+
+import { useAgency } from '@/app/agence/layout';
+import { StationCard } from '@/components/agency/station-card';
+import { KpiCard } from '@/components/agency/kpi-card';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
@@ -32,17 +33,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { Card, CardContent } from '@/components/ui/card';
 
 /* ══════════════════════════════════════════════
    Types
@@ -50,194 +41,111 @@ import {
 interface Station {
   id: string;
   name: string;
+  slug: string;
   city: string;
   address?: string | null;
-  slug: string;
   isActive: boolean;
-  agencyId: string;
-  _count?: {
-    departures: number;
-  };
   createdAt: string;
+}
+
+interface StationStats {
+  [stationId: string]: {
+    total: number;
+    pending: number;
+    active: number;
+    todayActivations: number;
+  };
+}
+
+interface AllStatsData {
+  totalStations: number;
+  activeStations: number;
+  totalBaggages: number;
+  todayActivations: number;
 }
 
 interface StationFormData {
   name: string;
   city: string;
   address: string;
-  isActive: boolean;
 }
 
 const emptyForm: StationFormData = {
   name: '',
   city: '',
   address: '',
-  isActive: true,
 };
 
 /* ══════════════════════════════════════════════
-   Station URL Card (QR Code + URL)
+   Animation Variants
    ══════════════════════════════════════════════ */
-function StationUrlCard({
-  stationName,
-  slug,
-  onClose,
-}: {
-  stationName: string;
-  slug: string;
-  onClose: () => void;
-}) {
-  const publicUrl = `/signage-slug/${slug}`;
-  const fullUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}${publicUrl}`
-      : publicUrl;
-  const [copied, setCopied] = useState(false);
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06,
+    },
+  },
+};
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(fullUrl);
-      setCopied(true);
-      toast.success('URL copiée dans le presse-papiers');
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error('Impossible de copier l\'URL');
-    }
-  };
-
-  return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 mt-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-            <QrCode className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
-              {stationName}
-            </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-              /{slug}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={onClose}
-          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-sm"
-        >
-          Fermer
-        </button>
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-center gap-6">
-        {/* QR Code */}
-        <div className="shrink-0 p-4 bg-white rounded-xl border border-slate-200 dark:border-slate-700">
-          <QRCodeSVG
-            value={fullUrl}
-            size={140}
-            level="M"
-            bgColor="#FFFFFF"
-            fgColor="#0f172a"
-            includeMargin={false}
-          />
-        </div>
-
-        {/* URL + Actions */}
-        <div className="flex-1 w-full space-y-3">
-          <div>
-            <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-              URL publique de l'affichage
-            </Label>
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2">
-              <code className="text-xs text-slate-700 dark:text-slate-300 truncate flex-1 font-mono">
-                {publicUrl}
-              </code>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={handleCopy}
-            >
-              {copied ? (
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
-              ) : (
-                <Copy className="w-4 h-4" />
-              )}
-              {copied ? 'Copié' : 'Copier l\'URL'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={() => window.open(publicUrl, '_blank')}
-            >
-              <ExternalLink className="w-4 h-4" />
-              Ouvrir
-            </Button>
-          </div>
-
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Imprimez ce QR code et affichez-le dans votre gare pour que les
-            voyageurs scannent l\'affichage en temps réel.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+const cardVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.4,
+      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+    },
+  },
+};
 
 /* ══════════════════════════════════════════════
-   Main Page — Gestion des Gares
+   Page Component
    ══════════════════════════════════════════════ */
 export default function GaresPage() {
   const { agencyId } = useAgency();
+  const router = useRouter();
 
-  // State
+  // Data state
   const [stations, setStations] = useState<Station[]>([]);
+  const [stationStats, setStationStats] = useState<StationStats>({});
+  const [allStats, setAllStats] = useState<AllStatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Create modal
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  // UI state
+  const [search, setSearch] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [createForm, setCreateForm] = useState<StationFormData>(emptyForm);
   const [createLoading, setCreateLoading] = useState(false);
 
-  // Edit modal
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editStation, setEditStation] = useState<Station | null>(null);
-  const [editForm, setEditForm] = useState<StationFormData>(emptyForm);
-  const [editLoading, setEditLoading] = useState(false);
-
-  // Delete dialog
-  const [deleteTarget, setDeleteTarget] = useState<Station | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-
-  // Toggle loading
-  const [toggleLoadingId, setToggleLoadingId] = useState<string | null>(null);
-
-  // Show URL card for newly created station
-  const [showUrlCard, setShowUrlCard] = useState<{
-    name: string;
-    slug: string;
-  } | null>(null);
-
-  /* ── Fetch Stations ── */
-  const fetchStations = useCallback(async () => {
+  /* ── Fetch Stations & Stats ── */
+  const fetchData = useCallback(async () => {
     if (!agencyId) return;
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/stations?agencyId=${agencyId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setStations(data.stations || []);
+
+      const [stationsRes, statsRes] = await Promise.all([
+        fetch(`/api/stations?agencyId=${agencyId}`),
+        fetch(`/api/agency/stations/all-stats?agencyId=${agencyId}`),
+      ]);
+
+      if (stationsRes.ok) {
+        const stationsData = await stationsRes.json();
+        setStations(stationsData.stations || []);
       } else {
-        const err = await res.json().catch(() => ({}));
+        const err = await stationsRes.json().catch(() => ({}));
         setError(err.error || 'Erreur lors du chargement des gares');
+      }
+
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        setStationStats(statsData.stations || {});
+        setAllStats(statsData.allStats || null);
       }
     } catch {
       setError('Erreur réseau. Vérifiez votre connexion.');
@@ -247,8 +155,20 @@ export default function GaresPage() {
   }, [agencyId]);
 
   useEffect(() => {
-    fetchStations();
-  }, [fetchStations]);
+    fetchData();
+  }, [fetchData]);
+
+  /* ── Filter Stations ── */
+  const filteredStations = useMemo(() => {
+    if (!search.trim()) return stations;
+    const q = search.toLowerCase();
+    return stations.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.city.toLowerCase().includes(q) ||
+        (s.address && s.address.toLowerCase().includes(q))
+    );
+  }, [stations, search]);
 
   /* ── Create Station ── */
   const handleCreate = async (e: React.FormEvent) => {
@@ -267,14 +187,13 @@ export default function GaresPage() {
           agencyId,
         }),
       });
+
       if (res.ok) {
         const data = await res.json();
-        const newStation = data.station;
-        toast.success(`Gare "${newStation.name}" créée avec succès`);
-        setShowCreateModal(false);
+        toast.success(`Gare "${data.station.name}" créée avec succès`);
+        setShowCreateDialog(false);
         setCreateForm(emptyForm);
-        setShowUrlCard({ name: newStation.name, slug: newStation.slug });
-        fetchStations();
+        fetchData();
       } else {
         const err = await res.json().catch(() => ({}));
         toast.error(err.error || 'Erreur lors de la création');
@@ -286,131 +205,29 @@ export default function GaresPage() {
     }
   };
 
-  /* ── Edit Station ── */
-  const handleEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editStation || !editForm.name.trim() || !editForm.city.trim()) return;
-
-    setEditLoading(true);
-    try {
-      const res = await fetch(`/api/stations/${editStation.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: editForm.name.trim(),
-          city: editForm.city.trim(),
-          address: editForm.address.trim() || undefined,
-          isActive: editForm.isActive,
-        }),
-      });
-      if (res.ok) {
-        toast.success(`Gare "${editForm.name}" mise à jour`);
-        setShowEditModal(false);
-        setEditStation(null);
-        setEditForm(emptyForm);
-        fetchStations();
-      } else {
-        const err = await res.json().catch(() => ({}));
-        toast.error(err.error || 'Erreur lors de la modification');
-      }
-    } catch {
-      toast.error('Erreur réseau');
-    } finally {
-      setEditLoading(false);
-    }
-  };
-
-  /* ── Delete Station ── */
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-
-    setDeleteLoading(true);
-    try {
-      const res = await fetch(`/api/stations/${deleteTarget.id}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        toast.success(`Gare "${deleteTarget.name}" supprimée`);
-        setDeleteTarget(null);
-        fetchStations();
-      } else {
-        const err = await res.json().catch(() => ({}));
-        toast.error(err.error || 'Erreur lors de la suppression');
-      }
-    } catch {
-      toast.error('Erreur réseau');
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
-
-  /* ── Toggle Active ── */
-  const handleToggle = async (station: Station) => {
-    setToggleLoadingId(station.id);
-    try {
-      const res = await fetch(`/api/stations/${station.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !station.isActive }),
-      });
-      if (res.ok) {
-        toast.success(
-          station.isActive
-            ? `Gare "${station.name}" désactivée`
-            : `Gare "${station.name}" activée`
-        );
-        fetchStations();
-      } else {
-        const err = await res.json().catch(() => ({}));
-        toast.error(err.error || 'Erreur');
-      }
-    } catch {
-      toast.error('Erreur réseau');
-    } finally {
-      setToggleLoadingId(null);
-    }
-  };
-
-  /* ── Open Edit Modal ── */
-  const openEditModal = (station: Station) => {
-    setEditStation(station);
-    setEditForm({
-      name: station.name,
-      city: station.city,
-      address: station.address || '',
-      isActive: station.isActive,
-    });
-    setShowEditModal(true);
-  };
-
-  /* ── Show URL Card for existing station ── */
-  const showStationUrl = (station: Station) => {
-    setShowUrlCard({ name: station.name, slug: station.slug });
-  };
-
   /* ══════════════════════════════════════════════
      Render
      ══════════════════════════════════════════════ */
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-10 h-10 rounded-xl bg-[#FF1D8D] flex items-center justify-center shadow-lg shadow-[#FF1D8D]/20">
               <Building2 className="w-5 h-5 text-white" />
             </div>
             Gares
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Gérez vos gares et obtenez les URLs d'affichage public
+            Gérez vos gares et suivez l&apos;activité QR par gare
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
             size="sm"
-            onClick={fetchStations}
+            onClick={fetchData}
             disabled={loading}
           >
             {loading ? (
@@ -420,26 +237,62 @@ export default function GaresPage() {
             )}
             Rafraîchir
           </Button>
+          <Link href="/agence/stock/global">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/20"
+            >
+              <Luggage className="w-4 h-4" />
+              Stock Global
+            </Button>
+          </Link>
           <Button
             onClick={() => {
               setCreateForm(emptyForm);
-              setShowCreateModal(true);
+              setShowCreateDialog(true);
             }}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+            className="bg-[#FF1D8D] hover:bg-[#FF1D8D]/90 text-white shadow-lg shadow-[#FF1D8D]/20"
           >
             <Plus className="w-4 h-4" />
-            Nouvelle gare
+            Créer une gare
           </Button>
         </div>
       </div>
 
-      {/* URL Card (shown after create or when clicking QR) */}
-      {showUrlCard && (
-        <StationUrlCard
-          stationName={showUrlCard.name}
-          slug={showUrlCard.slug}
-          onClose={() => setShowUrlCard(null)}
-        />
+      {/* KPI Summary Cards */}
+      {allStats && !loading && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+        >
+          <KpiCard
+            title="Total Gares"
+            value={allStats.totalStations}
+            icon={<Building2 className="w-5 h-5" />}
+            description={`${allStats.activeStations} actives`}
+          />
+          <KpiCard
+            title="QR Assignés"
+            value={allStats.totalBaggages}
+            icon={<Luggage className="w-5 h-5" />}
+            description="toutes gares confondues"
+          />
+          <KpiCard
+            title="QR Disponibles"
+            value="—"
+            icon={<Search className="w-5 h-5" />}
+            description="non activés par gare"
+          />
+          <KpiCard
+            title="Activations Auj."
+            value={allStats.todayActivations}
+            icon={<MapPin className="w-5 h-5" />}
+            description="aujourd'hui"
+          />
+        </motion.div>
       )}
 
       {/* Error State */}
@@ -456,243 +309,148 @@ export default function GaresPage() {
               {error}
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={fetchStations}>
+          <Button variant="outline" size="sm" onClick={fetchData}>
             <RefreshCw className="w-4 h-4" />
             Réessayer
           </Button>
         </div>
       )}
 
+      {/* Search Bar */}
+      {!loading && stations.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+        >
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Input
+              placeholder="Rechercher par nom, ville ou adresse..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-12 h-11 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+            />
+          </div>
+        </motion.div>
+      )}
+
       {/* Loading Skeleton */}
       {loading && (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex items-center gap-4"
-            >
-              <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-48" />
-                <Skeleton className="h-3 w-32" />
-              </div>
-              <Skeleton className="h-6 w-20 rounded-full" />
-              <Skeleton className="h-8 w-8 rounded-lg" />
-              <Skeleton className="h-8 w-8 rounded-lg" />
-              <Skeleton className="h-8 w-8 rounded-lg" />
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="py-0 gap-0">
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-11 w-11 rounded-xl shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[1, 2, 3].map((j) => (
+                    <Skeleton key={j} className="h-14 rounded-lg" />
+                  ))}
+                </div>
+                <Skeleton className="h-9 w-full rounded-lg" />
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
       {/* Empty State */}
       {!loading && !error && stations.length === 0 && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-12 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-12 text-center"
+        >
+          <div className="w-20 h-20 rounded-2xl bg-[#FF1D8D]/10 dark:bg-[#FF1D8D]/20 flex items-center justify-center mx-auto mb-6">
+            <Building2 className="w-10 h-10 text-[#FF1D8D]" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Aucune gare
+          <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">
+            Aucune gare créée
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
-            Créez votre première gare pour obtenir une URL publique
-            d&apos;affichage et un QR code à imprimer.
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto">
+            Créez votre première gare pour commencer à organiser vos QR codes
+            et suivre l&apos;activité par point de départ.
           </p>
           <Button
             onClick={() => {
               setCreateForm(emptyForm);
-              setShowCreateModal(true);
+              setShowCreateDialog(true);
             }}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="bg-[#FF1D8D] hover:bg-[#FF1D8D]/90 text-white shadow-lg shadow-[#FF1D8D]/20"
           >
             <Plus className="w-4 h-4" />
             Créer une gare
           </Button>
-        </div>
+        </motion.div>
       )}
 
-      {/* Station List */}
-      {!loading && stations.length > 0 && (
-        <div className="space-y-3">
-          {stations.map((station) => (
-            <div
-              key={station.id}
-              className={`bg-white dark:bg-slate-900 rounded-xl border shadow-sm p-4 transition-all ${
-                station.isActive
-                  ? 'border-slate-200 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700'
-                  : 'border-slate-200 dark:border-slate-800 opacity-60'
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                {/* Icon */}
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                    station.isActive
-                      ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                      : 'bg-slate-100 dark:bg-slate-800'
-                  }`}
-                >
-                  <Building2
-                    className={`w-5 h-5 ${
-                      station.isActive
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-slate-400 dark:text-slate-500'
-                    }`}
-                  />
-                </div>
+      {/* No Search Results */}
+      {!loading && !error && stations.length > 0 && filteredStations.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 text-center"
+        >
+          <Search className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            Aucune gare ne correspond à votre recherche
+          </p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+            Essayez un autre terme de recherche
+          </p>
+        </motion.div>
+      )}
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                      {station.name}
-                    </h3>
-                    <Badge
-                      variant={station.isActive ? 'default' : 'secondary'}
-                      className={
-                        station.isActive
-                          ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                      }
-                    >
-                      {station.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {station.city}
-                      {station.address ? ` — ${station.address}` : ''}
-                    </span>
-                    <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
-                      /{station.slug}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Departures Count */}
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    {station._count?.departures ?? 0}
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    départs
-                  </span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-1">
-                  {/* QR Code / URL */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-slate-400 hover:text-emerald-600"
-                    onClick={() => showStationUrl(station)}
-                    title="Voir QR code et URL"
-                  >
-                    <QrCode className="w-4 h-4" />
-                  </Button>
-
-                  {/* Toggle Active */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`h-8 w-8 ${
-                      station.isActive
-                        ? 'text-emerald-500 hover:text-slate-600'
-                        : 'text-slate-400 hover:text-emerald-500'
-                    }`}
-                    onClick={() => handleToggle(station)}
-                    disabled={toggleLoadingId === station.id}
-                    title={
-                      station.isActive
-                        ? 'Désactiver la gare'
-                        : 'Activer la gare'
+      {/* Station Cards Grid */}
+      <AnimatePresence mode="wait">
+        {!loading && filteredStations.length > 0 && (
+          <motion.div
+            key="stations-grid"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            {filteredStations.map((station) => (
+              <motion.div key={station.id} variants={cardVariants}>
+                <StationCard
+                  station={station}
+                  stats={
+                    stationStats[station.id] || {
+                      total: 0,
+                      pending: 0,
+                      active: 0,
+                      todayActivations: 0,
                     }
-                  >
-                    {toggleLoadingId === station.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <CheckCircle className="w-4 h-4" />
-                    )}
-                  </Button>
-
-                  {/* Edit */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-slate-400 hover:text-blue-600"
-                    onClick={() => openEditModal(station)}
-                    title="Modifier"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-
-                  {/* Delete */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-red-600"
-                        onClick={() => setDeleteTarget(station)}
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Supprimer la gare &quot;{station.name}&quot; ?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Cette action est irréversible. Tous les départs
-                          associés à cette gare seront conservés, mais la gare
-                          sera définitivement supprimée.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel
-                          onClick={() => setDeleteTarget(null)}
-                        >
-                          Annuler
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleDelete}
-                          disabled={deleteLoading}
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                        >
-                          {deleteLoading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
-                          Supprimer
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                  }
+                  onClick={() => router.push(`/agence/gares/${station.slug}`)}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Create Station Dialog ── */}
-      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <div className="w-8 h-8 rounded-lg bg-[#FF1D8D]/10 dark:bg-[#FF1D8D]/20 flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-[#FF1D8D]" />
               </div>
-              Nouvelle gare
+              Créer une gare
             </DialogTitle>
             <DialogDescription>
-              Créez une gare pour obtenir une URL publique d&apos;affichage
-              et un QR code unique.
+              Ajoutez une nouvelle gare à votre réseau. Elle apparaîtra dans
+              votre espace et pourra recevoir des QR codes.
             </DialogDescription>
           </DialogHeader>
 
@@ -743,14 +501,14 @@ export default function GaresPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setShowCreateModal(false)}
+                onClick={() => setShowCreateDialog(false)}
               >
                 Annuler
               </Button>
               <Button
                 type="submit"
                 disabled={createLoading}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-[#FF1D8D] hover:bg-[#FF1D8D]/90 text-white"
               >
                 {createLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -758,131 +516,6 @@ export default function GaresPage() {
                   <Plus className="w-4 h-4" />
                 )}
                 Créer la gare
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Edit Station Dialog ── */}
-      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <Pencil className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              Modifier la gare
-            </DialogTitle>
-            <DialogDescription>
-              Modifiez les informations de la gare. Le slug ne peut pas être
-              modifié.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleEdit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">
-                Nom de la gare <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="edit-name"
-                value={editForm.name}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, name: e.target.value })
-                }
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-city">
-                Ville <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="edit-city"
-                value={editForm.city}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, city: e.target.value })
-                }
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-address">Adresse</Label>
-              <Input
-                id="edit-address"
-                value={editForm.address}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, address: e.target.value })
-                }
-              />
-            </div>
-
-            {/* Slug (read-only) */}
-            {editStation && (
-              <div className="space-y-2">
-                <Label className="text-slate-500 dark:text-slate-400">
-                  Slug
-                </Label>
-                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
-                  <code className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                    /{editStation.slug}
-                  </code>
-                  <span className="text-xs text-slate-400">(non modifiable)</span>
-                </div>
-              </div>
-            )}
-
-            {/* Active toggle */}
-            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
-              <div>
-                <Label className="text-sm font-medium">Gare active</Label>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {editForm.isActive
-                    ? 'La gare est visible publiquement'
-                    : 'La gare est masquée de l\'affichage public'}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setEditForm({ ...editForm, isActive: !editForm.isActive })
-                }
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                  editForm.isActive ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-600'
-                }`}
-                role="switch"
-                aria-checked={editForm.isActive}
-              >
-                <span
-                  className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform ${
-                    editForm.isActive ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowEditModal(false)}
-              >
-                Annuler
-              </Button>
-              <Button
-                type="submit"
-                disabled={editLoading}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                {editLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <CheckCircle className="w-4 h-4" />
-                )}
-                Enregistrer
               </Button>
             </DialogFooter>
           </form>

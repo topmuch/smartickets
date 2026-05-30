@@ -1,345 +1,719 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Download,
-  Luggage,
-  CheckCircle,
-  AlertTriangle,
-  Clock,
-  TrendingUp,
+  MapPin,
   QrCode,
-  Plane,
-  Calendar,
-  Share2
+  CheckCircle,
+  BarChart3,
+  AlertCircle,
+  Loader2,
+  Ticket,
+  Package,
+  Activity,
+  Building2,
 } from 'lucide-react';
 import { useAgency } from '../layout';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
-interface Stats {
+// ─── Types ───────────────────────────────────────────────────
+
+interface Station {
+  id: string;
+  name: string;
+  city: string;
+  slug: string;
+  address?: string | null;
+  isActive: boolean;
+}
+
+interface StationStats {
   total: number;
-  pending_activation: number;
+  pending: number;
   active: number;
-  scanned: number;
-  lost: number;
-  found: number;
-  blocked: number;
-  hajj: number;
-  voyageur: number;
+  activeTickets?: number;
+  activeParcels?: number;
+  terminated?: number;
+  todayActivations: number;
 }
 
-interface DailyStat {
-  date: string;
-  count: number;
-  label: string;
+interface AllStats {
+  totalStations: number;
+  activeStations: number;
+  totalBaggages: number;
+  todayActivations: number;
 }
 
-interface WeeklyStat {
-  week: number;
-  count: number;
-  label: string;
+interface AllStatsResponse {
+  stations: Record<string, StationStats>;
+  allStats: AllStats;
 }
 
-interface ReportData {
-  stats: Stats;
-  recoveryRate: number;
-  dailyStats: DailyStat[];
-  weeklyStats: WeeklyStat[];
-  scanLogsCount: number;
-  period: string;
-}
+// ─── KPI Card Skeleton ────────────────────────────────────────
 
-export default function AgencyReportsPage() {
-  const { agencyId, agencyName, agencyData } = useAgency();
-  const [data, setData] = useState<ReportData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState('week');
-
-  useEffect(() => {
-    fetchReports();
-  }, [period, agencyId]);
-
-  const fetchReports = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/reports?period=${period}&agencyId=${agencyId}`);
-      const json = await res.json();
-      setData(json);
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleExport = async () => {
-    window.open(`/api/reports/export?agencyId=${agencyId}&period=${period}`, '_blank');
-  };
-
-  const handleSharePublicPage = () => {
-    const slug = agencyData?.slug || 'agency';
-    const url = `${window.location.origin}/agency/${slug}`;
-    navigator.clipboard.writeText(url);
-    alert(`Lien copié ! ${url}`);
-  };
-
-  // Calculate max for chart
-  const maxDaily = data?.dailyStats ? Math.max(...data.dailyStats.map(d => d.count), 1) : 1;
-  const maxWeekly = data?.weeklyStats ? Math.max(...data.weeklyStats.map(d => d.count), 1) : 1;
-
+function KpiSkeleton() {
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Rapports</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Statistiques de {agencyName}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Period Selector */}
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff7f00]"
-          >
-            <option value="week">7 derniers jours</option>
-            <option value="month">Ce mois</option>
-            <option value="year">Cette année</option>
-          </select>
-          
-          {/* Share Public Page */}
-          <button
-            onClick={handleSharePublicPage}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            Partager
-          </button>
-          
-          {/* Export Button */}
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-medium transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Exporter CSV
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-[#ff7f00]/30 border-t-[#ff7f00] rounded-full animate-spin" />
-        </div>
-      ) : data ? (
-        <div className="space-y-6">
-          {/* Main Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="kpi-card kpi-card-green p-5">
-              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
-                <Luggage className="w-5 h-5 text-white" />
-              </div>
-              <p className="text-3xl font-bold text-white">{data.stats.total}</p>
-              <p className="text-sm text-white/80">Total colis</p>
-            </div>
-            
-            <div className="kpi-card kpi-card-blue p-5">
-              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
-                <CheckCircle className="w-5 h-5 text-white" />
-              </div>
-              <p className="text-3xl font-bold text-white">{data.stats.active}</p>
-              <p className="text-sm text-white/80">Actifs</p>
-            </div>
-            
-            <div className="kpi-card kpi-card-orange p-5">
-              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
-                <QrCode className="w-5 h-5 text-white" />
-              </div>
-              <p className="text-3xl font-bold text-white">{data.stats.scanned}</p>
-              <p className="text-sm text-white/80">Scannés</p>
-            </div>
-            
-            <div className="kpi-card kpi-card-red p-5">
-              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
-                <AlertTriangle className="w-5 h-5 text-white" />
-              </div>
-              <p className="text-3xl font-bold text-white">{data.stats.lost}</p>
-              <p className="text-sm text-white/80">Perdus</p>
-            </div>
+    <Card className="border-slate-200 dark:border-slate-800">
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-4 w-28 rounded" />
+            <Skeleton className="h-8 w-16 rounded" />
           </div>
-
-          {/* Charts Row */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Daily Evolution Chart */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-[#ff7f00]" />
-                Évolution quotidienne
-              </h3>
-              <div className="space-y-3">
-                {data.dailyStats.map((day, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <span className="text-sm text-slate-500 dark:text-slate-400 w-20">{day.label}</span>
-                    <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-[#ff7f00] to-[#ff9f00] rounded-full transition-all duration-500"
-                        style={{ width: `${(day.count / maxDaily) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-slate-800 dark:text-white w-8 text-right">{day.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Weekly Evolution Chart */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#ff7f00]" />
-                Évolution hebdomadaire
-              </h3>
-              <div className="space-y-3">
-                {data.weeklyStats.map((week, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <span className="text-sm text-slate-500 dark:text-slate-400 w-24">{week.label}</span>
-                    <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500"
-                        style={{ width: `${(week.count / maxWeekly) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-slate-800 dark:text-white w-8 text-right">{week.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Row */}
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Status Distribution */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Répartition par statut</h3>
-              <div className="space-y-3">
-                <StatusRow label="En attente" count={data.stats.pending_activation} total={data.stats.total} color="amber" />
-                <StatusRow label="Actifs" count={data.stats.active} total={data.stats.total} color="emerald" />
-                <StatusRow label="Scannés" count={data.stats.scanned} total={data.stats.total} color="blue" />
-                <StatusRow label="Perdus" count={data.stats.lost} total={data.stats.total} color="rose" />
-                <StatusRow label="Retrouvés" count={data.stats.found} total={data.stats.total} color="green" />
-              </div>
-            </div>
-
-            {/* Type Distribution */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Par type</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl">
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <Plane className="w-6 h-6 text-emerald-500" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Hajj</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.stats.hajj}</p>
-                  </div>
-                  <span className="text-sm text-emerald-500 font-medium">
-                    {data.stats.total > 0 ? Math.round((data.stats.hajj / data.stats.total) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 rounded-xl">
-                  <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center">
-                    <Luggage className="w-6 h-6 text-amber-500" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Voyageur</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.stats.voyageur}</p>
-                  </div>
-                  <span className="text-sm text-amber-500 font-medium">
-                    {data.stats.total > 0 ? Math.round((data.stats.voyageur / data.stats.total) * 100) : 0}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Key Metrics */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Indicateurs clés</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-slate-500 dark:text-slate-400 text-sm">Taux de récupération</span>
-                    <TrendingUp className="w-4 h-4 text-emerald-500" />
-                  </div>
-                  <p className="text-3xl font-bold text-emerald-500">{data.recoveryRate}%</p>
-                  <p className="text-xs text-slate-400 mt-1">Colis retrouvés / perdus</p>
-                </div>
-                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-slate-500 dark:text-slate-400 text-sm">Scans enregistrés</span>
-                    <QrCode className="w-4 h-4 text-[#ff7f00]" />
-                  </div>
-                  <p className="text-3xl font-bold text-[#ff7f00]">{data.scanLogsCount}</p>
-                  <p className="text-xs text-slate-400 mt-1">Total sur la période</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Public Page Info */}
-          <div className="bg-gradient-to-r from-[#ff7f00]/10 to-[#ff9f00]/10 rounded-2xl p-6 border border-[#ff7f00]/20">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-[#ff7f00]/20 rounded-xl flex items-center justify-center">
-                <Share2 className="w-6 h-6 text-[#ff7f00]" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">
-                  Page publique de votre agence
-                </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mb-3">
-                  Partagez ce lien avec vos clients pour leur montrer les colis que vous protégez :
-                </p>
-                <code className="bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg text-sm text-[#ff7f00] border border-slate-200 dark:border-slate-700">
-                  {typeof window !== 'undefined' ? window.location.origin : ''}/agency/{agencyData?.slug || 'agency'}
-                </code>
-              </div>
-              <button
-                onClick={handleSharePublicPage}
-                className="px-4 py-2 bg-[#ff7f00] hover:bg-[#ff9f00] text-white rounded-xl text-sm font-medium transition-colors"
-              >
-                Copier le lien
-              </button>
-            </div>
-          </div>
+          <Skeleton className="h-10 w-10 rounded-xl" />
         </div>
-      ) : (
-        <div className="text-center py-20 text-slate-500">
-          Aucune donnée disponible
-        </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
-// Status Row Component
-function StatusRow({ label, count, total, color }: { label: string; count: number; total: number; color: string }) {
-  const percentage = total > 0 ? (count / total) * 100 : 0;
-  const colorClasses: Record<string, string> = {
-    amber: 'bg-amber-500',
-    emerald: 'bg-emerald-500',
-    blue: 'bg-blue-500',
-    rose: 'bg-rose-500',
-    green: 'bg-green-500',
-    slate: 'bg-slate-400',
-  };
+// ─── Table Row Skeleton ────────────────────────────────────────
 
+function TableRowSkeleton() {
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-sm text-slate-500 dark:text-slate-400 w-24">{label}</span>
-      <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-        <div 
-          className={`h-full ${colorClasses[color]} rounded-full transition-all duration-500`}
-          style={{ width: `${percentage}%` }}
-        />
+    <TableRow>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-8 w-8 rounded-lg" />
+          <div className="space-y-1.5">
+            <Skeleton className="h-4 w-32 rounded" />
+            <Skeleton className="h-3 w-20 rounded" />
+          </div>
+        </div>
+      </TableCell>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <TableCell key={i}>
+          <Skeleton className="h-5 w-10 rounded mx-auto" />
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
+// ─── KPI Card ────────────────────────────────────────────────
+
+function KpiCard({
+  label,
+  value,
+  icon,
+  accentBg,
+  accentText,
+  delay,
+}: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  accentBg: string;
+  accentText: string;
+  delay: number;
+}) {
+  return (
+    <Card className="border-slate-200 dark:border-slate-800 overflow-hidden relative group hover:shadow-md transition-shadow duration-300">
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              {label}
+            </p>
+            <p
+              className="text-3xl font-bold tabular-nums"
+              style={{ color: accentText }}
+            >
+              {value.toLocaleString('fr-FR')}
+            </p>
+          </div>
+          <div
+            className="h-11 w-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+            style={{ backgroundColor: accentBg }}
+          >
+            {icon}
+          </div>
+        </div>
+      </CardContent>
+      {/* Accent bar at bottom */}
+      <div
+        className="absolute bottom-0 left-0 h-[3px] transition-all duration-700 ease-out"
+        style={{
+          backgroundColor: accentText,
+          width: `${Math.min(value * 5 + 20, 100)}%`,
+          transitionDelay: `${delay}ms`,
+        }}
+      />
+    </Card>
+  );
+}
+
+// ─── Main Page Component ─────────────────────────────────────
+
+export default function AgencyReportsPage() {
+  const { agencyId, agencyName } = useAgency();
+
+  // Data state
+  const [stations, setStations] = useState<Station[]>([]);
+  const [statsResponse, setStatsResponse] = useState<AllStatsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Filter state
+  const [selectedStationId, setSelectedStationId] = useState<string>('all');
+
+  // ─── Fetch stations ───────────────────────────────────────
+  useEffect(() => {
+    if (!agencyId) return;
+
+    const fetchStations = async () => {
+      try {
+        const res = await fetch(`/api/stations?agencyId=${agencyId}`);
+        if (!res.ok) throw new Error('Erreur lors du chargement des gares');
+        const json = await res.json();
+        setStations(json.stations || []);
+      } catch (err) {
+        console.error('Error fetching stations:', err);
+        setError('Impossible de charger les gares. Veuillez réessayer.');
+      }
+    };
+
+    fetchStations();
+  }, [agencyId]);
+
+  // ─── Fetch stats ───────────────────────────────────────────
+  useEffect(() => {
+    if (!agencyId) return;
+
+    const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `/api/agency/stations/all-stats?agencyId=${agencyId}`
+        );
+        if (!res.ok) throw new Error('Erreur lors du chargement des statistiques');
+        const json = await res.json();
+        setStatsResponse(json);
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+        setError(
+          'Impossible de charger les statistiques. Veuillez réessayer.'
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [agencyId]);
+
+  // ─── Merge station data with stats ────────────────────────
+  const stationRows = useMemo(() => {
+    return stations.map((station) => {
+      const stats = statsResponse?.stations?.[station.id];
+      return {
+        ...station,
+        totalAssigned: stats?.total ?? 0,
+        available: stats?.pending ?? 0,
+        activeTickets: stats?.activeTickets ?? 0,
+        activeParcels: stats?.activeParcels ?? 0,
+        terminated: stats?.terminated ?? 0,
+        todayActivations: stats?.todayActivations ?? 0,
+        totalActive: stats?.active ?? 0,
+      };
+    });
+  }, [stations, statsResponse]);
+
+  // ─── Filtered rows ─────────────────────────────────────────
+  const filteredRows = useMemo(() => {
+    if (selectedStationId === 'all') return stationRows;
+    return stationRows.filter((r) => r.id === selectedStationId);
+  }, [stationRows, selectedStationId]);
+
+  // ─── Aggregate stats for KPIs ─────────────────────────────
+  const kpiData = useMemo(() => {
+    const allStations = statsResponse?.allStats;
+    return {
+      totalStations: allStations?.totalStations ?? stations.length,
+      totalAssigned: allStations?.totalBaggages ?? stationRows.reduce((sum, r) => sum + r.totalAssigned, 0),
+      totalAvailable: stationRows.reduce((sum, r) => sum + r.available, 0),
+      todayActivations: allStations?.todayActivations ?? stationRows.reduce((sum, r) => sum + r.todayActivations, 0),
+    };
+  }, [statsResponse, stations.length, stationRows]);
+
+  // ─── CSV Export ───────────────────────────────────────────
+  const handleExportCSV = useCallback(() => {
+    const headers = [
+      'Gare',
+      'Ville',
+      'QR Assignés',
+      'Disponibles',
+      'Tickets Actifs',
+      'Colis Actifs',
+      'Terminés',
+      'Activations Aujourd\'hui',
+    ];
+
+    const rows = filteredRows.map((r) => [
+      r.name,
+      r.city,
+      r.totalAssigned.toString(),
+      r.available.toString(),
+      r.activeTickets.toString(),
+      r.activeParcels.toString(),
+      r.terminated.toString(),
+      r.todayActivations.toString(),
+    ]);
+
+    const totalRow = [
+      'TOTAL',
+      '',
+      kpiData.totalAssigned.toString(),
+      kpiData.totalAvailable.toString(),
+      filteredRows.reduce((s, r) => s + r.activeTickets, 0).toString(),
+      filteredRows.reduce((s, r) => s + r.activeParcels, 0).toString(),
+      filteredRows.reduce((s, r) => s + r.terminated, 0).toString(),
+      kpiData.todayActivations.toString(),
+    ];
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+      totalRow.map((cell) => `"${cell}"`).join(','),
+    ].join('\n');
+
+    // BOM for UTF-8 Excel compatibility
+    const blob = new Blob(['\uFEFF' + csvContent], {
+      type: 'text/csv;charset=utf-8;',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rapports-gares-${agencyName.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [filteredRows, kpiData, agencyName]);
+
+  // ─── Retry handler ────────────────────────────────────────
+  const handleRetry = useCallback(() => {
+    setLoading(true);
+    setError(null);
+
+    Promise.all([
+      fetch(`/api/stations?agencyId=${agencyId}`).then((r) => r.json()),
+      fetch(`/api/agency/stations/all-stats?agencyId=${agencyId}`).then((r) => r.json()),
+    ])
+      .then(([stationsJson, statsJson]) => {
+        setStations(stationsJson.stations || []);
+        setStatsResponse(statsJson);
+      })
+      .catch(() => {
+        setError('Erreur lors du rechargement des données.');
+      })
+      .finally(() => setLoading(false));
+  }, [agencyId]);
+
+  // ─── Render ───────────────────────────────────────────────
+  return (
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* ─── Header ─────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <BarChart3 className="w-6 h-6" style={{ color: '#FF1D8D' }} />
+            Rapports multi-gares
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Vue d&apos;ensemble des statistiques par gare — {agencyName}
+          </p>
+        </div>
+        <Button
+          onClick={handleExportCSV}
+          disabled={loading || filteredRows.length === 0}
+          className="gap-2 font-medium"
+          style={{
+            backgroundColor: '#FF1D8D',
+            color: '#fff',
+          }}
+        >
+          <Download className="w-4 h-4" />
+          <span className="hidden sm:inline">Exporter CSV</span>
+          <span className="sm:hidden">CSV</span>
+        </Button>
       </div>
-      <span className="text-sm font-medium text-slate-800 dark:text-white w-8 text-right">{count}</span>
+
+      {/* ─── Station Filter ─────────────────────────────────── */}
+      <Card className="border-slate-200 dark:border-slate-800">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+              <Building2 className="w-4 h-4" />
+              <span>Filtrer par gare :</span>
+            </div>
+            <Select
+              value={selectedStationId}
+              onValueChange={setSelectedStationId}
+            >
+              <SelectTrigger className="w-full sm:w-[320px]">
+                <SelectValue placeholder="Toutes les gares" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  <span className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-slate-400" />
+                    Toutes les gares
+                  </span>
+                </SelectItem>
+                {stations.map((station) => (
+                  <SelectItem key={station.id} value={station.id}>
+                    <span className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      {station.name} — {station.city}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedStationId !== 'all' && (
+              <Badge
+                variant="secondary"
+                className="bg-[#FF1D8D]/10 text-[#FF1D8D] hover:bg-[#FF1D8D]/20 cursor-pointer transition-colors"
+                onClick={() => setSelectedStationId('all')}
+              >
+                Réinitialiser le filtre
+              </Badge>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ─── KPI Cards ──────────────────────────────────────── */}
+      {loading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <KpiSkeleton />
+          <KpiSkeleton />
+          <KpiSkeleton />
+          <KpiSkeleton />
+        </div>
+      ) : error ? null : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <KpiCard
+            label="Total Gares"
+            value={kpiData.totalStations}
+            icon={<Building2 className="w-5 h-5 text-white" />}
+            accentBg="#FF1D8D"
+            accentText="#FF1D8D"
+            delay={0}
+          />
+          <KpiCard
+            label="QR Assignés"
+            value={kpiData.totalAssigned}
+            icon={<QrCode className="w-5 h-5 text-white" />}
+            accentBg="#6366f1"
+            accentText="#6366f1"
+            delay={100}
+          />
+          <KpiCard
+            label="QR Disponibles"
+            value={kpiData.totalAvailable}
+            icon={<CheckCircle className="w-5 h-5 text-white" />}
+            accentBg="#10b981"
+            accentText="#10b981"
+            delay={200}
+          />
+          <KpiCard
+            label="Activations Aujourd'hui"
+            value={kpiData.todayActivations}
+            icon={<Activity className="w-5 h-5 text-white" />}
+            accentBg="#f59e0b"
+            accentText="#f59e0b"
+            delay={300}
+          />
+        </div>
+      )}
+
+      {/* ─── Error State ─────────────────────────────────────── */}
+      {error && (
+        <Card className="border-rose-200 dark:border-rose-800/50">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+              <div className="h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-6 h-6 text-rose-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-rose-700 dark:text-rose-400">
+                  Erreur de chargement
+                </h3>
+                <p className="text-sm text-rose-600/80 dark:text-rose-400/80 mt-0.5">
+                  {error}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={handleRetry}
+                className="gap-2 border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-500/10"
+              >
+                <Loader2 className="w-4 h-4" />
+                Réessayer
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ─── Data Table ─────────────────────────────────────── */}
+      <Card className="border-slate-200 dark:border-slate-800">
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-4 space-y-4">
+              {/* Table header skeleton */}
+              <div className="flex items-center gap-4 px-2">
+                <Skeleton className="h-4 w-40 rounded" />
+                <Skeleton className="h-4 w-20 rounded" />
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-4 w-20 rounded" />
+                <Skeleton className="h-4 w-28 rounded" />
+              </div>
+              <div className="space-y-3">
+                <TableRowSkeleton />
+                <TableRowSkeleton />
+                <TableRowSkeleton />
+              </div>
+            </div>
+          ) : filteredRows.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-500">
+              <BarChart3 className="w-12 h-12 mb-3 opacity-50" />
+              <p className="text-lg font-medium">Aucune donnée disponible</p>
+              <p className="text-sm mt-1">
+                {stations.length === 0
+                  ? 'Aucune gare enregistrée pour cette agence.'
+                  : 'Aucune gare correspondante au filtre sélectionné.'}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50/80 dark:bg-slate-900/80 hover:bg-transparent">
+                    <TableHead className="min-w-[200px]">
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="w-4 h-4 text-[#FF1D8D]" />
+                        Gare
+                      </span>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <span className="flex items-center gap-1.5 justify-center">
+                        <QrCode className="w-3.5 h-3.5 text-slate-400" />
+                        QR Assignés
+                      </span>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <span className="flex items-center gap-1.5 justify-center">
+                        <CheckCircle className="w-3.5 h-3.5 text-slate-400" />
+                        Disponibles
+                      </span>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <span className="flex items-center gap-1.5 justify-center">
+                        <Ticket className="w-3.5 h-3.5 text-slate-400" />
+                        Tickets Actifs
+                      </span>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <span className="flex items-center gap-1.5 justify-center">
+                        <Package className="w-3.5 h-3.5 text-slate-400" />
+                        Colis Actifs
+                      </span>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <span className="flex items-center gap-1.5 justify-center">
+                        <CheckCircle className="w-3.5 h-3.5 text-slate-400" />
+                        Terminés
+                      </span>
+                    </TableHead>
+                    <TableHead className="text-center min-w-[140px]">
+                      <span className="flex items-center gap-1.5 justify-center">
+                        <Activity className="w-3.5 h-3.5 text-slate-400" />
+                        Act. Aujourd&apos;hui
+                      </span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredRows.map((row) => {
+                    const isHighlighted = selectedStationId !== 'all' && row.id === selectedStationId;
+                    return (
+                      <TableRow
+                        key={row.id}
+                        className={`transition-colors duration-200 ${
+                          isHighlighted
+                            ? 'bg-[#FF1D8D]/5 dark:bg-[#FF1D8D]/10 hover:bg-[#FF1D8D]/8'
+                            : 'hover:bg-slate-50 dark:hover:bg-slate-900/50'
+                        }`}
+                      >
+                        {/* Station Name */}
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0"
+                              style={{
+                                backgroundColor: isHighlighted ? '#FF1D8D' : '#f1f5f9',
+                                color: isHighlighted ? '#fff' : '#64748b',
+                              }}
+                            >
+                              <MapPin className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-slate-800 dark:text-white truncate">
+                                {row.name}
+                              </p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500 truncate">
+                                {row.city}
+                              </p>
+                            </div>
+                            {isHighlighted && (
+                              <Badge className="bg-[#FF1D8D]/10 text-[#FF1D8D] text-[10px] px-1.5 py-0 border-0 shrink-0">
+                                Sélectionnée
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        {/* QR Assignés */}
+                        <TableCell className="text-center">
+                          <span className="inline-flex items-center justify-center font-semibold text-slate-800 dark:text-white tabular-nums">
+                            {row.totalAssigned}
+                          </span>
+                        </TableCell>
+
+                        {/* Disponibles */}
+                        <TableCell className="text-center">
+                          <span className="inline-flex items-center justify-center">
+                            {row.available > 0 ? (
+                              <Badge
+                                variant="secondary"
+                                className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 font-semibold tabular-nums"
+                              >
+                                {row.available}
+                              </Badge>
+                            ) : (
+                              <span className="text-slate-400 tabular-nums">0</span>
+                            )}
+                          </span>
+                        </TableCell>
+
+                        {/* Tickets Actifs */}
+                        <TableCell className="text-center">
+                          <span className="inline-flex items-center justify-center gap-1 font-medium text-slate-700 dark:text-slate-300 tabular-nums">
+                            <Ticket className="w-3 h-3 text-slate-400" />
+                            {row.activeTickets}
+                          </span>
+                        </TableCell>
+
+                        {/* Colis Actifs */}
+                        <TableCell className="text-center">
+                          <span className="inline-flex items-center justify-center gap-1 font-medium text-slate-700 dark:text-slate-300 tabular-nums">
+                            <Package className="w-3 h-3 text-slate-400" />
+                            {row.activeParcels}
+                          </span>
+                        </TableCell>
+
+                        {/* Terminés */}
+                        <TableCell className="text-center">
+                          <span className="inline-flex items-center justify-center">
+                            {row.terminated > 0 ? (
+                              <Badge
+                                variant="secondary"
+                                className="bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 font-semibold tabular-nums"
+                              >
+                                {row.terminated}
+                              </Badge>
+                            ) : (
+                              <span className="text-slate-400 tabular-nums">0</span>
+                            )}
+                          </span>
+                        </TableCell>
+
+                        {/* Activations Aujourd'hui */}
+                        <TableCell className="text-center">
+                          <span className="inline-flex items-center justify-center">
+                            {row.todayActivations > 0 ? (
+                              <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 font-semibold tabular-nums border-0">
+                                <Activity className="w-3 h-3 mr-1" />
+                                {row.todayActivations}
+                              </Badge>
+                            ) : (
+                              <span className="text-slate-400 tabular-nums">0</span>
+                            )}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+
+                  {/* Total Row */}
+                  <TableRow className="bg-slate-100/60 dark:bg-slate-800/60 font-semibold hover:bg-slate-100/80 dark:hover:bg-slate-800/80">
+                    <TableCell>
+                      <span className="text-sm font-bold text-slate-800 dark:text-white">
+                        Total ({filteredRows.length} gare{filteredRows.length > 1 ? 's' : ''})
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-sm font-bold text-slate-800 dark:text-white tabular-nums">
+                        {filteredRows.reduce((s, r) => s + r.totalAssigned, 0)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        {filteredRows.reduce((s, r) => s + r.available, 0)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
+                        {filteredRows.reduce((s, r) => s + r.activeTickets, 0)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
+                        {filteredRows.reduce((s, r) => s + r.activeParcels, 0)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400 tabular-nums">
+                        {filteredRows.reduce((s, r) => s + r.terminated, 0)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="text-sm font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                        {filteredRows.reduce((s, r) => s + r.todayActivations, 0)}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
