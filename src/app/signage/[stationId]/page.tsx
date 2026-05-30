@@ -261,7 +261,7 @@ export default function SignageKioskPage() {
 
   return (
     <>
-      <style jsx>{`
+      <style jsx global>{`
         :root {
           --primary: ${primaryColor};
           --secondary: ${secondaryColor};
@@ -371,10 +371,14 @@ export default function SignageKioskPage() {
           letter-spacing: 0.5px;
           font-size: clamp(0.8rem, 1.5vh, 1rem);
         }
-        .board-body { flex: 1; overflow: hidden; }
+        .board-body { flex: 1; overflow-y: auto; overflow-x: hidden; }
+        .board-body::-webkit-scrollbar { width: 6px; }
+        .board-body::-webkit-scrollbar-track { background: transparent; }
+        .board-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
         /* ROW */
         .row {
+          min-height: clamp(60px, 8vh, 90px);
           display: grid;
           grid-template-columns: minmax(80px, 1.2fr) minmax(60px, 1fr) 2fr minmax(60px, 1fr) 1.3fr;
           padding: clamp(0.8rem, 1.5vh, 1.5rem) clamp(1rem, 1.5vw, 2rem);

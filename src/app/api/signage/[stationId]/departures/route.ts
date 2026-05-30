@@ -56,10 +56,10 @@ export async function GET(
       tickerMessages = [];
     }
 
-    // Logo and colors
+    // Logo and colors (defaults match admin settings defaults)
     const logoUrl = settingsMap['signage_logoUrl'] || '';
-    const primaryColor = settingsMap['signage_primaryColor'] || '';
-    const secondaryColor = settingsMap['signage_secondaryColor'] || '';
+    const primaryColor = settingsMap['signage_primaryColor'] || '#0f172a';
+    const secondaryColor = settingsMap['signage_secondaryColor'] || '#1e293b';
 
     // ─── Calcul dynamique des statuts ────────────────────────────────────
     const processed = departures.map(dep => {

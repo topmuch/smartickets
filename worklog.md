@@ -486,3 +486,32 @@ Stage Summary:
 - 2 files modified (signage display page + agency layout)
 - Superadmin config (colors, station name, logo, ticker) now correctly propagates to signage display
 - Transport agency sidebar now has "Affichage Gare" link to view the live display
+
+---
+Task ID: qr-fix-final
+Agent: Main Agent
+Task: Fix fake QR code on signage display + verify superadmin-signage connection
+
+Work Log:
+- Identified that /signage/[stationId]/page.tsx footer had a FAKE QR code drawn with SVG rects (not scannable)
+- Replaced fake SVG with real QRCodeSVG from qrcode.react v4.2.0
+- Added import: import { QRCodeSVG } from 'qrcode.react'
+- QR code points to /signage/[stationId] URL (the signage page itself)
+- Verified /horaires page already uses real QRCodeSVG correctly (was already working)
+- Verified qrcode.react v4.2.0 is installed in package.json
+- Full runtime test suite passed:
+  - PUT /api/admin/signage/settings → 200, saves "Gare de Pikine" + red/orange colors + ticker ✅
+  - GET /api/admin/signage/settings → 200, returns saved values ✅
+  - GET /api/signage/demo-agency-1/departures → 200, all settings propagated (stationName, primaryColor, secondaryColor, tickerMessages, alertThreshold) ✅
+  - GET / → 200 ✅
+  - GET /horaires → 200 ✅
+  - GET /signage/demo-agency-1 → 200 ✅
+  - GET /admin/signage → 200 ✅
+  - Lint: 0 new errors ✅
+- Pushed to GitHub: commit d38c40a
+
+Stage Summary:
+- Fake SVG QR code replaced with real QRCodeSVG on signage display page
+- Superadmin signage config → transport signage display connection verified working at runtime
+- Both QR codes (/horaires public page + /signage footer) now use real qrcode.react library
+- Settings propagation verified: colors, station name, ticker messages all flow correctly
