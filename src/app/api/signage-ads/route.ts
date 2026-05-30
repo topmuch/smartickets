@@ -44,9 +44,16 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    if (!body.title || !body.mediaType || !body.mediaUrl || !body.startDate) {
+    if (!body.title || !body.mediaType || !body.startDate) {
       return NextResponse.json(
-        { error: 'Champs requis manquants: title, mediaType, mediaUrl, startDate' },
+        { error: 'Champs requis manquants: title, mediaType, startDate' },
+        { status: 400 }
+      );
+    }
+    // At least one media source is required: mediaUrl, videoUrl, or imageUrl
+    if (!body.mediaUrl && !body.videoUrl && !body.imageUrl) {
+      return NextResponse.json(
+        { error: 'Au moins un média requis: mediaUrl, videoUrl ou imageUrl' },
         { status: 400 }
       );
     }
@@ -55,7 +62,9 @@ export async function POST(req: NextRequest) {
       data: {
         title: body.title,
         mediaType: body.mediaType,
-        mediaUrl: body.mediaUrl,
+        mediaUrl: body.mediaUrl || '',
+        videoUrl: body.videoUrl || null,
+        imageUrl: body.imageUrl || null,
         duration: body.duration || 10,
         interval: body.interval || 30,
         startDate: new Date(body.startDate),

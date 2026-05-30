@@ -20,6 +20,8 @@ export async function PUT(
     if (body.title !== undefined) updateData.title = body.title;
     if (body.mediaType !== undefined) updateData.mediaType = body.mediaType;
     if (body.mediaUrl !== undefined) updateData.mediaUrl = body.mediaUrl;
+    if (body.videoUrl !== undefined) updateData.videoUrl = body.videoUrl;
+    if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
     if (body.duration !== undefined) updateData.duration = body.duration;
     if (body.interval !== undefined) updateData.interval = body.interval;
     if (body.startDate !== undefined) updateData.startDate = new Date(body.startDate);

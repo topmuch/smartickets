@@ -628,3 +628,32 @@ Stage Summary:
 - Stable timer loop (no circular dependency)
 - Debug panel enhanced with ad counter and refetch button
 - Test ad "Promo SmarticketS - Test 15min" created and verified in DB
+---
+Task ID: 1
+Agent: Main Agent
+Task: Ajouter les champs videoUrl et imageUrl au module publicité (SignageAd)
+
+Work Log:
+- Analyse du système existant : Prisma schema, API signage-ads, admin page, signage display page
+- Ajout des champs `videoUrl String?` et `imageUrl String?` au modèle SignageAd dans prisma/schema.prisma
+- Changement de `mediaUrl String` à `mediaUrl String @default("")` pour compatibilité rétrograde
+- Push du schéma Prisma + régénération du client (`bun run db:push`)
+- Mise à jour de l'API POST (`/api/signage-ads`) : accepte videoUrl/imageUrl, validation assouplie (au moins un média requis parmi mediaUrl, videoUrl, imageUrl)
+- Mise à jour de l'API PUT (`/api/signage-ads/[id]`) : gestion des champs videoUrl et imageUrl
+- Refonte de la page admin (`/admin/signage-ads/page.tsx`) :
+  - Ajout d'un toggle Upload/URL mode dans le formulaire de création
+  - Mode Upload : inchangé (drag & drop + fichier)
+  - Mode URL : deux champs séparés avec preview (vidéo + image)
+  - Les cartes existantes affichent les badges URL quand videoUrl/imageUrl sont utilisés
+  - Info détaillée dans le corps de la carte (source Vidéo/Image + URL)
+- Mise à jour de la page signage (`/signage/[stationId]/page.tsx`) :
+  - Logique de résolution : videoUrl > mediaType VIDEO + mediaUrl > imageUrl > mediaUrl
+  - Overlay avec key={activeAd.id} pour forcer le re-render vidéo
+- Lint : seul le pré-existent error dans scripts/migrate-db.js
+
+Stage Summary:
+- Schema Prisma : 2 nouveaux champs optionnels (videoUrl, imageUrl)
+- API : POST et PUT mis à jour, validation assouplie
+- Admin UI : toggle Upload/URL avec preview live
+- Display : priorité vidéo > image dans la résolution des médias
+- Aucune régression sur le système de publicités existant (upload fichier)

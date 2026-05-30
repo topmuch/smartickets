@@ -605,7 +605,9 @@ model SignageAd {
   id          String    @id @default(cuid())
   title       String
   mediaType   String    // "IMAGE" | "VIDEO"
-  mediaUrl    String    // URL du fichier (uploadé)
+  mediaUrl    String    @default("") // URL du fichier (uploadé) — compatibilité
+  videoUrl    String?   // URL externe de la vidéo (optionnel)
+  imageUrl    String?   // URL externe de l'image (optionnel)
   duration    Int       @default(10)  // Durée affichage en secondes
   interval    Int       @default(30)  // Fréquence en minutes (15, 30, 60)
   startDate   DateTime  // Début diffusion

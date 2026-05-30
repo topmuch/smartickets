@@ -39,6 +39,8 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle2,
+  Link,
+  Globe,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -50,6 +52,8 @@ interface SignageAd {
   title: string;
   mediaType: string; // "IMAGE" | "VIDEO"
   mediaUrl: string;
+  videoUrl: string | null;
+  imageUrl: string | null;
   duration: number; // seconds
   interval: number; // minutes
   startDate: string;
@@ -107,12 +111,16 @@ export default function SignageAdsPage() {
   const [formMediaType, setFormMediaType] = useState<'IMAGE' | 'VIDEO' | ''>('');
   const [formMediaUrl, setFormMediaUrl] = useState('');
   const [formMediaFilename, setFormMediaFilename] = useState('');
+  const [formVideoUrl, setFormVideoUrl] = useState('');
+  const [formImageUrl, setFormImageUrl] = useState('');
   const [formDuration, setFormDuration] = useState(10);
   const [formInterval, setFormInterval] = useState(30);
   const [formStartDate, setFormStartDate] = useState('');
   const [formEndDate, setFormEndDate] = useState('');
   const [formPriority, setFormPriority] = useState(0);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  // Toggle between upload mode and URL mode
+  const [mediaInputMode, setMediaInputMode] = useState<'upload' | 'url'>('upload');
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<SignageAd | null>(null);
@@ -162,12 +170,15 @@ export default function SignageAdsPage() {
     setFormMediaType('');
     setFormMediaUrl('');
     setFormMediaFilename('');
+    setFormVideoUrl('');
+    setFormImageUrl('');
     setFormDuration(10);
     setFormInterval(30);
     setFormStartDate(toDatetimeLocal(new Date().toISOString()));
     setFormEndDate('');
     setFormPriority(0);
     setFormErrors({});
+    setMediaInputMode('upload');
   }, []);
 
   /* ---- open dialog ---- */
@@ -218,12 +229,17 @@ export default function SignageAdsPage() {
   const handleSubmit = useCallback(async () => {
     const errors: Record<string, string> = {};
     if (!formTitle.trim()) errors.title = 'Le titre est requis';
-    if (!formMediaUrl) errors.media = 'Un fichier est requis';
+    if (!formMediaUrl && !formVideoUrl && !formImageUrl) errors.media = 'Un fichier ou une URL est requis';
     if (!formStartDate) errors.startDate = 'La date de début est requise';
     if (formDuration < 5 || formDuration > 60) errors.duration = 'Entre 5 et 60 secondes';
     setFormErrors(errors);
 
     if (Object.keys(errors).length > 0) return;
+
+    const hasVideoUrl = !!formVideoUrl.trim();
+    const hasImageUrl = !!formImageUrl.trim();
+    const resolvedMediaType = hasVideoUrl ? 'VIDEO' : hasImageUrl ? 'IMAGE' : formMediaType || 'IMAGE';
+    const resolvedMediaUrl = formMediaUrl || formImageUrl || formVideoUrl || '';
 
     setSaving(true);
     try {
@@ -232,8 +248,10 @@ export default function SignageAdsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: formTitle.trim(),
-          mediaType: formMediaType,
-          mediaUrl: formMediaUrl,
+          mediaType: resolvedMediaType,
+          mediaUrl: resolvedMediaUrl,
+          videoUrl: formVideoUrl.trim() || null,
+          imageUrl: formImageUrl.trim() || null,
           duration: formDuration,
           interval: formInterval,
           startDate: formStartDate,
@@ -262,6 +280,8 @@ export default function SignageAdsPage() {
     formTitle,
     formMediaType,
     formMediaUrl,
+    formVideoUrl,
+    formImageUrl,
     formDuration,
     formInterval,
     formStartDate,
@@ -449,37 +469,49 @@ export default function SignageAdsPage() {
             >
               {/* Media Preview */}
               <div className="relative w-full aspect-video bg-slate-100 dark:bg-slate-700 overflow-hidden">
-                {ad.mediaType === 'VIDEO' ? (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <video
-                      src={ad.mediaUrl}
-                      className="w-full h-full object-cover"
-                      muted
-                      preload="metadata"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="w-12 h-12 rounded-full bg-black/40 flex items-center justify-center">
-                        <VideoIcon className="w-5 h-5 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <img
-                    src={ad.mediaUrl}
-                    alt={ad.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                      const parent = (e.target as HTMLImageElement).parentElement;
-                      if (parent) {
-                        parent.innerHTML = `
-                          <div class="w-full h-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                          </div>`;
-                      }
-                    }}
-                  />
-                )}
+                {/* Determine effective media URL and type */}
+                {(() => {
+                  const effectiveVideoUrl = ad.videoUrl || (ad.mediaType === 'VIDEO' ? ad.mediaUrl : null);
+                  const effectiveImageUrl = ad.imageUrl || (ad.mediaType === 'IMAGE' ? ad.mediaUrl : null);
+                  const displayVideo = !!effectiveVideoUrl;
+                  const displayUrl = displayVideo ? effectiveVideoUrl : effectiveImageUrl || ad.mediaUrl;
+
+                  return (
+                    <>
+                      {displayVideo ? (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <video
+                            src={displayUrl || undefined}
+                            className="w-full h-full object-cover"
+                            muted
+                            preload="metadata"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="w-12 h-12 rounded-full bg-black/40 flex items-center justify-center">
+                              <VideoIcon className="w-5 h-5 text-white" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <img
+                          src={displayUrl}
+                          alt={ad.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            const parent = (e.target as HTMLImageElement).parentElement;
+                            if (parent) {
+                              parent.innerHTML = `
+                                <div class="w-full h-full flex items-center justify-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                </div>`;
+                            }
+                          }}
+                        />
+                      )}
+                    </>
+                  );
+                })()}
 
                 {/* Status Badge */}
                 <div className="absolute top-3 left-3">
@@ -495,21 +527,27 @@ export default function SignageAdsPage() {
                 </div>
 
                 {/* Type Badge */}
-                <div className="absolute top-3 right-3">
+                <div className="absolute top-3 right-3 flex flex-col gap-1">
                   <Badge
                     className={
-                      ad.mediaType === 'VIDEO'
+                      (ad.videoUrl || ad.mediaType === 'VIDEO')
                         ? 'bg-purple-500/90 text-white hover:bg-purple-500/90'
                         : 'bg-sky-500/90 text-white hover:bg-sky-500/90'
                     }
                   >
-                    {ad.mediaType === 'VIDEO' ? (
+                    {(ad.videoUrl || ad.mediaType === 'VIDEO') ? (
                       <VideoIcon className="w-3 h-3 mr-1" />
                     ) : (
                       <ImageIcon className="w-3 h-3 mr-1" />
                     )}
-                    {ad.mediaType}
+                    {(ad.videoUrl || ad.mediaType === 'VIDEO') ? 'VIDEO' : 'IMAGE'}
                   </Badge>
+                  {(ad.videoUrl || ad.imageUrl) && (
+                    <Badge className="bg-amber-500/90 text-white hover:bg-amber-500/90 text-[10px]">
+                      <Link className="w-2.5 h-2.5 mr-0.5" />
+                      URL
+                    </Badge>
+                  )}
                 </div>
               </div>
 
@@ -524,6 +562,26 @@ export default function SignageAdsPage() {
                     <Clock className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{ad.duration}s affichage &middot; toutes les {ad.interval}min</span>
                   </div>
+
+                  {(ad.videoUrl || ad.imageUrl) && (
+                    <div className="flex items-center gap-2">
+                      <Link className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
+                      <span className="truncate">
+                        {ad.videoUrl && (
+                          <span className="inline-flex items-center gap-0.5">
+                            <VideoIcon className="w-3 h-3" /> Vidéo
+                          </span>
+                        )}
+                        {ad.videoUrl && ad.imageUrl && ' + '}
+                        {ad.imageUrl && (
+                          <span className="inline-flex items-center gap-0.5">
+                            <ImageIcon className="w-3 h-3" /> Image
+                          </span>
+                        )}
+                        {' '}&middot; source URL
+                      </span>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-2">
                     <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
@@ -631,83 +689,196 @@ export default function SignageAdsPage() {
               )}
             </div>
 
-            {/* File Upload */}
+            {/* Media Input: Upload or URL mode toggle */}
             <div>
-              <Label className="text-slate-700 dark:text-slate-300 text-sm">
-                Fichier (image ou vidéo) <span className="text-red-500">*</span>
-              </Label>
-              <div
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onClick={() => fileInputRef.current?.click()}
-                className={`mt-1.5 relative border-2 border-dashed rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer transition-colors ${
-                  formMediaUrl
-                    ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-900/10'
-                    : 'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 hover:border-[#FF1D8D]/50 hover:bg-[#FF1D8D]/5 dark:hover:bg-[#FF1D8D]/5'
-                } ${formErrors.media ? 'border-red-400 dark:border-red-500' : ''}`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*,video/mp4"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileSelect(file);
-                    e.target.value = '';
-                  }}
-                />
+              <div className="flex items-center gap-2 mb-2">
+                <Label className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                  Média <span className="text-red-500">*</span>
+                </Label>
+                <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setMediaInputMode('upload')}
+                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                      mediaInputMode === 'upload'
+                        ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
+                  >
+                    <Upload className="w-3 h-3 inline mr-1" />
+                    Upload
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMediaInputMode('url')}
+                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                      mediaInputMode === 'url'
+                        ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
+                  >
+                    <Link className="w-3 h-3 inline mr-1" />
+                    URL
+                  </button>
+                </div>
+              </div>
 
-                {uploading ? (
-                  <>
-                    <Loader2 className="w-8 h-8 text-[#FF1D8D] animate-spin" />
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Téléchargement en cours...</p>
-                  </>
-                ) : formMediaUrl ? (
-                  <>
-                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-                    <div className="text-center">
-                      <p className="text-sm font-medium text-slate-800 dark:text-white">
-                        {formMediaFilename || 'Fichier prêt'}
-                      </p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                        {formMediaType === 'VIDEO' ? 'Vidéo MP4' : 'Image'} &middot; Cliquez pour remplacer
-                      </p>
+              {/* ── Upload mode ── */}
+              {mediaInputMode === 'upload' && (
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative border-2 border-dashed rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer transition-colors ${
+                    formMediaUrl
+                      ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-900/10'
+                      : 'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 hover:border-[#FF1D8D]/50 hover:bg-[#FF1D8D]/5 dark:hover:bg-[#FF1D8D]/5'
+                  } ${formErrors.media ? 'border-red-400 dark:border-red-500' : ''}`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,video/mp4"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect(file);
+                      e.target.value = '';
+                    }}
+                  />
+
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-8 h-8 text-[#FF1D8D] animate-spin" />
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Téléchargement en cours...</p>
+                    </>
+                  ) : formMediaUrl ? (
+                    <>
+                      <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-slate-800 dark:text-white">
+                          {formMediaFilename || 'Fichier prêt'}
+                        </p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                          {formMediaType === 'VIDEO' ? 'Vidéo MP4' : 'Image'} &middot; Cliquez pour remplacer
+                        </p>
+                      </div>
+                      {/* Preview thumbnail */}
+                      <div className="w-full max-w-[200px] mt-1 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700">
+                        {formMediaType === 'VIDEO' ? (
+                          <div className="aspect-video flex items-center justify-center">
+                            <VideoIcon className="w-6 h-6 text-purple-400" />
+                          </div>
+                        ) : (
+                          <img
+                            src={formMediaUrl}
+                            alt="Preview"
+                            className="w-full h-auto object-cover max-h-28"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                        <Upload className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          Glissez-déposez ou cliquez pour sélectionner
+                        </p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                          JPG, PNG, GIF, WebP ou MP4 &middot; max 50 MB
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* ── URL mode ── */}
+              {mediaInputMode === 'url' && (
+                <div className="space-y-4">
+                  {/* Video URL */}
+                  <div>
+                    <Label className="text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center gap-1.5">
+                      <VideoIcon className="w-3.5 h-3.5 text-purple-500" />
+                      URL de la vidéo
+                      <span className="text-slate-400 dark:text-slate-500 font-normal">(optionnel)</span>
+                    </Label>
+                    <div className="relative mt-1.5">
+                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+                      <Input
+                        type="url"
+                        value={formVideoUrl}
+                        onChange={(e) => {
+                          setFormVideoUrl(e.target.value);
+                          setFormErrors((prev) => ({ ...prev, media: '' }));
+                        }}
+                        placeholder="https://example.com/video.mp4"
+                        className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl"
+                      />
                     </div>
-                    {/* Preview thumbnail */}
-                    <div className="w-full max-w-[200px] mt-1 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700">
-                      {formMediaType === 'VIDEO' ? (
-                        <div className="aspect-video flex items-center justify-center">
-                          <VideoIcon className="w-6 h-6 text-purple-400" />
-                        </div>
-                      ) : (
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                      MP4, WebM, OGG &middot; Si renseigné, la vidéo sera prioritaire
+                    </p>
+                    {/* Video preview */}
+                    {formVideoUrl && (
+                      <div className="mt-2 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 max-w-[280px]">
+                        <video
+                          src={formVideoUrl}
+                          className="w-full aspect-video object-contain"
+                          muted
+                          preload="metadata"
+                          controls
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Image URL */}
+                  <div>
+                    <Label className="text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-sky-500" />
+                      URL de l&apos;image
+                      <span className="text-slate-400 dark:text-slate-500 font-normal">(optionnel)</span>
+                    </Label>
+                    <div className="relative mt-1.5">
+                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+                      <Input
+                        type="url"
+                        value={formImageUrl}
+                        onChange={(e) => {
+                          setFormImageUrl(e.target.value);
+                          setFormErrors((prev) => ({ ...prev, media: '' }));
+                        }}
+                        placeholder="https://example.com/banner.jpg"
+                        className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl"
+                      />
+                    </div>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                      JPG, PNG, GIF, WebP &middot; Utilisée si pas de vidéo
+                    </p>
+                    {/* Image preview */}
+                    {formImageUrl && (
+                      <div className="mt-2 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700 max-w-[280px]">
                         <img
-                          src={formMediaUrl}
+                          src={formImageUrl}
                           alt="Preview"
                           className="w-full h-auto object-cover max-h-28"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-                      <Upload className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        Glissez-déposez ou cliquez pour sélectionner
-                      </p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                        JPG, PNG, GIF, WebP ou MP4 &middot; max 50 MB
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {formErrors.media && (
                 <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />

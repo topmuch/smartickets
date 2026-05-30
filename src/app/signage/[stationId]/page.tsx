@@ -43,6 +43,8 @@ interface SignageAd {
   title: string;
   mediaType: 'IMAGE' | 'VIDEO';
   mediaUrl: string;
+  videoUrl: string | null;
+  imageUrl: string | null;
   duration: number;
   interval: number;
   isActive: boolean;
@@ -774,26 +776,34 @@ export default function SignageKioskPage() {
       {offline && <div className="sig2-offline">⚠️ Hors ligne</div>}
 
       {/* ─── AD OVERLAY (full-screen ad rotation) ─── */}
-      {showAdOverlay && activeAd && (
-        <div className="sig2-ad-overlay">
-          {activeAd.mediaType === 'VIDEO' ? (
-            <video
-              src={activeAd.mediaUrl}
-              autoPlay
-              muted
-              playsInline
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      {showAdOverlay && activeAd && (() => {
+        // Resolve effective media: videoUrl > mediaType VIDEO > imageUrl > mediaUrl
+        const effectiveVideoUrl = activeAd.videoUrl || (activeAd.mediaType === 'VIDEO' ? activeAd.mediaUrl : null);
+        const effectiveImageUrl = activeAd.imageUrl || (activeAd.mediaType !== 'VIDEO' ? activeAd.mediaUrl : null);
+        const isVideo = !!effectiveVideoUrl;
+        const displayUrl = isVideo ? effectiveVideoUrl : effectiveImageUrl || activeAd.mediaUrl;
+
+        return (
+          <div className="sig2-ad-overlay" key={activeAd.id}>
+            {isVideo ? (
+              <video
+                src={displayUrl || undefined}
+                autoPlay
+                muted
+                playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            ) : (
+              <img src={displayUrl} alt={activeAd.title} />
+            )}
+            <div className="sig2-ad-label">📢 Publicité</div>
+            <div
+              className="sig2-ad-progress"
+              style={{ animationDuration: `${activeAd.duration}s` }}
             />
-          ) : (
-            <img src={activeAd.mediaUrl} alt={activeAd.title} />
-          )}
-          <div className="sig2-ad-label">📢 Publicité</div>
-          <div
-            className="sig2-ad-progress"
-            style={{ animationDuration: `${activeAd.duration}s` }}
-          />
-        </div>
-      )}
+          </div>
+        );
+      })()}
 
       {/* ─── HEADER ─── */}
       <header className="sig2-header">
