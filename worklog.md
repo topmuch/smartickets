@@ -515,3 +515,40 @@ Stage Summary:
 - Superadmin signage config → transport signage display connection verified working at runtime
 - Both QR codes (/horaires public page + /signage footer) now use real qrcode.react library
 - Settings propagation verified: colors, station name, ticker messages all flow correctly
+
+---
+Task ID: split-screen-signage
+Agent: Main Agent
+Task: Affichage Gare Départs/Arrivées Split Screen + Publicité intégrée
+
+Work Log:
+- Updated /src/app/api/signage/[stationId]/departures/route.ts:
+  - Added `departureType` field to processed response type
+  - Included `dep.departureType || 'OUTBOUND'` in each processed departure object
+- Completely rewrote /src/app/signage/[stationId]/page.tsx:
+  - Split screen layout: Départs (vert, LEFT) | Arrivées (violet, RIGHT)
+  - Dark theme (#020617 background) matching kiosk display design
+  - Orange time squares replacing plain time text (CSS `sig2-row__timebox`)
+  - Orange boarding blink animation (`sig2-pulse-blink`, `sig2-pulse-row`, `sig2-pulse-timebox`)
+  - Departed rows greyed out with reduced opacity
+  - memo() BoardSection component for performance
+  - Departures split by `departureType`: OUTBOUND → Départs, RETURN → Arrivées
+  - Preserved all existing features: kiosk mode, cursor auto-hide, ding-dong sound, ad rotation, ticker marquee, QR code footer
+  - Responsive breakpoints: mobile (<640px stacked), tablet (640-1023), desktop (default), 1920px (giant TV), 2560px (4K)
+  - CSS class prefix `sig2-` to avoid conflicts
+  - All CSS in `<style jsx global>` for memo child component compatibility
+- Updated /src/app/agence/departs/page.tsx:
+  - Added `departureType` field to `NewDepartureForm` interface
+  - Added `departureType: 'OUTBOUND'` to `emptyForm` default
+  - Added departureType selector buttons (↗️ Aller vert, ↘️ Retour violet) in creation modal
+  - Updated `handleCreate` to pass `data.departureType` to API instead of hardcoded 'OUTBOUND'
+- Lint: 0 new errors (only pre-existing scripts/migrate-db.js)
+- TypeScript: 0 errors in our modified files
+
+Stage Summary:
+- 3 files modified (API, signage page, dashboard page)
+- Split screen signage display with Départs/Arrivées separation
+- Dark theme kiosk design with orange time squares and boarding animations
+- DepartureType selector in dashboard creation form
+- All existing features preserved (kiosk mode, ads, ding-dong, ticker, QR)
+- Responsive across all screen sizes (mobile to 4K)

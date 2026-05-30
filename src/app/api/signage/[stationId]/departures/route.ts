@@ -56,6 +56,7 @@ export async function GET(
     // ─── Calcul dynamique des statuts (LOGIQUE CORRIGÉE) ───────
     const processed: {
       id: string;
+      departureType: string;
       lineNumber: string;
       destination: string;
       scheduledTime: string;
@@ -105,6 +106,7 @@ export async function GET(
 
       processed.push({
         id: dep.id,
+        departureType: dep.departureType || 'OUTBOUND',
         lineNumber: dep.lineNumber,
         destination: dep.destination,
         scheduledTime: scheduled.toTimeString().slice(0, 5),

@@ -51,6 +51,7 @@ interface DepartureItem {
 }
 
 interface NewDepartureForm {
+  departureType: 'OUTBOUND' | 'RETURN';
   origin: string;
   destination: string;
   date: string;
@@ -64,6 +65,7 @@ interface NewDepartureForm {
 }
 
 const emptyForm: NewDepartureForm = {
+  departureType: 'OUTBOUND',
   origin: '',
   destination: '',
   date: new Date().toISOString().split('T')[0],
@@ -202,6 +204,37 @@ function NewDepartureModal({
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              {/* Departure Type */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  🚦 Type de trajet
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, departureType: 'OUTBOUND' })}
+                    className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                      form.departureType === 'OUTBOUND'
+                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-500'
+                    }`}
+                  >
+                    ↗️ Aller (Départ)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, departureType: 'RETURN' })}
+                    className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                      form.departureType === 'RETURN'
+                        ? 'border-purple-500 bg-purple-500/10 text-purple-600'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-500'
+                    }`}
+                  >
+                    ↘️ Retour (Arrivée)
+                  </button>
+                </div>
+              </div>
+
               {/* Origin / Destination */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
@@ -661,7 +694,7 @@ export default function DepartsPage() {
           totalSeats: data.seats,
           availableSeats: data.seats,
           price: data.price || undefined,
-          departureType: 'OUTBOUND',
+          departureType: data.departureType || 'OUTBOUND',
           isRoundTrip: data.isRoundTrip,
           returnDelayHours: data.returnDelayHours,
         }),
