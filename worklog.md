@@ -925,3 +925,42 @@ Stage Summary:
 - Station (gare) selects added to departure creation/edit form
 - All existing functionality preserved (routes, type, line number, destination, date, time, platform, seats)
 - Station fields are optional and backward-compatible
+
+---
+Task ID: multi-gare-departure-link
+Agent: Main Agent
+Task: Lier les départs/arrivées aux gares (multi-gare) — Update API + form + list
+
+Work Log:
+- Analyzed the issue: Departure model had originStationId/destinationStationId fields but the creation API and UI form never set them
+- Updated /api/admin/departures/route.ts:
+  - Added originStationId/destinationStationId to createDepartureSchema (optional)
+  - Added originStationId/destinationStationId to updateDepartureSchema (optional, nullable)
+  - Added originStation/destinationStation includes in GET response (with name, city, slug)
+  - Added station validation in POST (404 if station not found)
+  - Added station IDs to departure.create() data payload
+  - Added station ID swap for round-trip departures (origin↔destination)
+  - Added station IDs to PUT handler payload
+  - Added station info to enriched GET response
+- Updated /src/app/agence/departs/page.tsx:
+  - Added StationOption interface and Building2 icon import
+  - Added originStationId/destinationStationId to DepartureItem, NewDepartureForm, EditDepartureForm
+  - Added stations state + fetchStations() callback with /api/stations endpoint
+  - Added station selector UI in NewDepartureModal (emerald-themed section with dropdown selects)
+  - Added station selector UI in EditDepartureModal (emerald-themed section with dropdown selects)
+  - Selecting a station auto-fills the origin/destination city field
+  - Updated handleCreate to send originStationId/destinationStationId
+  - Updated handleEdit to send originStationId/destinationStationId
+  - Added station badges in departure list (table + mobile cards)
+  - Passed stations prop to both NewDepartureModal and EditDepartureModal
+- TypeScript: 0 errors in modified files
+- ESLint: 0 new errors (pre-existing scripts/migrate-db.js only)
+
+Stage Summary:
+- Multi-gare departure linkage fully implemented
+- When creating a departure, user can select origin station and destination station
+- Selected station auto-fills the city name in the origin/destination field
+- Station badges shown in departure list (desktop table + mobile cards)
+- Edit modal allows changing station association
+- Round-trip departures automatically swap station IDs
+- Backward compatible: station fields are optional, existing departures unaffected

@@ -25,6 +25,7 @@ import {
   MapPin,
   ArrowRight,
   QrCode,
+  Building2,
 } from 'lucide-react';
 import { useAgency } from '../layout';
 import { QRCodeSVG } from 'qrcode.react';
@@ -32,6 +33,13 @@ import { QRCodeSVG } from 'qrcode.react';
 /* ══════════════════════════════════════════════
    Types
    ══════════════════════════════════════════════ */
+interface StationOption {
+  id: string;
+  name: string;
+  city: string;
+  slug: string;
+}
+
 interface DepartureItem {
   id: string;
   routeId: string | null;
@@ -47,6 +55,11 @@ interface DepartureItem {
   delayMinutes: number;
   soldSeats: number;
   fillRate: number;
+  // Multi-gare
+  originStationId: string | null;
+  originStation: StationOption | null;
+  destinationStationId: string | null;
+  destinationStation: StationOption | null;
   createdAt: string;
 }
 
@@ -62,6 +75,9 @@ interface NewDepartureForm {
   price: number;
   isRoundTrip: boolean;
   returnDelayHours: number;
+  // Multi-gare
+  originStationId: string;
+  destinationStationId: string;
 }
 
 const emptyForm: NewDepartureForm = {
@@ -76,6 +92,8 @@ const emptyForm: NewDepartureForm = {
   price: 0,
   isRoundTrip: false,
   returnDelayHours: 2,
+  originStationId: '',
+  destinationStationId: '',
 };
 
 interface EditDepartureForm {
@@ -87,6 +105,9 @@ interface EditDepartureForm {
   platform: string;
   totalSeats: number;
   availableSeats: number;
+  // Multi-gare
+  originStationId: string;
+  destinationStationId: string;
 }
 
 const statusConfig: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
@@ -131,12 +152,14 @@ function NewDepartureModal({
   onSave,
   loading,
   agencyId,
+  stations,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: NewDepartureForm) => void;
   loading: boolean;
   agencyId: string;
+  stations: StationOption[];
 }) {
   const [form, setForm] = useState<NewDepartureForm>(emptyForm);
   const [existingRoutes, setExistingRoutes] = useState<{ id: string; origin: string; destination: string }[]>([]);
@@ -274,6 +297,73 @@ function NewDepartureModal({
                   </div>
                 </div>
               </div>
+
+              {/* Station selectors (multi-gare) */}
+              {stations.length > 0 && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
+                      🏢 Associer à des gares (optionnel)
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+                        Gare de départ
+                      </label>
+                      <select
+                        value={form.originStationId}
+                        onChange={(e) => {
+                          const stationId = e.target.value;
+                          const station = stations.find(s => s.id === stationId);
+                          setForm({
+                            ...form,
+                            originStationId: stationId,
+                            origin: station ? station.city : form.origin,
+                          });
+                        }}
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+                      >
+                        <option value="">— Aucune (non lié) —</option>
+                        {stations.map(s => (
+                          <option key={s.id} value={s.id}>
+                            {s.name} ({s.city})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+                        Gare d'arrivée
+                      </label>
+                      <select
+                        value={form.destinationStationId}
+                        onChange={(e) => {
+                          const stationId = e.target.value;
+                          const station = stations.find(s => s.id === stationId);
+                          setForm({
+                            ...form,
+                            destinationStationId: stationId,
+                            destination: station ? station.city : form.destination,
+                          });
+                        }}
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+                      >
+                        <option value="">— Aucune (non lié) —</option>
+                        {stations.map(s => (
+                          <option key={s.id} value={s.id}>
+                            {s.name} ({s.city})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                    Associer un départ à une gare pour qu'il apparaisse sur l'affichage public de cette gare.
+                  </p>
+                </div>
+              )}
 
               {/* Date / Time */}
               <div className="grid grid-cols-2 gap-3">
@@ -423,12 +513,14 @@ function EditDepartureModal({
   onSave,
   initialData,
   loading,
+  stations,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: EditDepartureForm) => void;
   initialData: DepartureItem | null;
   loading: boolean;
+  stations: StationOption[];
 }) {
   const getInitialForm = (): EditDepartureForm => {
     if (!initialData) {
@@ -441,6 +533,8 @@ function EditDepartureModal({
         platform: '',
         totalSeats: 45,
         availableSeats: 45,
+        originStationId: '',
+        destinationStationId: '',
       };
     }
     const st = new Date(initialData.scheduledTime);
@@ -453,6 +547,8 @@ function EditDepartureModal({
       platform: initialData.platform || '',
       totalSeats: initialData.totalSeats,
       availableSeats: initialData.availableSeats,
+      originStationId: initialData.originStationId || '',
+      destinationStationId: initialData.destinationStationId || '',
     };
   };
 
@@ -606,6 +702,54 @@ function EditDepartureModal({
                 </div>
               </div>
 
+              {/* Station selectors (multi-gare) */}
+              {stations.length > 0 && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
+                      🏢 Gares associées
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+                        Gare de départ
+                      </label>
+                      <select
+                        value={form.originStationId}
+                        onChange={(e) => setForm({ ...form, originStationId: e.target.value })}
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+                      >
+                        <option value="">— Aucune —</option>
+                        {stations.map(s => (
+                          <option key={s.id} value={s.id}>
+                            {s.name} ({s.city})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+                        Gare d'arrivée
+                      </label>
+                      <select
+                        value={form.destinationStationId}
+                        onChange={(e) => setForm({ ...form, destinationStationId: e.target.value })}
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+                      >
+                        <option value="">— Aucune —</option>
+                        {stations.map(s => (
+                          <option key={s.id} value={s.id}>
+                            {s.name} ({s.city})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
@@ -647,6 +791,27 @@ export default function DepartsPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [csvLoading, setCsvLoading] = useState(false);
   const [csvResult, setCsvResult] = useState<{ created: number; errors: string[] } | null>(null);
+  // Multi-gare: stations list
+  const [stations, setStations] = useState<StationOption[]>([]);
+
+  // Fetch stations
+  const fetchStations = useCallback(async () => {
+    if (!agencyId) return;
+    try {
+      const res = await fetch(`/api/stations?agencyId=${agencyId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setStations((data.stations || []).map((s: { id: string; name: string; city: string; slug: string }) => ({
+          id: s.id,
+          name: s.name,
+          city: s.city,
+          slug: s.slug,
+        })));
+      }
+    } catch {
+      // silently fail - stations are optional
+    }
+  }, [agencyId]);
 
   // Fetch departures
   const fetchDepartures = useCallback(async () => {
@@ -668,9 +833,10 @@ export default function DepartsPage() {
 
   useEffect(() => {
     if (agencyId) {
+      fetchStations();
       fetchDepartures();
     }
-  }, [agencyId, fetchDepartures]);
+  }, [agencyId, fetchStations, fetchDepartures]);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -697,6 +863,9 @@ export default function DepartsPage() {
           departureType: data.departureType || 'OUTBOUND',
           isRoundTrip: data.isRoundTrip,
           returnDelayHours: data.returnDelayHours,
+          // Multi-gare
+          originStationId: data.originStationId || undefined,
+          destinationStationId: data.destinationStationId || undefined,
         }),
       });
       if (res.ok) {
@@ -754,6 +923,9 @@ export default function DepartsPage() {
           platform: data.platform || null,
           totalSeats: data.totalSeats,
           availableSeats: data.availableSeats,
+          // Multi-gare
+          originStationId: data.originStationId || null,
+          destinationStationId: data.destinationStationId || null,
         }),
       });
       if (res.ok) {
@@ -1078,6 +1250,18 @@ export default function DepartsPage() {
                       </td>
                       <td className="px-5 py-3.5">
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{dep.destination}</span>
+                        {dep.originStation && (
+                          <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5 flex items-center gap-1">
+                            <Building2 className="w-3 h-3" />
+                            Départ: {dep.originStation.name}
+                          </p>
+                        )}
+                        {dep.destinationStation && (
+                          <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-0.5 flex items-center gap-1">
+                            <Building2 className="w-3 h-3" />
+                            Arrivée: {dep.destinationStation.name}
+                          </p>
+                        )}
                       </td>
                       <td className="px-5 py-3.5">
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -1188,6 +1372,22 @@ export default function DepartsPage() {
                         <MapPin className="w-3 h-3 inline mr-1 text-slate-400" />
                         {dep.destination}
                       </p>
+                      {(dep.originStation || dep.destinationStation) && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {dep.originStation && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+                              <Building2 className="w-2.5 h-2.5" />
+                              {dep.originStation.name}
+                            </span>
+                          )}
+                          {dep.destinationStation && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                              <Building2 className="w-2.5 h-2.5" />
+                              {dep.destinationStation.name}
+                            </span>
+                          )}
+                        </div>
+                      )}
                       <p className="text-xs text-slate-500 mt-1">
                         {new Date(dep.scheduledTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                         {dep.platform && <> · Quai {dep.platform}</>}
@@ -1284,6 +1484,7 @@ export default function DepartsPage() {
         onSave={handleCreate}
         loading={saveLoading}
         agencyId={agencyId}
+        stations={stations}
       />
       <EditDepartureModal
         key={editingDeparture?.id || 'none'}
@@ -1292,6 +1493,7 @@ export default function DepartsPage() {
         onSave={handleEdit}
         initialData={editingDeparture}
         loading={saveLoading}
+        stations={stations}
       />
     </div>
   );

@@ -20,6 +20,9 @@ const createDepartureSchema = z.object({
   price: z.number().optional(),
   isRoundTrip: z.boolean().optional().default(false),
   returnDelayHours: z.number().int().min(1).max(48).optional().default(2),
+  // Multi-gare: station linkage
+  originStationId: z.string().optional(),
+  destinationStationId: z.string().optional(),
 });
 
 const updateDepartureSchema = z.object({
@@ -34,6 +37,9 @@ const updateDepartureSchema = z.object({
   totalSeats: z.number().int().min(1).optional(),
   status: z.enum(['SCHEDULED', 'BOARDING', 'DEPARTED', 'CANCELLED', 'DELAYED']).optional(),
   delayMinutes: z.number().int().min(0).optional(),
+  // Multi-gare: station linkage
+  originStationId: z.string().optional().nullable(),
+  destinationStationId: z.string().optional().nullable(),
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────────
@@ -124,6 +130,22 @@ export async function GET(request: NextRequest) {
             destination: true,
           },
         },
+        originStation: {
+          select: {
+            id: true,
+            name: true,
+            city: true,
+            slug: true,
+          },
+        },
+        destinationStation: {
+          select: {
+            id: true,
+            name: true,
+            city: true,
+            slug: true,
+          },
+        },
         _count: {
           select: {
             tickets: true,
@@ -155,6 +177,11 @@ export async function GET(request: NextRequest) {
         agencyId: dep.agencyId,
         soldSeats,
         fillRate,
+        // Multi-gare: station info
+        originStationId: dep.originStationId,
+        originStation: dep.originStation,
+        destinationStationId: dep.destinationStationId,
+        destinationStation: dep.destinationStation,
         createdAt: dep.createdAt.toISOString(),
         updatedAt: dep.updatedAt.toISOString(),
       };
@@ -266,6 +293,30 @@ export async function POST(request: NextRequest) {
       finalDestination = data.destination || foundRoute.destination;
     }
 
+    // ─── Validate station IDs if provided ───
+    if (data.originStationId) {
+      const stationExists = await db.station.findUnique({
+        where: { id: data.originStationId },
+      });
+      if (!stationExists) {
+        return NextResponse.json(
+          { error: 'Gare de départ introuvable' },
+          { status: 404 }
+        );
+      }
+    }
+    if (data.destinationStationId) {
+      const stationExists = await db.station.findUnique({
+        where: { id: data.destinationStationId },
+      });
+      if (!stationExists) {
+        return NextResponse.json(
+          { error: 'Gare d\'arrivée introuvable' },
+          { status: 404 }
+        );
+      }
+    }
+
     // Create the outbound departure
     const departure = await db.departure.create({
       data: {
@@ -278,6 +329,8 @@ export async function POST(request: NextRequest) {
         availableSeats: data.availableSeats,
         totalSeats: data.totalSeats,
         agencyId: effectiveAgencyId as string,
+        originStationId: data.originStationId || null,
+        destinationStationId: data.destinationStationId || null,
       },
       include: {
         route: {
@@ -306,6 +359,9 @@ export async function POST(request: NextRequest) {
           availableSeats: data.availableSeats,
           totalSeats: data.totalSeats,
           agencyId: effectiveAgencyId as string,
+          // Swap station IDs for return trip
+          originStationId: data.destinationStationId || null,
+          destinationStationId: data.originStationId || null,
         },
       });
       createdReturn = true;
@@ -385,6 +441,9 @@ export async function PUT(request: NextRequest) {
     if (updateData.totalSeats !== undefined) payload.totalSeats = updateData.totalSeats;
     if (updateData.status !== undefined) payload.status = updateData.status;
     if (updateData.delayMinutes !== undefined) payload.delayMinutes = updateData.delayMinutes;
+    // Multi-gare: station linkage
+    if (updateData.originStationId !== undefined) payload.originStationId = updateData.originStationId;
+    if (updateData.destinationStationId !== undefined) payload.destinationStationId = updateData.destinationStationId;
 
     const departure = await db.departure.update({
       where: { id },
